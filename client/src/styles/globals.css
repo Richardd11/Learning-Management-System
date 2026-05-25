@@ -87,3 +87,10 @@
 .glass {
   @apply bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg;
 }
+
+/* Skeleton shimmer */
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}

@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import { Breadcrumbs } from "@/components/common/breadcrumbs";
 import { useCourse } from "@/hooks/use-courses";
 import { useCourseProgress, useCompleteLesson, useSubmitQuiz } from "@/hooks/use-enrollment";
 import { toast } from "sonner";
@@ -78,6 +79,8 @@ export function CoursePlayer() {
 
   return (
     <div className="max-w-7xl mx-auto">
+      <Breadcrumbs items={[{ label: "Courses", to: "/courses" }, { label: course.title }]} />
+
       <div className="flex gap-6">
         {/* Sidebar - Module list */}
         <motion.div

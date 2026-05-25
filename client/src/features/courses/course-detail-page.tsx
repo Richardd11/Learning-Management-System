@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useCourse } from "@/hooks/use-courses";
 import { useEnrollment, useEnroll } from "@/hooks/use-enrollment";
 import { useAuthStore } from "@/stores/auth-store";
+import { Breadcrumbs } from "@/components/common/breadcrumbs";
 import { formatPrice, getDifficultyColor, getInitials } from "@/lib/utils";
 import { toast } from "sonner";
 import { useNavigate } from "@tanstack/react-router";
@@ -53,6 +54,8 @@ export function CourseDetailPage() {
 
   return (
     <div className="max-w-5xl mx-auto">
+      <Breadcrumbs items={[{ label: "Courses", to: "/courses" }, { label: course.title }]} />
+
       {/* Hero */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="relative rounded-2xl overflow-hidden bg-gradient-to-r from-primary/20 to-primary/5 p-8 md:p-12 mb-8">
         <div className="max-w-2xl">

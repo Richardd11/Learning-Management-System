@@ -2,7 +2,6 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { toast } from "sonner";
 import {
   Plus, Trash2, GripVertical, ChevronDown, Sparkles,
@@ -14,17 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useCreateCourse, useCreateModule, useCreateLesson } from "@/hooks/use-courses";
 import { useNavigate } from "@tanstack/react-router";
-
-const courseSchema = z.object({
-  title: z.string().min(3, "Title must be at least 3 characters"),
-  description: z.string().min(10, "Description must be at least 10 characters"),
-  shortDesc: z.string().max(300).optional(),
-  price: z.coerce.number().min(0),
-  difficulty: z.enum(["beginner", "intermediate", "advanced"]),
-  tags: z.string().optional(),
-});
-
-type CourseForm = z.infer<typeof courseSchema>;
+import { courseSchema, type CourseForm } from "@/lib/schemas";
 
 interface BuilderModule {
   id: string;

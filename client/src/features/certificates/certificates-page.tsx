@@ -5,6 +5,8 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { EmptyState } from "@/components/common/empty-state";
+import { Breadcrumbs } from "@/components/common/breadcrumbs";
 import { api } from "@/lib/api";
 import { formatDate } from "@/lib/utils";
 import type { ApiResponse, Certificate } from "@/types";
@@ -89,6 +91,8 @@ export function CertificatesPage() {
     <div className="max-w-4xl mx-auto">
       {showConfetti && <ConfettiCanvas />}
 
+      <Breadcrumbs items={[{ label: "Certificates" }]} />
+
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="text-3xl font-bold mb-2 flex items-center gap-2">
           <Award className="h-7 w-7 text-primary" /> My Certificates
@@ -134,13 +138,13 @@ export function CertificatesPage() {
           ))}
         </motion.div>
       ) : (
-        <Card>
-          <CardContent className="p-12 text-center">
-            <Award className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No certificates yet</h3>
-            <p className="text-muted-foreground">Complete a course to earn your first certificate!</p>
-          </CardContent>
-        </Card>
+        <EmptyState
+          icon={Award}
+          title="No certificates yet"
+          description="Complete a course to earn your first certificate! Browse our catalog to find something you love."
+          actionLabel="Browse Courses"
+          onAction={() => window.location.assign("/courses")}
+        />
       )}
     </div>
   );

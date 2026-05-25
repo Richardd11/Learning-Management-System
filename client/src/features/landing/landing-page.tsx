@@ -290,16 +290,6 @@ export function LandingPage() {
         </AnimatedSection>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t py-12 px-4">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <BookOpen className="h-5 w-5 text-primary" />
-            <span className="font-bold">LearnHub</span>
-          </div>
-          <p className="text-sm text-muted-foreground">&copy; {new Date().getFullYear()} LearnHub. All rights reserved.</p>
-        </div>
-      </footer>
     </div>
   );
 }

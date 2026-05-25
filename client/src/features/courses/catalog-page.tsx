@@ -1,13 +1,16 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { Search, Star, Filter } from "lucide-react";
+import { Search, Star, Filter, BookOpen } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { EmptyState } from "@/components/common/empty-state";
+import { Breadcrumbs } from "@/components/common/breadcrumbs";
 import { useCourses } from "@/hooks/use-courses";
+import { useDebounce } from "@/hooks/use-debounce";
 import { formatPrice, getDifficultyColor, truncate } from "@/lib/utils";
 
 const difficulties = ["all", "beginner", "intermediate", "advanced"];
@@ -27,8 +30,10 @@ export function CatalogPage() {
   const [difficulty, setDifficulty] = useState("all");
   const [page, setPage] = useState(1);
 
+  const debouncedSearch = useDebounce(search, 300);
+
   const { data, isLoading } = useCourses({
-    search: search || undefined,
+    search: debouncedSearch || undefined,
     difficulty: difficulty === "all" ? undefined : difficulty,
     page,
     limit: 12,
@@ -36,6 +41,8 @@ export function CatalogPage() {
 
   return (
     <div className="max-w-7xl mx-auto">
+      <Breadcrumbs items={[{ label: "Courses" }]} />
+
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="text-3xl font-bold mb-2">Course Catalog</h1>
         <p className="text-muted-foreground mb-8">Discover courses to expand your skills</p>
@@ -140,10 +147,13 @@ export function CatalogPage() {
           )}
         </>
       ) : (
-        <div className="text-center py-16">
-          <p className="text-xl text-muted-foreground mb-4">No courses found</p>
-          <Button variant="outline" onClick={() => { setSearch(""); setDifficulty("all"); }}>Clear filters</Button>
-        </div>
+        <EmptyState
+          icon={BookOpen}
+          title="No courses found"
+          description={search ? `No results for "${search}". Try different keywords or clear your filters.` : "No courses are available right now. Check back soon!"}
+          actionLabel="Clear filters"
+          onAction={() => { setSearch(""); setDifficulty("all"); }}
+        />
       )}
     </div>
   );
