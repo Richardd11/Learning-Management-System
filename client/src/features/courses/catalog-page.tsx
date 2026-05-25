@@ -88,7 +88,7 @@ export function CatalogPage() {
           <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {data.data.map((course) => (
               <motion.div key={course.id} variants={item}>
-                <Link to={`/courses/${course.slug}`}>
+                <Link to="/courses/$slug" params={{ slug: course.slug }}>
                   <motion.div whileHover={{ y: -4, boxShadow: "0 10px 40px rgba(0,0,0,0.1)" }} transition={{ type: "spring", stiffness: 300 }}>
                     <Card className="overflow-hidden h-full cursor-pointer">
                       <div className="h-40 bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">

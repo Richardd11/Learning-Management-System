@@ -91,7 +91,7 @@ export function DashboardPage() {
                 <motion.div variants={container} initial="hidden" animate="show" className="space-y-4">
                   {enrollments.filter((e) => e.status === "ACTIVE").slice(0, 5).map((enrollment) => (
                     <motion.div key={enrollment.id} variants={item}>
-                      <Link to={`/courses/${enrollment.course?.slug}`}>
+                      <Link to="/courses/$slug" params={{ slug: enrollment.course?.slug ?? "" }}>
                         <div className="flex items-center gap-4 p-3 rounded-lg hover:bg-accent transition-colors">
                           <div className="w-16 h-16 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                             <BookOpen className="h-6 w-6 text-primary" />

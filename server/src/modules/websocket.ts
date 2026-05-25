@@ -26,7 +26,7 @@ export async function websocketHandler(app: FastifyInstance): Promise<void> {
     }
     connectedClients.get(userId)!.add(socket);
 
-    socket.on("message", (data) => {
+    socket.on("message", (data: Buffer | string) => {
       try {
         const message = JSON.parse(data.toString());
         if (message.type === "ping") {

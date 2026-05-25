@@ -1,4 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { Prisma } from "@prisma/client";
 import { prisma } from "../lib/prisma.js";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY ?? "" });
@@ -99,7 +100,7 @@ Generate 3-5 modules with 2-4 lessons each. Each lesson should have 2-3 quizzes 
                 create: lesson.quizzes.map((q, idx) => ({
                   question: q.question,
                   type: q.type,
-                  options: q.options ?? null,
+                  options: q.options ?? Prisma.JsonNull,
                   answer: q.answer,
                   order: idx,
                 })),
