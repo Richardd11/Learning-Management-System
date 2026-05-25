@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { Bell, Menu, Moon, Sun, LogOut, BookOpen } from "lucide-react";
+import { Bell, Menu, Moon, Sun, LogOut, GraduationCap } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -37,14 +37,14 @@ export function Navbar() {
           )}
 
           <Link to="/" className="flex items-center gap-2 mr-6">
-            <BookOpen className="h-6 w-6 text-primary" />
-            <span className="text-xl font-bold gradient-text hidden sm:inline">LearnHub</span>
+            <GraduationCap className="h-6 w-6 text-primary" />
+            <span className="text-xl font-bold gradient-text hidden sm:inline">SchoolLMS</span>
           </Link>
 
           {!isAuthenticated && (
             <nav className="hidden md:flex items-center gap-6 ml-6">
               <Link to="/courses" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                Courses
+                Subjects
               </Link>
             </nav>
           )}

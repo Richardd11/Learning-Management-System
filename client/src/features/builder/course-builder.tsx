@@ -58,7 +58,7 @@ export function CourseBuilder() {
       if (res.data) {
         setCourseId(res.data.id);
         setStep("content");
-        toast.success("Course created! Now add modules and lessons.");
+        toast.success("Subject created! Now add modules and lessons.");
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to create course");
@@ -138,7 +138,7 @@ export function CourseBuilder() {
           });
         }
       }
-      toast.success("Course content saved!");
+      toast.success("Subject content saved!");
       navigate({ to: "/instructor" });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to save content");
@@ -158,8 +158,8 @@ export function CourseBuilder() {
   return (
     <div className="max-w-4xl mx-auto">
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-3xl font-bold mb-2">Course Builder</h1>
-        <p className="text-muted-foreground mb-8">Create a new course with modules and lessons</p>
+        <h1 className="text-3xl font-bold mb-2">Subject Builder</h1>
+        <p className="text-muted-foreground mb-8">Create a new subject with modules and lessons</p>
       </motion.div>
 
       {/* AI Generate Modal */}
@@ -168,10 +168,10 @@ export function CourseBuilder() {
           <CardContent className="p-6">
             <div className="flex items-center gap-3 mb-3">
               <Sparkles className="h-5 w-5 text-primary" />
-              <h3 className="font-semibold">AI Course Generator</h3>
+              <h3 className="font-semibold">AI Subject Generator</h3>
             </div>
             <p className="text-sm text-muted-foreground mb-4">
-              Enter a topic and let AI generate a complete course outline with modules, lessons, quizzes, and flashcards.
+              Enter a topic and let AI generate a complete subject outline with modules, lessons, quizzes, and flashcards.
             </p>
             <div className="flex gap-2">
               <Input
@@ -193,13 +193,13 @@ export function CourseBuilder() {
           <motion.div key="details" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
             <Card>
               <CardHeader>
-                <CardTitle>Course Details</CardTitle>
+                <CardTitle>Subject Details</CardTitle>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSubmit(onSubmitDetails)} className="space-y-4">
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Title</label>
-                    <Input placeholder="Course title" {...register("title")} />
+                    <Input placeholder="Subject title" {...register("title")} />
                     {errors.title && <p className="text-sm text-destructive">{errors.title.message}</p>}
                   </div>
 

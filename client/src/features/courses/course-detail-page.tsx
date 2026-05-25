@@ -54,7 +54,7 @@ export function CourseDetailPage() {
 
   return (
     <div className="max-w-5xl mx-auto">
-      <Breadcrumbs items={[{ label: "Courses", to: "/courses" }, { label: course.title }]} />
+      <Breadcrumbs items={[{ label: "Subjects", to: "/courses" }, { label: course.title }]} />
 
       {/* Hero */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="relative rounded-2xl overflow-hidden bg-gradient-to-r from-primary/20 to-primary/5 p-8 md:p-12 mb-8">
@@ -85,7 +85,7 @@ export function CourseDetailPage() {
               </Avatar>
               <div>
                 <p className="font-medium">{course.instructor.firstName} {course.instructor.lastName}</p>
-                <p className="text-sm text-muted-foreground">Instructor</p>
+                <p className="text-sm text-muted-foreground">Teacher</p>
               </div>
             </div>
           )}
@@ -111,7 +111,7 @@ export function CourseDetailPage() {
           {/* Description */}
           <Card>
             <CardContent className="p-6">
-              <h2 className="text-xl font-semibold mb-4">About this course</h2>
+              <h2 className="text-xl font-semibold mb-4">About this subject</h2>
               <div className="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap">{course.description}</div>
             </CardContent>
           </Card>

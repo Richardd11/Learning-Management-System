@@ -1,40 +1,28 @@
 import { Link } from "@tanstack/react-router";
-import { BookOpen, Github, Twitter, Linkedin, Mail } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { GraduationCap, Mail, Phone, MapPin } from "lucide-react";
 
 const footerLinks = {
-  Product: [
-    { label: "Courses", to: "/courses" },
-    { label: "Pricing", to: "/#pricing" },
-    { label: "For Teams", to: "/#pricing" },
+  Platform: [
+    { label: "Subjects", to: "/courses" },
     { label: "Certificates", to: "/certificates" },
+    { label: "Dashboard", to: "/dashboard" },
   ],
-  Company: [
+  School: [
     { label: "About", to: "/" },
-    { label: "Blog", to: "/" },
-    { label: "Careers", to: "/" },
     { label: "Contact", to: "/" },
+    { label: "Administration", to: "/admin" },
   ],
   Resources: [
-    { label: "Documentation", to: "/" },
     { label: "Help Center", to: "/" },
+    { label: "Documentation", to: "/" },
     { label: "Community", to: "/" },
-    { label: "API", to: "/" },
   ],
   Legal: [
-    { label: "Privacy", to: "/" },
-    { label: "Terms", to: "/" },
-    { label: "Cookie Policy", to: "/" },
+    { label: "Privacy Policy", to: "/" },
+    { label: "Terms of Use", to: "/" },
+    { label: "Acceptable Use", to: "/" },
   ],
 };
-
-const socialLinks = [
-  { icon: Github, href: "#", label: "GitHub" },
-  { icon: Twitter, href: "#", label: "Twitter" },
-  { icon: Linkedin, href: "#", label: "LinkedIn" },
-  { icon: Mail, href: "#", label: "Email" },
-];
 
 export function Footer() {
   return (
@@ -43,23 +31,25 @@ export function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-6 gap-8">
           <div className="col-span-2">
             <Link to="/" className="flex items-center gap-2 mb-4">
-              <BookOpen className="h-6 w-6 text-primary" />
-              <span className="text-xl font-bold gradient-text">LearnHub</span>
+              <GraduationCap className="h-6 w-6 text-primary" />
+              <span className="text-xl font-bold gradient-text">SchoolLMS</span>
             </Link>
             <p className="text-sm text-muted-foreground mb-6 max-w-xs">
-              AI-powered learning platform with interactive courses, personalized tutoring, and verifiable certificates.
+              A complete learning management system for schools. AI-powered tools for teachers, interactive content for students.
             </p>
-            <div className="flex items-center gap-3">
-              {socialLinks.map((social) => (
-                <a
-                  key={social.label}
-                  href={social.href}
-                  className="h-9 w-9 rounded-full border flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-foreground transition-colors"
-                  aria-label={social.label}
-                >
-                  <social.icon className="h-4 w-4" />
-                </a>
-              ))}
+            <div className="space-y-2 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <Mail className="h-4 w-4" />
+                <span>admin@school.edu</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Phone className="h-4 w-4" />
+                <span>(555) 123-4567</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <MapPin className="h-4 w-4" />
+                <span>123 Education Ave</span>
+              </div>
             </div>
           </div>
 
@@ -84,18 +74,11 @@ export function Footer() {
 
         <div className="border-t mt-10 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-sm text-muted-foreground">
-            &copy; {new Date().getFullYear()} LearnHub. All rights reserved.
+            &copy; {new Date().getFullYear()} SchoolLMS. All rights reserved.
           </p>
-          <div className="flex items-center gap-2">
-            <Input
-              type="email"
-              placeholder="Subscribe to newsletter"
-              className="w-56 h-9 text-sm"
-            />
-            <Button size="sm" className="h-9">
-              Subscribe
-            </Button>
-          </div>
+          <p className="text-sm text-muted-foreground">
+            Powered by AI-driven education technology
+          </p>
         </div>
       </div>
     </footer>

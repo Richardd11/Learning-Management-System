@@ -1,6 +1,6 @@
-# LearnHub — AI-Powered Learning Management System
+# SchoolLMS — Learning Management System for Schools
 
-A production-grade, full-stack Learning Management System with AI-powered course generation, intelligent tutoring, automated grading, and rich interactive content.
+A complete, self-hosted Learning Management System built for schools and educational institutions. Features AI-powered tools for teachers, interactive content for students, and comprehensive analytics for administrators.
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue)
 ![React](https://img.shields.io/badge/React-19-blue)

@@ -26,7 +26,7 @@ export function RegisterPage() {
         firstName: data.firstName,
         lastName: data.lastName,
       });
-      toast.success("Account created! Welcome to LearnHub.");
+      toast.success("Account created! Welcome to SchoolLMS.");
       navigate({ to: "/dashboard" });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Registration failed");
@@ -44,7 +44,7 @@ export function RegisterPage() {
         <Card>
           <CardHeader className="text-center">
             <CardTitle className="text-2xl">Create an account</CardTitle>
-            <CardDescription>Start your learning journey today</CardDescription>
+            <CardDescription>Join your school&apos;s learning platform</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">

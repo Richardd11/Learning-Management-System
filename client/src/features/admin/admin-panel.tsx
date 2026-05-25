@@ -71,9 +71,9 @@ export function AdminPanel() {
     <div className="max-w-7xl mx-auto">
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="text-3xl font-bold mb-2 flex items-center gap-2">
-          <Shield className="h-7 w-7 text-primary" /> Admin Panel
+          <Shield className="h-7 w-7 text-primary" /> School Administration
         </h1>
-        <p className="text-muted-foreground mb-6">Manage users, courses, and platform settings</p>
+        <p className="text-muted-foreground mb-6">Manage teachers, students, subjects, and school settings</p>
       </motion.div>
 
       <div className="flex gap-2 mb-6 border-b pb-2 overflow-x-auto">
@@ -100,7 +100,7 @@ export function AdminPanel() {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                 {[
                   { label: "Total Users", value: stats?.totalUsers ?? 0, icon: Users },
-                  { label: "Total Courses", value: stats?.totalCourses ?? 0, icon: BookOpen },
+                  { label: "Total Subjects", value: stats?.totalCourses ?? 0, icon: BookOpen },
                   { label: "Total Enrollments", value: stats?.totalEnrollments ?? 0, icon: TrendingUp },
                   { label: "Active This Week", value: stats?.activeStudents ?? 0, icon: Users },
                 ].map((stat) => (
@@ -174,7 +174,7 @@ export function AdminPanel() {
                         onChange={(e) => roleMutation.mutate({ userId: user.id, role: e.target.value })}
                       >
                         <option value="STUDENT">Student</option>
-                        <option value="INSTRUCTOR">Instructor</option>
+                        <option value="INSTRUCTOR">Teacher</option>
                         <option value="ADMIN">Admin</option>
                       </select>
                     </div>

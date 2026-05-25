@@ -9,7 +9,7 @@ const shortcuts = [
   { keys: ["/"], description: "Focus search" },
   { keys: ["G", "H"], description: "Go to home" },
   { keys: ["G", "D"], description: "Go to dashboard" },
-  { keys: ["G", "C"], description: "Go to courses" },
+  { keys: ["G", "C"], description: "Go to subjects" },
   { keys: ["Esc"], description: "Close modal / drawer" },
 ];
 

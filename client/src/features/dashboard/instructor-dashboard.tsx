@@ -30,19 +30,19 @@ export function InstructorDashboard() {
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-3xl font-bold flex items-center gap-2">
-            <BarChart3 className="h-7 w-7 text-primary" /> Instructor Dashboard
+            <BarChart3 className="h-7 w-7 text-primary" /> Teacher Dashboard
           </h1>
-          <p className="text-muted-foreground">Manage your courses and track performance</p>
+          <p className="text-muted-foreground">Manage your subjects and track student performance</p>
         </div>
         <Link to="/builder">
-          <Button><Plus className="h-4 w-4 mr-2" /> New Course</Button>
+          <Button><Plus className="h-4 w-4 mr-2" /> New Subject</Button>
         </Link>
       </motion.div>
 
       <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
         {[
           { label: "Total Students", value: totalStudents, icon: Users },
-          { label: "Published Courses", value: courses?.filter((c) => c.status === "PUBLISHED").length ?? 0, icon: BookOpen },
+          { label: "Published Subjects", value: courses?.filter((c) => c.status === "PUBLISHED").length ?? 0, icon: BookOpen },
           { label: "Average Rating", value: avgRating, icon: Star },
         ].map((stat) => (
           <motion.div key={stat.label} variants={item}>
@@ -83,7 +83,7 @@ export function InstructorDashboard() {
           <CardHeader><CardTitle>Quick Actions</CardTitle></CardHeader>
           <CardContent className="space-y-3">
             <Link to="/builder">
-              <Button variant="outline" className="w-full justify-start"><Plus className="h-4 w-4 mr-2" /> Create New Course</Button>
+              <Button variant="outline" className="w-full justify-start"><Plus className="h-4 w-4 mr-2" /> Create New Subject</Button>
             </Link>
             <Button variant="outline" className="w-full justify-start" disabled>
               <BarChart3 className="h-4 w-4 mr-2" /> Generate AI Weekly Digest
@@ -93,7 +93,7 @@ export function InstructorDashboard() {
       </div>
 
       <Card>
-        <CardHeader><CardTitle>My Courses</CardTitle></CardHeader>
+        <CardHeader><CardTitle>My Subjects</CardTitle></CardHeader>
         <CardContent>
           {isLoading ? (
             <div className="space-y-3">{[1, 2, 3].map((i) => <Skeleton key={i} className="h-16" />)}</div>
@@ -120,8 +120,8 @@ export function InstructorDashboard() {
             </div>
           ) : (
             <div className="text-center py-8">
-              <p className="text-muted-foreground mb-4">No courses yet</p>
-              <Link to="/builder"><Button>Create Your First Course</Button></Link>
+              <p className="text-muted-foreground mb-4">No subjects yet</p>
+              <Link to="/builder"><Button>Create Your First Subject</Button></Link>
             </div>
           )}
         </CardContent>

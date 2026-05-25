@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, BookOpen, LayoutDashboard, PenTool, Shield, Award, User } from "lucide-react";
+import { X, BookOpen, LayoutDashboard, PenTool, Shield, Award, User, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/stores/auth-store";
 
@@ -15,10 +15,10 @@ const menuLinks: ReadonlyArray<{
   icon: React.ComponentType<{ className?: string }>;
   auth?: boolean;
 }> = [
-  { to: "/courses", label: "Courses", icon: BookOpen },
+  { to: "/courses", label: "Subjects", icon: BookOpen },
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, auth: true },
-  { to: "/builder", label: "Course Builder", icon: PenTool, auth: true },
-  { to: "/admin", label: "Admin Panel", icon: Shield, auth: true },
+  { to: "/builder", label: "Subject Builder", icon: PenTool, auth: true },
+  { to: "/admin", label: "Administration", icon: Shield, auth: true },
   { to: "/certificates", label: "Certificates", icon: Award, auth: true },
   { to: "/profile", label: "Profile", icon: User, auth: true },
 ];
@@ -50,8 +50,8 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
           >
             <div className="flex items-center justify-between p-4 border-b">
               <Link to="/" className="flex items-center gap-2" onClick={onClose}>
-                <BookOpen className="h-6 w-6 text-primary" />
-                <span className="text-xl font-bold gradient-text">LearnHub</span>
+                <GraduationCap className="h-6 w-6 text-primary" />
+                <span className="text-xl font-bold gradient-text">SchoolLMS</span>
               </Link>
               <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close menu">
                 <X className="h-5 w-5" />

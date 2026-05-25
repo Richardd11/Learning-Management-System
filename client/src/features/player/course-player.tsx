@@ -79,7 +79,7 @@ export function CoursePlayer() {
 
   return (
     <div className="max-w-7xl mx-auto">
-      <Breadcrumbs items={[{ label: "Courses", to: "/courses" }, { label: course.title }]} />
+      <Breadcrumbs items={[{ label: "Subjects", to: "/courses" }, { label: course.title }]} />
 
       <div className="flex gap-6">
         {/* Sidebar - Module list */}

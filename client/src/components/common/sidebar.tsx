@@ -17,12 +17,12 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["STUDENT", "INSTRUCTOR", "ADMIN", "SUPER_ADMIN"] },
-  { href: "/courses", label: "Browse Courses", icon: BookOpen, roles: ["STUDENT", "INSTRUCTOR", "ADMIN", "SUPER_ADMIN"] },
-  { href: "/my-courses", label: "My Courses", icon: GraduationCap, roles: ["STUDENT"] },
-  { href: "/builder", label: "Course Builder", icon: PlusCircle, roles: ["INSTRUCTOR", "ADMIN", "SUPER_ADMIN"] },
-  { href: "/instructor", label: "Instructor Panel", icon: BarChart3, roles: ["INSTRUCTOR", "ADMIN", "SUPER_ADMIN"] },
+  { href: "/courses", label: "Subjects", icon: BookOpen, roles: ["STUDENT", "INSTRUCTOR", "ADMIN", "SUPER_ADMIN"] },
+  { href: "/my-courses", label: "My Subjects", icon: GraduationCap, roles: ["STUDENT"] },
+  { href: "/builder", label: "Subject Builder", icon: PlusCircle, roles: ["INSTRUCTOR", "ADMIN", "SUPER_ADMIN"] },
+  { href: "/instructor", label: "Teacher Panel", icon: BarChart3, roles: ["INSTRUCTOR", "ADMIN", "SUPER_ADMIN"] },
   { href: "/certificates", label: "Certificates", icon: Award, roles: ["STUDENT"] },
-  { href: "/admin", label: "Admin Panel", icon: Shield, roles: ["ADMIN", "SUPER_ADMIN"] },
+  { href: "/admin", label: "Administration", icon: Shield, roles: ["ADMIN", "SUPER_ADMIN"] },
   { href: "/settings", label: "Settings", icon: Settings, roles: ["STUDENT", "INSTRUCTOR", "ADMIN", "SUPER_ADMIN"] },
 ];
 

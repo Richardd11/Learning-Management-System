@@ -141,8 +141,8 @@ export function CertificatesPage() {
         <EmptyState
           icon={Award}
           title="No certificates yet"
-          description="Complete a course to earn your first certificate! Browse our catalog to find something you love."
-          actionLabel="Browse Courses"
+          description="Complete a subject to earn your first certificate! Browse available subjects to get started."
+          actionLabel="Browse Subjects"
           onAction={() => window.location.assign("/courses")}
         />
       )}

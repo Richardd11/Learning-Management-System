@@ -61,9 +61,9 @@ export function DashboardPage() {
       <div className="max-w-lg mx-auto min-h-[60vh] flex items-center justify-center">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center">
           <BookOpen className="h-12 w-12 text-primary mx-auto mb-4" />
-          <h2 className="text-2xl font-bold mb-2">Sign in to view your dashboard</h2>
+          <h2 className="text-2xl font-bold mb-2">Sign in to access your dashboard</h2>
           <p className="text-muted-foreground mb-6">
-            Track your courses, streaks, and certificates — all in one place.
+            View your enrolled subjects, grades, and certificates — all in one place.
           </p>
           <div className="flex items-center justify-center gap-3">
             <Link to="/login">
@@ -82,11 +82,11 @@ export function DashboardPage() {
     <div className="max-w-7xl mx-auto">
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="text-3xl font-bold mb-1">Welcome back, {user.firstName}!</h1>
-        <p className="text-muted-foreground mb-8">Here&apos;s your learning progress</p>
+        <p className="text-muted-foreground mb-8">Here&apos;s your academic progress</p>
       </motion.div>
 
       <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <AnimatedCounter value={stats?.enrollments ?? 0} label="Enrolled Courses" icon={BookOpen} />
+        <AnimatedCounter value={stats?.enrollments ?? 0} label="Enrolled Subjects" icon={BookOpen} />
         <AnimatedCounter value={stats?.completedCourses ?? 0} label="Completed" icon={Award} />
         <AnimatedCounter value={stats?.streak ?? 0} label="Day Streak" icon={Flame} />
         <AnimatedCounter value={stats?.xp ?? 0} label="XP Points" icon={Zap} />
@@ -97,7 +97,7 @@ export function DashboardPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5" /> Continue Learning
+                <TrendingUp className="h-5 w-5" /> My Subjects
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -134,9 +134,9 @@ export function DashboardPage() {
               ) : (
                 <div className="text-center py-8">
                   <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground mb-4">No courses yet. Start learning today!</p>
+                  <p className="text-muted-foreground mb-4">No enrolled subjects yet. Browse available subjects!</p>
                   <Link to="/courses">
-                    <Button>Browse Courses</Button>
+                    <Button>Browse Subjects</Button>
                   </Link>
                 </div>
               )}
@@ -191,8 +191,8 @@ export function DashboardPage() {
                   <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.1 }} className="flex items-center gap-3 p-2 rounded-lg bg-green-500/10">
                     <Award className="h-6 w-6 text-green-500" />
                     <div>
-                      <p className="text-sm font-medium">Course Completer</p>
-                      <p className="text-xs text-muted-foreground">{stats?.completedCourses} courses completed</p>
+                      <p className="text-sm font-medium">Subject Completer</p>
+                      <p className="text-xs text-muted-foreground">{stats?.completedCourses} subjects completed</p>
                     </div>
                   </motion.div>
                 )}

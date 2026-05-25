@@ -41,11 +41,11 @@ export function CatalogPage() {
 
   return (
     <div className="max-w-7xl mx-auto">
-      <Breadcrumbs items={[{ label: "Courses" }]} />
+      <Breadcrumbs items={[{ label: "Subjects" }]} />
 
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-3xl font-bold mb-2">Course Catalog</h1>
-        <p className="text-muted-foreground mb-8">Discover courses to expand your skills</p>
+        <h1 className="text-3xl font-bold mb-2">Subject Catalog</h1>
+        <p className="text-muted-foreground mb-8">Browse available subjects and classes</p>
       </motion.div>
 
       {/* Filters */}
@@ -53,7 +53,7 @@ export function CatalogPage() {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search courses..."
+            placeholder="Search subjects..."
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
             className="pl-10"
@@ -149,8 +149,8 @@ export function CatalogPage() {
       ) : (
         <EmptyState
           icon={BookOpen}
-          title="No courses found"
-          description={search ? `No results for "${search}". Try different keywords or clear your filters.` : "No courses are available right now. Check back soon!"}
+          title="No subjects found"
+          description={search ? `No results for "${search}". Try different keywords or clear your filters.` : "No subjects are available right now. Check back soon!"}
           actionLabel="Clear filters"
           onAction={() => { setSearch(""); setDifficulty("all"); }}
         />

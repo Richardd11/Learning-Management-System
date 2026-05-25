@@ -3,30 +3,33 @@ import { motion, useInView, useMotionValue, useTransform, animate } from "framer
 import { useRef, useEffect } from "react";
 import {
   BookOpen, Brain, Award, BarChart3, Zap, Shield,
-  ChevronDown, Star, Users, Clock,
+  ChevronDown, Star, Users, GraduationCap, School, ClipboardList,
+  MessageSquare, Calendar, FileText,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
 const features = [
-  { icon: Brain, title: "AI-Powered Learning", desc: "Get personalized tutoring, auto-generated courses, and intelligent grading." },
-  { icon: BookOpen, title: "Rich Course Content", desc: "Interactive lessons with video, quizzes, flashcards, and hands-on projects." },
-  { icon: Award, title: "Certificates", desc: "Earn verifiable certificates upon course completion to showcase your skills." },
-  { icon: BarChart3, title: "Analytics Dashboard", desc: "Track your progress with detailed analytics and learning insights." },
-  { icon: Zap, title: "Gamification", desc: "XP points, streaks, and achievements to keep you motivated." },
-  { icon: Shield, title: "Enterprise Ready", desc: "Role-based access control, admin panel, and moderation tools." },
+  { icon: Brain, title: "AI-Powered Learning", desc: "Personalized tutoring, auto-generated lesson plans, and intelligent grading for every student." },
+  { icon: BookOpen, title: "Rich Course Content", desc: "Interactive lessons with video, quizzes, flashcards, and hands-on activities for every subject." },
+  { icon: ClipboardList, title: "Gradebook & Assessments", desc: "Teachers can create quizzes, track grades, and generate progress reports for each student." },
+  { icon: BarChart3, title: "Analytics Dashboard", desc: "School-wide analytics for administrators. Track student performance, attendance, and engagement." },
+  { icon: Award, title: "Certificates & Awards", desc: "Auto-generate certificates for course completions, honor rolls, and academic achievements." },
+  { icon: Shield, title: "Role-Based Access", desc: "Separate dashboards for School Admins, Teachers, and Students with appropriate permissions." },
 ];
 
-const testimonials = [
-  { name: "Sarah K.", role: "Software Engineer", quote: "LearnHub's AI tutor helped me understand complex algorithms in half the time.", rating: 5 },
-  { name: "Marcus L.", role: "Product Designer", quote: "The course builder is incredible. I published my first course in under an hour.", rating: 5 },
-  { name: "Priya S.", role: "Data Scientist", quote: "The interactive quizzes and flashcards made studying for certifications so much easier.", rating: 5 },
+const benefits = [
+  { icon: GraduationCap, title: "For Students", items: ["Access all enrolled subjects in one place", "AI tutor for homework help", "Track grades and progress", "Earn certificates on completion"] },
+  { icon: School, title: "For Teachers", items: ["Create and manage course content", "AI-assisted grading and feedback", "Monitor student progress", "Generate weekly reports"] },
+  { icon: Shield, title: "For Administrators", items: ["Manage teachers and students", "School-wide analytics", "Send announcements", "Full control over courses"] },
 ];
 
-const pricingPlans = [
-  { name: "Free", price: "$0", period: "/month", features: ["Access free courses", "Basic AI tutor", "Community support", "Progress tracking"], cta: "Get Started" },
-  { name: "Pro", price: "$19", period: "/month", features: ["Unlimited courses", "Advanced AI features", "Priority support", "Certificates", "Offline access"], cta: "Start Free Trial", popular: true },
-  { name: "Team", price: "$49", period: "/month", features: ["Everything in Pro", "Team analytics", "Custom branding", "API access", "Dedicated support"], cta: "Contact Sales" },
+const faqs = [
+  { q: "How do I set up this LMS for my school?", a: "Clone the repository, set up the database with Docker, and configure your school details. The admin can then add teachers and students." },
+  { q: "Can teachers create their own courses?", a: "Yes. Teachers have access to a drag-and-drop course builder with AI assistance to create lessons, quizzes, and flashcards." },
+  { q: "How does the AI tutor work?", a: "The AI tutor uses course materials as context to answer student questions, explain concepts, and provide personalized help in each subject." },
+  { q: "Are certificates automatically generated?", a: "Yes. When a student completes a course, a PDF certificate is automatically generated with a unique verification link." },
+  { q: "Can this be deployed to our own servers?", a: "Absolutely. This is a self-hosted solution. You deploy it on your own infrastructure and maintain full control over your data." },
 ];
 
 function AnimatedCounter({ value, suffix = "" }: { value: number; suffix?: string }) {
@@ -76,20 +79,24 @@ export function LandingPage() {
     <div className="overflow-hidden">
       {/* Hero */}
       <section className="relative min-h-[90vh] flex items-center justify-center px-4">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-pink-500/5" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-blue-500/5" />
         <div className="relative max-w-5xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <GraduationCap className="h-8 w-8 text-primary" />
+              <span className="text-sm font-medium text-primary bg-primary/10 px-3 py-1 rounded-full">School Learning Management System</span>
+            </div>
             <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6">
-              Learn without{" "}
-              <span className="gradient-text">limits</span>
+              Empower your{" "}
+              <span className="gradient-text">school</span>
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              AI-powered courses, interactive content, and personalized learning paths.
-              Master new skills at your own pace.
+              A complete learning management system for schools. AI-powered tools for teachers,
+              interactive content for students, and full oversight for administrators.
             </p>
           </motion.div>
 
@@ -99,11 +106,11 @@ export function LandingPage() {
             transition={{ delay: 0.4, duration: 0.6 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-4"
           >
-            <Link to="/register">
-              <Button size="lg" className="text-lg px-8 h-12">Start Learning Free</Button>
+            <Link to="/login">
+              <Button size="lg" className="text-lg px-8 h-12">Sign In</Button>
             </Link>
             <Link to="/courses">
-              <Button variant="outline" size="lg" className="text-lg px-8 h-12">Browse Courses</Button>
+              <Button variant="outline" size="lg" className="text-lg px-8 h-12">Browse Subjects</Button>
             </Link>
           </motion.div>
 
@@ -113,12 +120,12 @@ export function LandingPage() {
             transition={{ delay: 0.8, duration: 0.6 }}
             className="mt-12 flex items-center justify-center gap-8 text-sm text-muted-foreground"
           >
-            <div className="flex items-center gap-2"><Users className="h-4 w-4" /> <AnimatedCounter value={10000} suffix="+" /> Students</div>
-            <div className="flex items-center gap-2"><BookOpen className="h-4 w-4" /> <AnimatedCounter value={500} suffix="+" /> Courses</div>
-            <div className="flex items-center gap-2"><Clock className="h-4 w-4" /> <AnimatedCounter value={50000} suffix="+" /> Hours</div>
+            <div className="flex items-center gap-2"><Users className="h-4 w-4" /> <AnimatedCounter value={2500} suffix="+" /> Students</div>
+            <div className="flex items-center gap-2"><BookOpen className="h-4 w-4" /> <AnimatedCounter value={120} suffix="+" /> Subjects</div>
+            <div className="flex items-center gap-2"><GraduationCap className="h-4 w-4" /> <AnimatedCounter value={85} suffix="+" /> Teachers</div>
           </motion.div>
 
-          {/* Floating course cards */}
+          {/* Floating cards */}
           <div className="hidden lg:block">
             {[
               { x: -350, y: 50, rotate: -6, delay: 0.6 },
@@ -150,14 +157,14 @@ export function LandingPage() {
       <section className="py-24 px-4">
         <div className="max-w-6xl mx-auto">
           <AnimatedSection className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Everything you need to learn</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Everything your school needs</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              A complete learning platform with AI-powered tools, interactive content, and detailed analytics.
+              A complete platform with AI-powered tools, interactive content, and comprehensive analytics for every stakeholder.
             </p>
           </AnimatedSection>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {features.map((feature, i) => (
+            {features.map((feature) => (
               <AnimatedSection key={feature.title}>
                 <motion.div
                   whileHover={{ scale: 1.02, y: -4 }}
@@ -177,29 +184,29 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* Testimonials */}
+      {/* Benefits by Role */}
       <section className="py-24 px-4 bg-muted/30">
         <div className="max-w-6xl mx-auto">
           <AnimatedSection className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Loved by learners</h2>
-            <p className="text-lg text-muted-foreground">See what our students have to say.</p>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Built for everyone in your school</h2>
+            <p className="text-lg text-muted-foreground">Tailored experiences for students, teachers, and administrators.</p>
           </AnimatedSection>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {testimonials.map((t, i) => (
-              <AnimatedSection key={t.name}>
+            {benefits.map((benefit) => (
+              <AnimatedSection key={benefit.title}>
                 <Card className="h-full">
                   <CardContent className="p-6">
-                    <div className="flex gap-1 mb-4">
-                      {Array.from({ length: t.rating }).map((_, j) => (
-                        <Star key={j} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                    <benefit.icon className="h-10 w-10 text-primary mb-4" />
+                    <h3 className="text-xl font-semibold mb-4">{benefit.title}</h3>
+                    <ul className="space-y-3">
+                      {benefit.items.map((item) => (
+                        <li key={item} className="flex items-start gap-2 text-muted-foreground">
+                          <Zap className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                          <span>{item}</span>
+                        </li>
                       ))}
-                    </div>
-                    <p className="text-muted-foreground mb-4">&ldquo;{t.quote}&rdquo;</p>
-                    <div>
-                      <p className="font-semibold">{t.name}</p>
-                      <p className="text-sm text-muted-foreground">{t.role}</p>
-                    </div>
+                    </ul>
                   </CardContent>
                 </Card>
               </AnimatedSection>
@@ -208,43 +215,31 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* Pricing */}
+      {/* How It Works */}
       <section className="py-24 px-4">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-4xl mx-auto">
           <AnimatedSection className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Simple pricing</h2>
-            <p className="text-lg text-muted-foreground">Choose the plan that fits your learning goals.</p>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">How it works</h2>
+            <p className="text-lg text-muted-foreground">Get your school up and running in minutes.</p>
           </AnimatedSection>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-            {pricingPlans.map((plan) => (
-              <AnimatedSection key={plan.name}>
-                <motion.div whileHover={{ scale: 1.03 }}>
-                  <Card className={`h-full relative ${plan.popular ? "border-primary shadow-lg" : ""}`}>
-                    {plan.popular && (
-                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-xs font-semibold px-3 py-1 rounded-full">
-                        Most Popular
-                      </div>
-                    )}
-                    <CardContent className="p-6 text-center">
-                      <h3 className="text-lg font-semibold mb-2">{plan.name}</h3>
-                      <div className="mb-4">
-                        <span className="text-4xl font-bold">{plan.price}</span>
-                        <span className="text-muted-foreground">{plan.period}</span>
-                      </div>
-                      <ul className="space-y-2 mb-6 text-sm">
-                        {plan.features.map((f) => (
-                          <li key={f} className="text-muted-foreground">{f}</li>
-                        ))}
-                      </ul>
-                      <Link to="/register">
-                        <Button variant={plan.popular ? "default" : "outline"} className="w-full">
-                          {plan.cta}
-                        </Button>
-                      </Link>
-                    </CardContent>
-                  </Card>
-                </motion.div>
+          <div className="space-y-8">
+            {[
+              { step: "1", icon: School, title: "Set Up Your School", desc: "Deploy the system, configure your school details, and set up the database." },
+              { step: "2", icon: Users, title: "Add Teachers & Students", desc: "School admin creates accounts for teachers and students with appropriate roles." },
+              { step: "3", icon: BookOpen, title: "Create Courses & Content", desc: "Teachers build courses with lessons, quizzes, and flashcards — or let AI generate them." },
+              { step: "4", icon: GraduationCap, title: "Students Learn & Grow", desc: "Students access their enrolled subjects, complete assignments, and earn certificates." },
+            ].map((s) => (
+              <AnimatedSection key={s.step}>
+                <div className="flex items-start gap-6">
+                  <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-lg font-bold">
+                    {s.step}
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold mb-1">{s.title}</h3>
+                    <p className="text-muted-foreground">{s.desc}</p>
+                  </div>
+                </div>
               </AnimatedSection>
             ))}
           </div>
@@ -259,12 +254,7 @@ export function LandingPage() {
           </AnimatedSection>
 
           <div className="space-y-4">
-            {[
-              { q: "Is there a free trial?", a: "Yes! You can access free courses immediately and try Pro features for 14 days." },
-              { q: "Can I create my own courses?", a: "Absolutely. Apply to become an instructor and use our drag-and-drop course builder with AI assistance." },
-              { q: "How does the AI tutor work?", a: "Our AI tutor uses your course material as context to answer questions, explain concepts, and provide personalized help." },
-              { q: "Are certificates recognized?", a: "Each certificate has a unique verification link that employers can use to confirm your achievement." },
-            ].map((faq) => (
+            {faqs.map((faq) => (
               <AnimatedSection key={faq.q}>
                 <details className="group border rounded-lg">
                   <summary className="flex items-center justify-between p-4 cursor-pointer font-medium">
@@ -282,10 +272,10 @@ export function LandingPage() {
       {/* CTA */}
       <section className="py-24 px-4">
         <AnimatedSection className="max-w-3xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to start learning?</h2>
-          <p className="text-lg text-muted-foreground mb-8">Join thousands of learners and start your journey today.</p>
-          <Link to="/register">
-            <Button size="lg" className="text-lg px-8 h-12">Get Started Free</Button>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to transform your school?</h2>
+          <p className="text-lg text-muted-foreground mb-8">Deploy this LMS and bring modern, AI-powered learning to your institution.</p>
+          <Link to="/login">
+            <Button size="lg" className="text-lg px-8 h-12">Get Started</Button>
           </Link>
         </AnimatedSection>
       </section>

@@ -34,7 +34,7 @@ export function NotFoundPage() {
           </Link>
           <Link to="/courses">
             <Button variant="outline" size="lg" className="gap-2">
-              <Search className="h-4 w-4" /> Browse Courses
+              <Search className="h-4 w-4" /> Browse Subjects
             </Button>
           </Link>
           <Button variant="ghost" size="lg" className="gap-2" onClick={() => window.history.back()}>
