@@ -56,7 +56,27 @@ export function DashboardPage() {
     select: (res) => res.data,
   });
 
-  if (!user) return null;
+  if (!user) {
+    return (
+      <div className="max-w-lg mx-auto min-h-[60vh] flex items-center justify-center">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center">
+          <BookOpen className="h-12 w-12 text-primary mx-auto mb-4" />
+          <h2 className="text-2xl font-bold mb-2">Sign in to view your dashboard</h2>
+          <p className="text-muted-foreground mb-6">
+            Track your courses, streaks, and certificates — all in one place.
+          </p>
+          <div className="flex items-center justify-center gap-3">
+            <Link to="/login">
+              <Button size="lg">Log in</Button>
+            </Link>
+            <Link to="/register">
+              <Button variant="outline" size="lg">Create Account</Button>
+            </Link>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto">

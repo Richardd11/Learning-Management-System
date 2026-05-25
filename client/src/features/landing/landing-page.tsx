@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import { motion, useInView } from "framer-motion";
-import { useRef } from "react";
+import { motion, useInView, useMotionValue, useTransform, animate } from "framer-motion";
+import { useRef, useEffect } from "react";
 import {
   BookOpen, Brain, Award, BarChart3, Zap, Shield,
   ChevronDown, Star, Users, Clock,
@@ -28,6 +28,31 @@ const pricingPlans = [
   { name: "Pro", price: "$19", period: "/month", features: ["Unlimited courses", "Advanced AI features", "Priority support", "Certificates", "Offline access"], cta: "Start Free Trial", popular: true },
   { name: "Team", price: "$49", period: "/month", features: ["Everything in Pro", "Team analytics", "Custom branding", "API access", "Dedicated support"], cta: "Contact Sales" },
 ];
+
+function AnimatedCounter({ value, suffix = "" }: { value: number; suffix?: string }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const motionValue = useMotionValue(0);
+  const rounded = useTransform(motionValue, (latest) => {
+    if (latest >= 1000) return `${Math.round(latest / 1000).toLocaleString()},${String(Math.round(latest) % 1000).padStart(3, "0").slice(0, 3)}`;
+    return Math.round(latest).toLocaleString();
+  });
+  const isInView = useInView(ref, { once: true });
+
+  useEffect(() => {
+    if (isInView) {
+      animate(motionValue, value, { duration: 2, ease: "easeOut" });
+    }
+  }, [isInView, motionValue, value]);
+
+  useEffect(() => {
+    const unsubscribe = rounded.on("change", (latest) => {
+      if (ref.current) ref.current.textContent = latest + suffix;
+    });
+    return unsubscribe;
+  }, [rounded, suffix]);
+
+  return <span ref={ref}>0{suffix}</span>;
+}
 
 function AnimatedSection({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -88,9 +113,9 @@ export function LandingPage() {
             transition={{ delay: 0.8, duration: 0.6 }}
             className="mt-12 flex items-center justify-center gap-8 text-sm text-muted-foreground"
           >
-            <div className="flex items-center gap-2"><Users className="h-4 w-4" /> 10,000+ Students</div>
-            <div className="flex items-center gap-2"><BookOpen className="h-4 w-4" /> 500+ Courses</div>
-            <div className="flex items-center gap-2"><Clock className="h-4 w-4" /> 50,000+ Hours</div>
+            <div className="flex items-center gap-2"><Users className="h-4 w-4" /> <AnimatedCounter value={10000} suffix="+" /> Students</div>
+            <div className="flex items-center gap-2"><BookOpen className="h-4 w-4" /> <AnimatedCounter value={500} suffix="+" /> Courses</div>
+            <div className="flex items-center gap-2"><Clock className="h-4 w-4" /> <AnimatedCounter value={50000} suffix="+" /> Hours</div>
           </motion.div>
 
           {/* Floating course cards */}

@@ -1,5 +1,6 @@
-import { createRouter, createRoute, createRootRoute, Outlet, redirect } from "@tanstack/react-router";
+import { createRouter, createRoute, createRootRoute, Outlet, redirect, notFound, NotFoundRoute } from "@tanstack/react-router";
 import { AppLayout, PublicLayout } from "@/components/common/layout";
+import { NotFoundPage } from "@/components/common/not-found";
 import { LandingPage } from "@/features/landing";
 import { LoginPage, RegisterPage } from "@/features/auth";
 import { DashboardPage } from "@/features/dashboard";
@@ -13,6 +14,11 @@ import { CertificatesPage } from "@/features/certificates";
 
 const rootRoute = createRootRoute({
   component: () => <Outlet />,
+  notFoundComponent: () => (
+    <PublicLayout>
+      <NotFoundPage />
+    </PublicLayout>
+  ),
 });
 
 // Public routes
