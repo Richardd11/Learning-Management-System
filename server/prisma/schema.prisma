@@ -1,0 +1,318 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [vector]
+}
+
+// ── Enums ─────────────────────────────────────────────
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  INSTRUCTOR
+  STUDENT
+}
+
+enum CourseStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum EnrollmentStatus {
+  ACTIVE
+  COMPLETED
+  DROPPED
+}
+
+enum QuestionType {
+  MULTIPLE_CHOICE
+  TRUE_FALSE
+  SHORT_ANSWER
+}
+
+enum NotificationType {
+  ENROLLMENT
+  GRADE
+  ANNOUNCEMENT
+  ACHIEVEMENT
+  SYSTEM
+}
+
+// ── Users ─────────────────────────────────────────────
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  passwordHash  String?
+  firstName     String
+  lastName      String
+  avatar        String?
+  bio           String?
+  role          Role     @default(STUDENT)
+  xp            Int      @default(0)
+  streak        Int      @default(0)
+  lastActiveAt  DateTime @default(now())
+  isBanned      Boolean  @default(false)
+  socialLinks   Json?
+  googleId      String?  @unique
+  githubId      String?  @unique
+  refreshToken  String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  courses       Course[]       @relation("InstructorCourses")
+  enrollments   Enrollment[]
+  reviews       Review[]
+  certificates  Certificate[]
+  notifications Notification[]
+  submissions   Submission[]
+  notes         Note[]
+  progress      LessonProgress[]
+
+  @@map("users")
+}
+
+// ── Courses ───────────────────────────────────────────
+
+model Course {
+  id            String       @id @default(cuid())
+  title         String
+  slug          String       @unique
+  description   String
+  shortDesc     String?
+  thumbnail     String?
+  price         Float        @default(0)
+  difficulty    String       @default("beginner")
+  status        CourseStatus @default(DRAFT)
+  tags          String[]
+  rating        Float        @default(0)
+  ratingCount   Int          @default(0)
+  enrollCount   Int          @default(0)
+  instructorId  String
+  publishedAt   DateTime?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  instructor   User          @relation("InstructorCourses", fields: [instructorId], references: [id])
+  modules      Module[]
+  enrollments  Enrollment[]
+  reviews      Review[]
+  certificates Certificate[]
+  embeddings   CourseEmbedding[]
+
+  @@map("courses")
+}
+
+model Module {
+  id        String   @id @default(cuid())
+  title     String
+  order     Int
+  courseId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  course  Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons Lesson[]
+
+  @@map("modules")
+}
+
+model Lesson {
+  id          String   @id @default(cuid())
+  title       String
+  content     String?
+  videoUrl    String?
+  duration    Int?
+  order       Int
+  moduleId    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  module     Module           @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  quizzes    Quiz[]
+  flashcards Flashcard[]
+  progress   LessonProgress[]
+  notes      Note[]
+
+  @@map("lessons")
+}
+
+model Quiz {
+  id        String       @id @default(cuid())
+  question  String
+  type      QuestionType
+  options   Json?
+  answer    String
+  order     Int          @default(0)
+  lessonId  String
+  createdAt DateTime     @default(now())
+
+  lesson      Lesson       @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  submissions Submission[]
+
+  @@map("quizzes")
+}
+
+model Flashcard {
+  id        String   @id @default(cuid())
+  front     String
+  back      String
+  order     Int      @default(0)
+  lessonId  String
+  createdAt DateTime @default(now())
+
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@map("flashcards")
+}
+
+// ── Enrollments & Progress ────────────────────────────
+
+model Enrollment {
+  id          String           @id @default(cuid())
+  userId      String
+  courseId     String
+  status      EnrollmentStatus @default(ACTIVE)
+  progress    Float            @default(0)
+  completedAt DateTime?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id])
+  course Course @relation(fields: [courseId], references: [id])
+
+  @@unique([userId, courseId])
+  @@map("enrollments")
+}
+
+model LessonProgress {
+  id          String    @id @default(cuid())
+  userId      String
+  lessonId    String
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  user   User   @relation(fields: [userId], references: [id])
+  lesson Lesson @relation(fields: [lessonId], references: [id])
+
+  @@unique([userId, lessonId])
+  @@map("lesson_progress")
+}
+
+model Submission {
+  id        String   @id @default(cuid())
+  userId    String
+  quizId    String
+  answer    String
+  isCorrect Boolean?
+  feedback  String?
+  score     Float?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+  quiz Quiz @relation(fields: [quizId], references: [id])
+
+  @@map("submissions")
+}
+
+// ── Reviews ───────────────────────────────────────────
+
+model Review {
+  id        String   @id @default(cuid())
+  userId    String
+  courseId   String
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id])
+  course Course @relation(fields: [courseId], references: [id])
+
+  @@unique([userId, courseId])
+  @@map("reviews")
+}
+
+// ── Certificates ──────────────────────────────────────
+
+model Certificate {
+  id             String   @id @default(cuid())
+  userId         String
+  courseId        String
+  verificationId String   @unique @default(cuid())
+  pdfUrl         String?
+  issuedAt       DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id])
+  course Course @relation(fields: [courseId], references: [id])
+
+  @@unique([userId, courseId])
+  @@map("certificates")
+}
+
+// ── Notes ─────────────────────────────────────────────
+
+model Note {
+  id        String   @id @default(cuid())
+  userId    String
+  lessonId  String
+  content   String
+  timestamp Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id])
+  lesson Lesson @relation(fields: [lessonId], references: [id])
+
+  @@map("notes")
+}
+
+// ── Notifications ─────────────────────────────────────
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  type      NotificationType
+  title     String
+  message   String
+  read      Boolean          @default(false)
+  data      Json?
+  createdAt DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("notifications")
+}
+
+// ── Announcements ─────────────────────────────────────
+
+model Announcement {
+  id        String   @id @default(cuid())
+  title     String
+  message   String
+  authorId  String
+  createdAt DateTime @default(now())
+
+  @@map("announcements")
+}
+
+// ── AI Embeddings (for RAG) ───────────────────────────
+
+model CourseEmbedding {
+  id        String                      @id @default(cuid())
+  courseId  String
+  content   String
+  embedding Unsupported("vector(1536)")?
+  createdAt DateTime                    @default(now())
+
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@map("course_embeddings")
+}

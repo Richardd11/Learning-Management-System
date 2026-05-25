@@ -1,0 +1,13 @@
+{
+  "name": "learning-management-system",
+  "private": true,
+  "scripts": {
+    "lint": "cd client && npm run lint",
+    "typecheck": "cd client && npm run typecheck",
+    "build": "cd client && npm run build",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "husky": "^9.0.0"
+  }
+}
