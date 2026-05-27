@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { useParams } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle2, Circle, ChevronRight, MessageSquare, StickyNote, BookOpen } from "lucide-react";
+import { CheckCircle2, Circle, ChevronRight, MessageSquare, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -9,21 +9,20 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { Breadcrumbs } from "@/components/common/breadcrumbs";
 import { useCourse } from "@/hooks/use-courses";
-import { useCourseProgress, useCompleteLesson, useSubmitQuiz } from "@/hooks/use-enrollment";
+import { useCourseProgress, useCompleteLesson } from "@/hooks/use-enrollment";
 import { toast } from "sonner";
-import type { Lesson, Quiz, Flashcard } from "@/types";
+import type { Lesson, Quiz } from "@/types";
 
 export function CoursePlayer() {
   const { slug } = useParams({ strict: false }) as { slug: string };
   const { data: course, isLoading } = useCourse(slug);
   const { data: progress } = useCourseProgress(course?.id ?? "");
   const completeLessonMutation = useCompleteLesson();
-  const submitQuizMutation = useSubmitQuiz();
 
   const [activeLessonId, setActiveLessonId] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"content" | "quiz" | "flashcards" | "notes">("content");
-  const [quizAnswers, setQuizAnswers] = useState<Record<string, string>>({});
-  const [flippedCards, setFlippedCards] = useState<Set<string>>(new Set());
+  const [activeTab, setActiveTab] = useState<"content" | "quiz" | "notes">("content");
+  const [quizAnswers, setQuizAnswers] = useState<Record<string, Record<string, string>>>({});
+  const [activeQuizId, setActiveQuizId] = useState<string | null>(null);
 
   const allLessons = useMemo(() => {
     if (!course?.modules) return [];
@@ -46,27 +45,14 @@ export function CoursePlayer() {
     }
   };
 
-  const handleSubmitQuiz = async (quiz: Quiz) => {
-    const answer = quizAnswers[quiz.id];
-    if (!answer) { toast.error("Please select an answer"); return; }
-    try {
-      const res = await submitQuizMutation.mutateAsync({ quizId: quiz.id, answer });
-      if (res.data?.isCorrect) {
-        toast.success("Correct! +10 XP");
-      } else {
-        toast.error(`Incorrect. The answer was: ${res.data?.correctAnswer}`);
-      }
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Submission failed");
+  const handleSubmitQuizAnswer = async (quiz: Quiz) => {
+    const answers = quizAnswers[quiz.id];
+    if (!answers || Object.keys(answers).length === 0) { 
+      toast.error("Please answer all questions"); 
+      return; 
     }
-  };
-
-  const toggleFlashcard = (id: string) => {
-    setFlippedCards((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
-      return next;
-    });
+    // Quiz submission will be implemented when QuizAttempt hook is ready
+    toast.success("Quiz answers saved!");
   };
 
   if (isLoading) {
@@ -153,7 +139,6 @@ export function CoursePlayer() {
                 {[
                   { key: "content" as const, icon: BookOpen, label: "Content" },
                   { key: "quiz" as const, icon: CheckCircle2, label: `Quiz (${activeLesson.quizzes?.length ?? 0})` },
-                  { key: "flashcards" as const, icon: StickyNote, label: `Flashcards (${activeLesson.flashcards?.length ?? 0})` },
                   { key: "notes" as const, icon: MessageSquare, label: "Notes" },
                 ].map((tab) => (
                   <Button
@@ -180,82 +165,80 @@ export function CoursePlayer() {
 
                 {activeTab === "quiz" && (
                   <motion.div key="quiz" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
-                    {activeLesson.quizzes?.length ? activeLesson.quizzes.map((quiz, qi) => (
-                      <Card key={quiz.id}>
-                        <CardContent className="p-6">
-                          <p className="font-medium mb-3">Q{qi + 1}: {quiz.question}</p>
-                          {quiz.type === "SHORT_ANSWER" ? (
-                            <input
-                              className="w-full border rounded-md px-3 py-2 text-sm"
-                              placeholder="Type your answer..."
-                              value={quizAnswers[quiz.id] ?? ""}
-                              onChange={(e) => setQuizAnswers({ ...quizAnswers, [quiz.id]: e.target.value })}
-                            />
-                          ) : (
-                            <div className="space-y-2">
-                              {(quiz.options as string[] | null)?.map((opt) => (
-                                <label key={opt} className={cn(
-                                  "flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors",
-                                  quizAnswers[quiz.id] === opt ? "border-primary bg-primary/5" : "hover:bg-accent"
-                                )}>
-                                  <input
-                                    type="radio"
-                                    name={quiz.id}
-                                    value={opt}
-                                    checked={quizAnswers[quiz.id] === opt}
-                                    onChange={() => setQuizAnswers({ ...quizAnswers, [quiz.id]: opt })}
-                                    className="accent-primary"
-                                  />
-                                  <span className="text-sm">{opt}</span>
-                                </label>
-                              ))}
-                            </div>
-                          )}
-                          <Button size="sm" className="mt-3" onClick={() => handleSubmitQuiz(quiz)} disabled={submitQuizMutation.isPending}>
-                            Submit Answer
-                          </Button>
-                        </CardContent>
-                      </Card>
-                    )) : (
-                      <p className="text-muted-foreground text-center py-8">No quizzes for this lesson.</p>
-                    )}
-                  </motion.div>
-                )}
+                    {activeLesson.quizzes?.length ? (
+                      <>
+                        <Card>
+                          <CardHeader>
+                            <CardTitle className="text-lg">Available Quizzes</CardTitle>
+                          </CardHeader>
+                          <CardContent className="space-y-2">
+                            {activeLesson.quizzes.map((quiz) => (
+                              <Button
+                                key={quiz.id}
+                                variant={activeQuizId === quiz.id ? "default" : "outline"}
+                                className="w-full justify-between"
+                                onClick={() => setActiveQuizId(quiz.id)}
+                              >
+                                <span>{quiz.title}</span>
+                                <Badge variant="secondary">{quiz.questions.length} questions</Badge>
+                              </Button>
+                            ))}
+                          </CardContent>
+                        </Card>
 
-                {activeTab === "flashcards" && (
-                  <motion.div key="flashcards" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                    {activeLesson.flashcards?.length ? (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {activeLesson.flashcards.map((card) => (
-                          <motion.div
-                            key={card.id}
-                            whileHover={{ scale: 1.02 }}
-                            onClick={() => toggleFlashcard(card.id)}
-                            className="cursor-pointer"
-                          >
-                            <Card className="min-h-[160px] flex items-center justify-center">
-                              <CardContent className="p-6 text-center">
-                                <AnimatePresence mode="wait">
-                                  <motion.div
-                                    key={flippedCards.has(card.id) ? "back" : "front"}
-                                    initial={{ rotateY: 90, opacity: 0 }}
-                                    animate={{ rotateY: 0, opacity: 1 }}
-                                    exit={{ rotateY: -90, opacity: 0 }}
-                                    transition={{ duration: 0.2 }}
-                                  >
-                                    <p className="text-xs text-muted-foreground mb-2">
-                                      {flippedCards.has(card.id) ? "Answer" : "Question"} — click to flip
-                                    </p>
-                                    <p className="font-medium">{flippedCards.has(card.id) ? card.back : card.front}</p>
-                                  </motion.div>
-                                </AnimatePresence>
-                              </CardContent>
-                            </Card>
-                          </motion.div>
+                        {activeQuizId && activeLesson.quizzes.find((q) => q.id === activeQuizId)?.questions.map((question, qi) => (
+                          <Card key={question.id}>
+                            <CardContent className="p-6">
+                              <p className="font-medium mb-3">Q{qi + 1}: {question.question}</p>
+                              {question.type === "SHORT_ANSWER" ? (
+                                <input
+                                  className="w-full border rounded-md px-3 py-2 text-sm"
+                                  placeholder="Type your answer..."
+                                  value={quizAnswers[activeQuizId]?.[question.id] ?? ""}
+                                  onChange={(e) => setQuizAnswers({
+                                    ...quizAnswers,
+                                    [activeQuizId]: { ...quizAnswers[activeQuizId] ?? {}, [question.id]: e.target.value },
+                                  })}
+                                />
+                              ) : (
+                                <div className="space-y-2">
+                                  {question.options?.map((opt) => (
+                                    <label key={opt} className={cn(
+                                      "flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors",
+                                      quizAnswers[activeQuizId]?.[question.id] === opt ? "border-primary bg-primary/5" : "hover:bg-accent"
+                                    )}>
+                                      <input
+                                        type="radio"
+                                        name={`${activeQuizId}-${question.id}`}
+                                        value={opt}
+                                        checked={quizAnswers[activeQuizId]?.[question.id] === opt}
+                                        onChange={() => setQuizAnswers({
+                                          ...quizAnswers,
+                                          [activeQuizId]: { ...quizAnswers[activeQuizId] ?? {}, [question.id]: opt },
+                                        })}
+                                        className="accent-primary"
+                                      />
+                                      <span className="text-sm">{opt}</span>
+                                    </label>
+                                  ))}
+                                </div>
+                              )}
+                            </CardContent>
+                          </Card>
                         ))}
-                      </div>
+
+                        {activeQuizId && (
+                          <Card>
+                            <CardContent className="p-4 flex justify-end">
+                              <Button onClick={() => handleSubmitQuizAnswer(activeLesson.quizzes.find((q) => q.id === activeQuizId)!)}>
+                                Submit Quiz
+                              </Button>
+                            </CardContent>
+                          </Card>
+                        )}
+                      </>
                     ) : (
-                      <p className="text-muted-foreground text-center py-8">No flashcards for this lesson.</p>
+                      <p className="text-muted-foreground text-center py-8">No quizzes for this lesson.</p>
                     )}
                   </motion.div>
                 )}

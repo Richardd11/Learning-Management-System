@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { useAuthStore } from "@/stores/auth-store";
-import type { ApiResponse, User } from "@/types";
+import type { ApiResponse, User, Role } from "@/types";
 
 export function useCurrentUser() {
   const { setUser, setLoading } = useAuthStore();
@@ -50,19 +50,29 @@ export function useLogin() {
   });
 }
 
-export function useRegister() {
-  const { login: storeLogin } = useAuthStore();
+/**
+ * Admin-only user creation hook.
+ * Self-registration is disabled — admins create all accounts.
+ */
+export function useCreateUser() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: { email: string; password: string; firstName: string; lastName: string }) => {
-      return api.post<ApiResponse<{ user: User; tokens: { accessToken: string; refreshToken: string } }>>("/auth/register", data);
+    mutationFn: async (data: {
+      email: string;
+      password: string;
+      firstName: string;
+      lastName: string;
+      role: Role;
+      academicLevelId?: string | null;
+      sectionId?: string | null;
+      studentIdNumber?: string | null;
+      dateOfBirth?: string | null;
+    }) => {
+      return api.post<ApiResponse<{ user: User }>>("/auth/register", data);
     },
-    onSuccess: (res) => {
-      if (res.data) {
-        storeLogin(res.data.user, res.data.tokens.accessToken, res.data.tokens.refreshToken);
-        queryClient.invalidateQueries({ queryKey: ["currentUser"] });
-      }
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
     },
   });
 }

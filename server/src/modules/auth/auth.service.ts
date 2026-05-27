@@ -6,10 +6,28 @@ import type { RegisterInput, LoginInput } from "./auth.schema.js";
 import type { TokenPair, JwtPayload } from "../../types/index.js";
 import type { User, Role } from "@prisma/client";
 
+/**
+ * Admin-only user creation.
+ * Self-registration is disabled — all accounts must be created by an admin.
+ */
 export async function register(input: RegisterInput): Promise<{ user: User; tokens: TokenPair }> {
   const existing = await prisma.user.findUnique({ where: { email: input.email } });
   if (existing) {
     throw new Error("Email already registered");
+  }
+
+  // Validate academicLevel and section if provided
+  if (input.academicLevelId) {
+    const level = await prisma.academicLevel.findUnique({ where: { id: input.academicLevelId } });
+    if (!level) throw new Error("Invalid academic level ID");
+  }
+  if (input.sectionId) {
+    const section = await prisma.section.findUnique({ where: { id: input.sectionId } });
+    if (!section) throw new Error("Invalid section ID");
+    // Ensure section belongs to the specified academic level
+    if (input.academicLevelId && section.academicLevelId !== input.academicLevelId) {
+      throw new Error("Section does not belong to the specified academic level");
+    }
   }
 
   const passwordHash = await bcrypt.hash(input.password, 12);
@@ -19,6 +37,15 @@ export async function register(input: RegisterInput): Promise<{ user: User; toke
       passwordHash,
       firstName: input.firstName,
       lastName: input.lastName,
+      role: input.role ?? "STUDENT",
+      academicLevelId: input.academicLevelId ?? null,
+      sectionId: input.sectionId ?? null,
+      studentIdNumber: input.studentIdNumber ?? null,
+      dateOfBirth: input.dateOfBirth ? new Date(input.dateOfBirth) : null,
+    },
+    include: {
+      academicLevel: true,
+      section: true,
     },
   });
 
@@ -37,7 +64,13 @@ export async function register(input: RegisterInput): Promise<{ user: User; toke
 }
 
 export async function login(input: LoginInput): Promise<{ user: User; tokens: TokenPair }> {
-  const user = await prisma.user.findUnique({ where: { email: input.email } });
+  const user = await prisma.user.findUnique({
+    where: { email: input.email },
+    include: {
+      academicLevel: true,
+      section: true,
+    },
+  });
   if (!user?.passwordHash) {
     throw new Error("Invalid email or password");
   }
@@ -110,12 +143,14 @@ export async function findOrCreateOAuthUser(profile: {
   });
 
   if (!user) {
+    // OAuth users are created as STUDENT by default — admin can upgrade later
     user = await prisma.user.create({
       data: {
         email: profile.email,
         firstName: profile.firstName,
         lastName: profile.lastName,
         avatar: profile.avatar,
+        role: "STUDENT",
         [providerField]: profile.providerId,
       },
     });

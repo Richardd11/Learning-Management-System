@@ -49,10 +49,3 @@ export function useCompleteLesson() {
     },
   });
 }
-
-export function useSubmitQuiz() {
-  return useMutation({
-    mutationFn: ({ quizId, answer }: { quizId: string; answer: string }) =>
-      api.post<ApiResponse<{ isCorrect: boolean; correctAnswer: string }>>(`/enrollments/quizzes/${quizId}/submit`, { answer }),
-  });
-}

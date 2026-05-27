@@ -2,7 +2,7 @@ import { Link, useLocation } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard, BookOpen, GraduationCap, Settings, Shield,
-  PlusCircle, BarChart3, Award,
+  PlusCircle, BarChart3, Award, Users, Layers, Megaphone, Youtube,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
@@ -16,14 +16,20 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["STUDENT", "INSTRUCTOR", "ADMIN", "SUPER_ADMIN"] },
-  { href: "/courses", label: "Browse Courses", icon: BookOpen, roles: ["STUDENT", "INSTRUCTOR", "ADMIN", "SUPER_ADMIN"] },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["STUDENT", "TEACHER", "ADMIN"] },
+  { href: "/courses", label: "Browse Courses", icon: BookOpen, roles: ["STUDENT", "TEACHER", "ADMIN"] },
   { href: "/my-courses", label: "My Courses", icon: GraduationCap, roles: ["STUDENT"] },
-  { href: "/builder", label: "Course Builder", icon: PlusCircle, roles: ["INSTRUCTOR", "ADMIN", "SUPER_ADMIN"] },
-  { href: "/instructor", label: "Instructor Panel", icon: BarChart3, roles: ["INSTRUCTOR", "ADMIN", "SUPER_ADMIN"] },
+  { href: "/my-assignments", label: "My Assignments", icon: Award, roles: ["STUDENT"] },
   { href: "/certificates", label: "Certificates", icon: Award, roles: ["STUDENT"] },
-  { href: "/admin", label: "Admin Panel", icon: Shield, roles: ["ADMIN", "SUPER_ADMIN"] },
-  { href: "/settings", label: "Settings", icon: Settings, roles: ["STUDENT", "INSTRUCTOR", "ADMIN", "SUPER_ADMIN"] },
+  { href: "/builder", label: "Course Builder", icon: PlusCircle, roles: ["TEACHER", "ADMIN"] },
+  { href: "/teacher", label: "Teacher Panel", icon: BarChart3, roles: ["TEACHER"] },
+  { href: "/teacher/students", label: "My Students", icon: Users, roles: ["TEACHER"] },
+  { href: "/admin", label: "Admin Panel", icon: Shield, roles: ["ADMIN"] },
+  { href: "/admin/users", label: "User Management", icon: Users, roles: ["ADMIN"] },
+  { href: "/admin/levels", label: "Academic Levels", icon: Layers, roles: ["ADMIN"] },
+  { href: "/admin/announcements", label: "Announcements", icon: Megaphone, roles: ["ADMIN", "TEACHER"] },
+  { href: "/admin/youtube", label: "YouTube Tutorials", icon: Youtube, roles: ["ADMIN", "TEACHER"] },
+  { href: "/settings", label: "Settings", icon: Settings, roles: ["STUDENT", "TEACHER", "ADMIN"] },
 ];
 
 export function Sidebar() {

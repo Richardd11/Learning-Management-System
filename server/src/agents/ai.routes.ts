@@ -8,7 +8,7 @@ import { z } from "zod";
 
 export async function aiRoutes(app: FastifyInstance): Promise<void> {
   // AI Course Generator (streaming SSE)
-  app.post("/generate-course", { preHandler: [requireRole("INSTRUCTOR", "ADMIN", "SUPER_ADMIN")] }, async (request, reply) => {
+  app.post("/generate-course", { preHandler: [requireRole("TEACHER", "ADMIN")] }, async (request, reply) => {
     const { topic } = z.object({ topic: z.string().min(3) }).parse(request.body);
 
     reply.raw.writeHead(200, {
@@ -32,7 +32,7 @@ export async function aiRoutes(app: FastifyInstance): Promise<void> {
   });
 
   // AI Grader (streaming SSE)
-  app.post("/grade", { preHandler: [requireRole("INSTRUCTOR", "ADMIN", "SUPER_ADMIN")] }, async (request, reply) => {
+  app.post("/grade", { preHandler: [requireRole("TEACHER", "ADMIN")] }, async (request, reply) => {
     const { question, studentAnswer, rubric } = z.object({
       question: z.string(),
       studentAnswer: z.string(),
@@ -88,7 +88,7 @@ export async function aiRoutes(app: FastifyInstance): Promise<void> {
   });
 
   // Weekly Digest (streaming SSE)
-  app.post("/digest", { preHandler: [requireRole("INSTRUCTOR", "ADMIN", "SUPER_ADMIN")] }, async (request, reply) => {
+  app.post("/digest", { preHandler: [requireRole("TEACHER", "ADMIN")] }, async (request, reply) => {
     reply.raw.writeHead(200, {
       "Content-Type": "text/event-stream",
       "Cache-Control": "no-cache",

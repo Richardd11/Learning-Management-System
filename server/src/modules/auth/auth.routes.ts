@@ -1,23 +1,35 @@
 import type { FastifyInstance } from "fastify";
 import { registerSchema, loginSchema, refreshTokenSchema } from "./auth.schema.js";
 import * as authService from "./auth.service.js";
-import { authenticate } from "../../middleware/auth.js";
+import { authenticate, requireRole } from "../../middleware/auth.js";
 
 export async function authRoutes(app: FastifyInstance): Promise<void> {
-  app.post("/register", async (request, reply) => {
-    const body = registerSchema.parse(request.body);
-    try {
-      const { user, tokens } = await authService.register(body);
-      reply.code(201).send({
-        success: true,
-        data: { user: authService.sanitizeUser(user), tokens },
-      });
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "Registration failed";
-      reply.code(400).send({ success: false, error: message });
+  /**
+   * POST /register
+   * Admin-only user creation. Self-registration is disabled.
+   */
+  app.post(
+    "/register",
+    { preHandler: [authenticate, requireRole("ADMIN")] },
+    async (request, reply) => {
+      const body = registerSchema.parse(request.body);
+      try {
+        const { user, tokens } = await authService.register(body);
+        reply.code(201).send({
+          success: true,
+          data: { user: authService.sanitizeUser(user), tokens },
+        });
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "Registration failed";
+        reply.code(400).send({ success: false, error: message });
+      }
     }
-  });
+  );
 
+  /**
+   * POST /login
+   * Public endpoint for all users to log in.
+   */
   app.post("/login", async (request, reply) => {
     const body = loginSchema.parse(request.body);
     try {
@@ -32,6 +44,10 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
     }
   });
 
+  /**
+   * POST /refresh
+   * Refresh access token using refresh token.
+   */
   app.post("/refresh", async (request, reply) => {
     const { refreshToken } = refreshTokenSchema.parse(request.body);
     try {
@@ -43,6 +59,10 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
     }
   });
 
+  /**
+   * POST /logout
+   * Logout and invalidate refresh token.
+   */
   app.post("/logout", { preHandler: [authenticate] }, async (request, reply) => {
     if (!request.user) {
       reply.code(401).send({ success: false, error: "Not authenticated" });
@@ -52,13 +72,23 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
     reply.send({ success: true, message: "Logged out" });
   });
 
+  /**
+   * GET /me
+   * Get current user profile.
+   */
   app.get("/me", { preHandler: [authenticate] }, async (request, reply) => {
     if (!request.user) {
       reply.code(401).send({ success: false, error: "Not authenticated" });
       return;
     }
     const { prisma } = await import("../../lib/prisma.js");
-    const user = await prisma.user.findUnique({ where: { id: request.user.userId } });
+    const user = await prisma.user.findUnique({
+      where: { id: request.user.userId },
+      include: {
+        academicLevel: true,
+        section: true,
+      },
+    });
     if (!user) {
       reply.code(404).send({ success: false, error: "User not found" });
       return;

@@ -3,30 +3,25 @@ import { motion, useInView, useMotionValue, useTransform, animate } from "framer
 import { useRef, useEffect } from "react";
 import {
   BookOpen, Brain, Award, BarChart3, Zap, Shield,
-  ChevronDown, Star, Users, Clock,
+  ChevronDown, Users, Clock, GraduationCap, Layers, School,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
 const features = [
-  { icon: Brain, title: "AI-Powered Learning", desc: "Get personalized tutoring, auto-generated courses, and intelligent grading." },
-  { icon: BookOpen, title: "Rich Course Content", desc: "Interactive lessons with video, quizzes, flashcards, and hands-on projects." },
-  { icon: Award, title: "Certificates", desc: "Earn verifiable certificates upon course completion to showcase your skills." },
-  { icon: BarChart3, title: "Analytics Dashboard", desc: "Track your progress with detailed analytics and learning insights." },
-  { icon: Zap, title: "Gamification", desc: "XP points, streaks, and achievements to keep you motivated." },
-  { icon: Shield, title: "Enterprise Ready", desc: "Role-based access control, admin panel, and moderation tools." },
+  { icon: Brain, title: "AI-Powered Learning", desc: "Personalized tutoring, auto-generated content, and intelligent assistance for students and teachers." },
+  { icon: BookOpen, title: "Rich Course Content", desc: "Interactive lessons with video, YouTube integration, quizzes, and hands-on projects." },
+  { icon: Layers, title: "Academic Structure", desc: "Organize courses by academic levels and sections for high schools and universities." },
+  { icon: BarChart3, title: "Analytics Dashboard", desc: "Track student progress, course performance, and institutional metrics in real time." },
+  { icon: Shield, title: "Admin Control", desc: "Full user management with role-based access, account creation, and moderation tools." },
+  { icon: School, title: "Institution Ready", desc: "Single-institution deployment with no subscriptions — your platform, your rules." },
 ];
 
-const testimonials = [
-  { name: "Sarah K.", role: "Software Engineer", quote: "LearnHub's AI tutor helped me understand complex algorithms in half the time.", rating: 5 },
-  { name: "Marcus L.", role: "Product Designer", quote: "The course builder is incredible. I published my first course in under an hour.", rating: 5 },
-  { name: "Priya S.", role: "Data Scientist", quote: "The interactive quizzes and flashcards made studying for certifications so much easier.", rating: 5 },
-];
-
-const pricingPlans = [
-  { name: "Free", price: "$0", period: "/month", features: ["Access free courses", "Basic AI tutor", "Community support", "Progress tracking"], cta: "Get Started" },
-  { name: "Pro", price: "$19", period: "/month", features: ["Unlimited courses", "Advanced AI features", "Priority support", "Certificates", "Offline access"], cta: "Start Free Trial", popular: true },
-  { name: "Team", price: "$49", period: "/month", features: ["Everything in Pro", "Team analytics", "Custom branding", "API access", "Dedicated support"], cta: "Contact Sales" },
+const highlights = [
+  { icon: Users, value: 10000, suffix: "+", label: "Students Managed" },
+  { icon: BookOpen, value: 500, suffix: "+", label: "Courses Created" },
+  { icon: GraduationCap, value: 98, suffix: "%", label: "Satisfaction Rate" },
+  { icon: Clock, value: 50000, suffix: "+", label: "Learning Hours" },
 ];
 
 function AnimatedCounter({ value, suffix = "" }: { value: number; suffix?: string }) {
@@ -84,12 +79,12 @@ export function LandingPage() {
             transition={{ duration: 0.8 }}
           >
             <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6">
-              Learn without{" "}
-              <span className="gradient-text">limits</span>
+              Your Institution's{" "}
+              <span className="gradient-text">Learning Platform</span>
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              AI-powered courses, interactive content, and personalized learning paths.
-              Master new skills at your own pace.
+              A complete learning management system for high schools and universities.
+              Manage courses, students, and content — all in one place.
             </p>
           </motion.div>
 
@@ -99,8 +94,8 @@ export function LandingPage() {
             transition={{ delay: 0.4, duration: 0.6 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-4"
           >
-            <Link to="/register">
-              <Button size="lg" className="text-lg px-8 h-12">Start Learning Free</Button>
+            <Link to="/login">
+              <Button size="lg" className="text-lg px-8 h-12">Sign In to Your Portal</Button>
             </Link>
             <Link to="/courses">
               <Button variant="outline" size="lg" className="text-lg px-8 h-12">Browse Courses</Button>
@@ -111,11 +106,15 @@ export function LandingPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.8, duration: 0.6 }}
-            className="mt-12 flex items-center justify-center gap-8 text-sm text-muted-foreground"
+            className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-6 text-center"
           >
-            <div className="flex items-center gap-2"><Users className="h-4 w-4" /> <AnimatedCounter value={10000} suffix="+" /> Students</div>
-            <div className="flex items-center gap-2"><BookOpen className="h-4 w-4" /> <AnimatedCounter value={500} suffix="+" /> Courses</div>
-            <div className="flex items-center gap-2"><Clock className="h-4 w-4" /> <AnimatedCounter value={50000} suffix="+" /> Hours</div>
+            {highlights.map((stat) => (
+              <div key={stat.label} className="flex flex-col items-center gap-1">
+                <stat.icon className="h-5 w-5 text-primary mb-1" />
+                <span className="text-2xl font-bold"><AnimatedCounter value={stat.value} suffix={stat.suffix} /></span>
+                <span className="text-xs text-muted-foreground">{stat.label}</span>
+              </div>
+            ))}
           </motion.div>
 
           {/* Floating course cards */}
@@ -150,9 +149,9 @@ export function LandingPage() {
       <section className="py-24 px-4">
         <div className="max-w-6xl mx-auto">
           <AnimatedSection className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Everything you need to learn</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Built for educational institutions</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              A complete learning platform with AI-powered tools, interactive content, and detailed analytics.
+              Everything your school or university needs to deliver courses, track progress, and manage learning — with no subscription fees.
             </p>
           </AnimatedSection>
 
@@ -177,74 +176,28 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* Testimonials */}
+      {/* Roles */}
       <section className="py-24 px-4 bg-muted/30">
         <div className="max-w-6xl mx-auto">
           <AnimatedSection className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Loved by learners</h2>
-            <p className="text-lg text-muted-foreground">See what our students have to say.</p>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Tailored for every role</h2>
+            <p className="text-lg text-muted-foreground">Each user gets a dedicated portal designed for their needs.</p>
           </AnimatedSection>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {testimonials.map((t, i) => (
-              <AnimatedSection key={t.name}>
+            {[
+              { icon: Shield, title: "Admin Portal", desc: "Manage users, academic levels, sections, courses, and institution-wide announcements. Full control over your platform." },
+              { icon: BookOpen, title: "Teacher Portal", desc: "Create and publish courses, build quizzes, integrate YouTube tutorials, and track student progress." },
+              { icon: GraduationCap, title: "Student Portal", desc: "Access course content, take quizzes, track your progress, and view announcements from your teachers." },
+            ].map((role) => (
+              <AnimatedSection key={role.title}>
                 <Card className="h-full">
-                  <CardContent className="p-6">
-                    <div className="flex gap-1 mb-4">
-                      {Array.from({ length: t.rating }).map((_, j) => (
-                        <Star key={j} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                      ))}
-                    </div>
-                    <p className="text-muted-foreground mb-4">&ldquo;{t.quote}&rdquo;</p>
-                    <div>
-                      <p className="font-semibold">{t.name}</p>
-                      <p className="text-sm text-muted-foreground">{t.role}</p>
-                    </div>
+                  <CardContent className="p-6 text-center">
+                    <role.icon className="h-12 w-12 text-primary mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">{role.title}</h3>
+                    <p className="text-muted-foreground">{role.desc}</p>
                   </CardContent>
                 </Card>
-              </AnimatedSection>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Pricing */}
-      <section className="py-24 px-4">
-        <div className="max-w-6xl mx-auto">
-          <AnimatedSection className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Simple pricing</h2>
-            <p className="text-lg text-muted-foreground">Choose the plan that fits your learning goals.</p>
-          </AnimatedSection>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-            {pricingPlans.map((plan) => (
-              <AnimatedSection key={plan.name}>
-                <motion.div whileHover={{ scale: 1.03 }}>
-                  <Card className={`h-full relative ${plan.popular ? "border-primary shadow-lg" : ""}`}>
-                    {plan.popular && (
-                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-xs font-semibold px-3 py-1 rounded-full">
-                        Most Popular
-                      </div>
-                    )}
-                    <CardContent className="p-6 text-center">
-                      <h3 className="text-lg font-semibold mb-2">{plan.name}</h3>
-                      <div className="mb-4">
-                        <span className="text-4xl font-bold">{plan.price}</span>
-                        <span className="text-muted-foreground">{plan.period}</span>
-                      </div>
-                      <ul className="space-y-2 mb-6 text-sm">
-                        {plan.features.map((f) => (
-                          <li key={f} className="text-muted-foreground">{f}</li>
-                        ))}
-                      </ul>
-                      <Link to="/register">
-                        <Button variant={plan.popular ? "default" : "outline"} className="w-full">
-                          {plan.cta}
-                        </Button>
-                      </Link>
-                    </CardContent>
-                  </Card>
-                </motion.div>
               </AnimatedSection>
             ))}
           </div>
@@ -260,10 +213,11 @@ export function LandingPage() {
 
           <div className="space-y-4">
             {[
-              { q: "Is there a free trial?", a: "Yes! You can access free courses immediately and try Pro features for 14 days." },
-              { q: "Can I create my own courses?", a: "Absolutely. Apply to become an instructor and use our drag-and-drop course builder with AI assistance." },
-              { q: "How does the AI tutor work?", a: "Our AI tutor uses your course material as context to answer questions, explain concepts, and provide personalized help." },
-              { q: "Are certificates recognized?", a: "Each certificate has a unique verification link that employers can use to confirm your achievement." },
+              { q: "How do I create an account?", a: "Accounts are created by your institution's administrator. Contact your admin to get set up with the right role and permissions." },
+              { q: "Can teachers create their own courses?", a: "Yes! Teachers have full access to the course builder with drag-and-drop modules, YouTube integration, and quiz creation tools." },
+              { q: "How does the AI assistant work?", a: "Our AI assistant uses your course material as context to answer questions, explain concepts, and provide personalized help to students." },
+              { q: "Is there a subscription fee?", a: "No. This is a single-institution platform with no subscription costs. Your institution hosts and manages the entire system." },
+              { q: "Can I use this for both high school and university?", a: "Absolutely. The platform supports both high school and college academic levels with appropriate structure for each." },
             ].map((faq) => (
               <AnimatedSection key={faq.q}>
                 <details className="group border rounded-lg">
@@ -282,10 +236,10 @@ export function LandingPage() {
       {/* CTA */}
       <section className="py-24 px-4">
         <AnimatedSection className="max-w-3xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to start learning?</h2>
-          <p className="text-lg text-muted-foreground mb-8">Join thousands of learners and start your journey today.</p>
-          <Link to="/register">
-            <Button size="lg" className="text-lg px-8 h-12">Get Started Free</Button>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to get started?</h2>
+          <p className="text-lg text-muted-foreground mb-8">Sign in to access your learning portal or contact your administrator for an account.</p>
+          <Link to="/login">
+            <Button size="lg" className="text-lg px-8 h-12">Sign In</Button>
           </Link>
         </AnimatedSection>
       </section>

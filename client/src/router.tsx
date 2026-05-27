@@ -2,7 +2,7 @@ import { createRouter, createRoute, createRootRoute, Outlet, redirect, notFound,
 import { AppLayout, PublicLayout } from "@/components/common/layout";
 import { NotFoundPage } from "@/components/common/not-found";
 import { LandingPage } from "@/features/landing";
-import { LoginPage, RegisterPage } from "@/features/auth";
+import { LoginPage } from "@/features/auth";
 import { DashboardPage } from "@/features/dashboard";
 import { InstructorDashboard } from "@/features/dashboard/instructor-dashboard";
 import { CatalogPage, CourseDetailPage } from "@/features/courses";
@@ -42,15 +42,8 @@ const loginRoute = createRoute({
   ),
 });
 
-const registerRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/register",
-  component: () => (
-    <PublicLayout>
-      <RegisterPage />
-    </PublicLayout>
-  ),
-});
+// Register route removed - self-registration is disabled for institutional LMS
+// Only admins can create user accounts
 
 const forgotPasswordRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -179,10 +172,83 @@ const certificatesRoute = createRoute({
   ),
 });
 
+// Teacher routes
+const teacherDashboardRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/teacher",
+  component: () => (
+    <AppLayout>
+      <InstructorDashboard />
+    </AppLayout>
+  ),
+});
+
+const teacherStudentsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/teacher/students",
+  component: () => (
+    <AppLayout>
+      <div className="p-8">
+        <h1 className="text-3xl font-bold mb-4">My Students</h1>
+        <p className="text-muted-foreground">Student management coming soon.</p>
+      </div>
+    </AppLayout>
+  ),
+});
+
+// Admin sub-routes
+const adminUsersRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/admin/users",
+  component: () => (
+    <AppLayout>
+      <AdminPanel />
+    </AppLayout>
+  ),
+});
+
+const adminLevelsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/admin/levels",
+  component: () => (
+    <AppLayout>
+      <div className="p-8">
+        <h1 className="text-3xl font-bold mb-4">Academic Levels Management</h1>
+        <p className="text-muted-foreground">Academic levels and sections coming soon.</p>
+      </div>
+    </AppLayout>
+  ),
+});
+
+const adminAnnouncementsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/admin/announcements",
+  component: () => (
+    <AppLayout>
+      <div className="p-8">
+        <h1 className="text-3xl font-bold mb-4">Announcements</h1>
+        <p className="text-muted-foreground">Announcements management coming soon.</p>
+      </div>
+    </AppLayout>
+  ),
+});
+
+const adminYoutubeRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/admin/youtube",
+  component: () => (
+    <AppLayout>
+      <div className="p-8">
+        <h1 className="text-3xl font-bold mb-4">YouTube Tutorials</h1>
+        <p className="text-muted-foreground">YouTube tutorial management coming soon.</p>
+      </div>
+    </AppLayout>
+  ),
+});
+
 const routeTree = rootRoute.addChildren([
   landingRoute,
   loginRoute,
-  registerRoute,
   forgotPasswordRoute,
   coursesRoute,
   courseDetailRoute,
@@ -191,7 +257,13 @@ const routeTree = rootRoute.addChildren([
   playerRoute,
   builderRoute,
   instructorRoute,
+  teacherDashboardRoute,
+  teacherStudentsRoute,
   adminRoute,
+  adminUsersRoute,
+  adminLevelsRoute,
+  adminAnnouncementsRoute,
+  adminYoutubeRoute,
   profileRoute,
   settingsRoute,
   certificatesRoute,

@@ -77,7 +77,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                 <Link to="/login" onClick={onClose}>
                   <Button variant="outline" className="w-full">Log in</Button>
                 </Link>
-                <Link to="/register" onClick={onClose}>
+                <Link to="/login" onClick={onClose}>
                   <Button className="w-full">Sign up</Button>
                 </Link>
               </div>
