@@ -11,6 +11,7 @@ import { CourseBuilder } from "@/features/builder";
 import { AdminPanel } from "@/features/admin";
 import { ProfilePage } from "@/features/profile";
 import { CertificatesPage } from "@/features/certificates";
+import { StudentProgressPage } from "@/features/students/student-progress-page";
 
 const rootRoute = createRootRoute({
   component: () => <Outlet />,
@@ -188,10 +189,7 @@ const teacherStudentsRoute = createRoute({
   path: "/teacher/students",
   component: () => (
     <AppLayout>
-      <div className="p-8">
-        <h1 className="text-3xl font-bold mb-4">My Students</h1>
-        <p className="text-muted-foreground">Student management coming soon.</p>
-      </div>
+      <StudentProgressPage />
     </AppLayout>
   ),
 });
@@ -212,10 +210,7 @@ const adminLevelsRoute = createRoute({
   path: "/admin/levels",
   component: () => (
     <AppLayout>
-      <div className="p-8">
-        <h1 className="text-3xl font-bold mb-4">Academic Levels Management</h1>
-        <p className="text-muted-foreground">Academic levels and sections coming soon.</p>
-      </div>
+      <AdminPanel />
     </AppLayout>
   ),
 });
@@ -225,10 +220,7 @@ const adminAnnouncementsRoute = createRoute({
   path: "/admin/announcements",
   component: () => (
     <AppLayout>
-      <div className="p-8">
-        <h1 className="text-3xl font-bold mb-4">Announcements</h1>
-        <p className="text-muted-foreground">Announcements management coming soon.</p>
-      </div>
+      <AdminPanel />
     </AppLayout>
   ),
 });
@@ -238,10 +230,7 @@ const adminYoutubeRoute = createRoute({
   path: "/admin/youtube",
   component: () => (
     <AppLayout>
-      <div className="p-8">
-        <h1 className="text-3xl font-bold mb-4">YouTube Tutorials</h1>
-        <p className="text-muted-foreground">YouTube tutorial management coming soon.</p>
-      </div>
+      <AdminPanel />
     </AppLayout>
   ),
 });

@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
-import type { ApiResponse, Enrollment, LessonProgressData } from "@/types";
+import type { ApiResponse, Enrollment, LessonProgressData, Note, QuizAttemptResult } from "@/types";
 
 export function useEnrollments() {
   return useQuery({
@@ -45,6 +45,39 @@ export function useCompleteLesson() {
     mutationFn: (lessonId: string) => api.post(`/enrollments/lessons/${lessonId}/complete`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["courseProgress"] });
+      queryClient.invalidateQueries({ queryKey: ["enrollments"] });
+    },
+  });
+}
+
+
+export function useLessonNotes(lessonId: string) {
+  return useQuery({
+    queryKey: ["lessonNotes", lessonId],
+    queryFn: () => api.get<ApiResponse<Note[]>>(`/enrollments/lessons/${lessonId}/notes`),
+    select: (res) => res.data,
+    enabled: !!lessonId,
+  });
+}
+
+export function useCreateLessonNote() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ lessonId, content, timestamp }: { lessonId: string; content: string; timestamp?: number }) =>
+      api.post<ApiResponse<Note>>(`/enrollments/lessons/${lessonId}/notes`, { content, timestamp }),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["lessonNotes", variables.lessonId] });
+    },
+  });
+}
+
+export function useSubmitQuizAttempt() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ quizId, answers }: { quizId: string; answers: Array<{ questionId: string; answer: string }> }) =>
+      api.post<ApiResponse<QuizAttemptResult>>(`/quizzes/${quizId}/attempt`, { answers }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["userStats"] });
       queryClient.invalidateQueries({ queryKey: ["enrollments"] });
     },
   });

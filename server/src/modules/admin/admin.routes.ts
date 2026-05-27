@@ -201,6 +201,44 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
     reply.send({ success: true, data: results });
   });
 
+
+  app.get("/students", { preHandler: [requireRole("ADMIN", "TEACHER")] }, async (request, reply) => {
+    const { search, academicLevelId, sectionId } = request.query as Record<string, string | undefined>;
+    const where: Record<string, unknown> = { role: "STUDENT" };
+
+    if (search) {
+      where.OR = [
+        { email: { contains: search, mode: "insensitive" } },
+        { firstName: { contains: search, mode: "insensitive" } },
+        { lastName: { contains: search, mode: "insensitive" } },
+        { studentIdNumber: { contains: search, mode: "insensitive" } },
+      ];
+    }
+    if (academicLevelId) where.academicLevelId = academicLevelId;
+    if (sectionId) where.sectionId = sectionId;
+
+    const students = await prisma.user.findMany({
+      where,
+      select: {
+        id: true, email: true, firstName: true, lastName: true, avatar: true, xp: true,
+        studentIdNumber: true, academicLevel: true, section: true,
+        enrollments: {
+          include: { course: { select: { id: true, title: true, subjectCode: true } } },
+          orderBy: { createdAt: "desc" },
+        },
+        quizAttempts: {
+          select: { score: true, passed: true, quiz: { select: { title: true } } },
+          orderBy: { submittedAt: "desc" },
+          take: 5,
+        },
+        _count: { select: { progress: true, quizAttempts: true, enrollments: true } },
+      },
+      orderBy: [{ section: { name: "asc" } }, { lastName: "asc" }],
+    });
+
+    reply.send({ success: true, data: students });
+  });
+
   // ── Platform Stats (Enhanced) ────────────────────────────────
   app.get("/stats", { preHandler: [requireRole("ADMIN")] }, async (request, reply) => {
     const [

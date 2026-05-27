@@ -47,10 +47,12 @@ export interface Section {
   schoolYear: string;
   semester: Semester | null;
   capacity: number | null;
-  currentEnrollment: number;
+  currentEnrollment?: number;
+  isActive?: boolean;
   academicLevel?: AcademicLevel;
   createdAt: string;
   updatedAt: string;
+  _count?: { users?: number; enrollments?: number; courses?: number };
 }
 
 export interface Course {
@@ -88,6 +90,7 @@ export interface Module {
   isPublished: boolean;
   courseId: string;
   lessons: Lesson[];
+  quizzes?: Quiz[];
   createdAt: string;
   updatedAt: string;
 }
@@ -96,7 +99,7 @@ export interface Lesson {
   id: string;
   title: string;
   content: string | null;
-  videoUrl: string | null;
+  videoUrl?: string | null;
   contentType: LessonContentType;
   contentUrl: string | null;
   duration: number | null;
@@ -104,7 +107,6 @@ export interface Lesson {
   order: number;
   moduleId: string;
   youtubeTutorial?: YoutubeTutorial | null;
-  quizzes: Quiz[];
   createdAt: string;
   updatedAt: string;
 }
@@ -112,11 +114,13 @@ export interface Lesson {
 export interface YoutubeTutorial {
   id: string;
   lessonId: string;
-  videoId: string;
-  title: string;
-  channel: string;
-  thumbnail: string;
-  duration: number;
+  ytVideoId: string;
+  ytTitle: string | null;
+  ytChannel: string | null;
+  ytThumbnail: string | null;
+  ytDuration: string | null;
+  embedUrl: string | null;
+  teacherNotes: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -127,9 +131,10 @@ export interface Quiz {
   moduleId: string;
   passingScore: number;
   timeLimit: number | null;
-  attempts: number;
-  questions: QuizQuestion[];
-  isPublished: boolean;
+  order: number;
+  questions?: QuizQuestion[];
+  attempts?: QuizAttempt[];
+  _count?: { questions?: number; attempts?: number };
   createdAt: string;
   updatedAt: string;
 }
@@ -137,27 +142,44 @@ export interface Quiz {
 export interface QuizQuestion {
   id: string;
   quizId: string;
-  question: string;
-  type: "MULTIPLE_CHOICE" | "TRUE_FALSE" | "SHORT_ANSWER";
+  questionText: string;
+  questionType: "MULTIPLE_CHOICE" | "TRUE_FALSE" | "SHORT_ANSWER";
   options: string[] | null;
-  correctAnswer: string;
+  correctAnswer?: string;
   points: number;
   order: number;
   createdAt: string;
-  updatedAt: string;
 }
 
 export interface QuizAttempt {
   id: string;
   quizId: string;
-  userId: string;
+  studentId: string;
   score: number;
-  maxScore: number;
+  totalPoints: number;
+  earnedPoints: number;
   passed: boolean;
-  answers: Record<string, string | number>;
-  timeTaken: number | null;
-  completedAt: string;
-  createdAt: string;
+  answers: QuizGradedAnswer[];
+  submittedAt: string;
+}
+
+export interface QuizGradedAnswer {
+  questionId: string;
+  answer: string;
+  isCorrect: boolean;
+  correctAnswer: string;
+  points: number;
+}
+
+export interface QuizAttemptResult {
+  attempt: QuizAttempt;
+  results: {
+    score: number;
+    totalPoints: number;
+    earnedPoints: number;
+    passed: boolean;
+    answers: QuizGradedAnswer[];
+  };
 }
 
 export interface Enrollment {
@@ -176,13 +198,13 @@ export interface Enrollment {
 export interface Announcement {
   id: string;
   title: string;
-  content: string;
+  body: string;
   authorId: string;
   courseId: string | null;
   isInstitutionWide: boolean;
   scheduledFor: string | null;
   isPublished: boolean;
-  priority: "low" | "normal" | "high" | "urgent";
+  priority?: "low" | "normal" | "high" | "urgent";
   author?: Pick<User, "id" | "firstName" | "lastName" | "avatar">;
   course?: Pick<Course, "id" | "title">;
   createdAt: string;

@@ -194,7 +194,7 @@ export function DashboardPage() {
                             <Badge variant="outline" className="text-[10px] px-1">School-wide</Badge>
                           )}
                         </div>
-                        <p className="text-xs text-muted-foreground line-clamp-2">{ann.content}</p>
+                        <p className="text-xs text-muted-foreground line-clamp-2">{ann.body}</p>
                       </div>
                     ))}
                   </div>

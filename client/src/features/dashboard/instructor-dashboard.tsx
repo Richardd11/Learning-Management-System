@@ -14,7 +14,15 @@ import { useInstructorCourses } from "@/hooks/use-courses";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
-import type { ApiResponse, Announcement, AcademicLevel } from "@/types";
+import type { ApiResponse, Announcement } from "@/types";
+
+interface YouTubeMetadata {
+  videoId: string;
+  title: string;
+  channel: string;
+  thumbnail: string;
+  embedUrl: string;
+}
 
 const container = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.08 } } };
 const item = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } };
@@ -147,15 +155,15 @@ export function InstructorDashboard() {
 
 function TeacherContentTab() {
   const [url, setUrl] = useState("");
-  const [metadata, setMetadata] = useState<any>(null);
+  const [metadata, setMetadata] = useState<YouTubeMetadata | null>(null);
   const [fetchingMeta, setFetchingMeta] = useState(false);
 
   const fetchMetadata = async () => {
     if (!url) return;
     setFetchingMeta(true);
     try {
-      const res = await api.post<ApiResponse<any>>("/youtube/fetch-metadata", { url });
-      setMetadata(res.data);
+      const res = await api.post<ApiResponse<YouTubeMetadata>>("/youtube/fetch-metadata", { url });
+      setMetadata(res.data ?? null);
     } catch {
       setMetadata(null);
     } finally {
@@ -219,7 +227,12 @@ function TeacherAnnouncementsTab() {
   });
 
   const createMutation = useMutation({
-    mutationFn: (data: typeof form) => api.post("/announcements", data),
+    mutationFn: (data: typeof form) => api.post("/announcements", {
+      title: data.title,
+      body: data.content,
+      courseId: data.courseId || undefined,
+      isInstitutionWide: data.isInstitutionWide,
+    }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["teacherAnnouncements"] });
       setShowCreate(false);
@@ -251,7 +264,7 @@ function TeacherAnnouncementsTab() {
         <Card key={ann.id}>
           <CardContent className="p-4">
             <h4 className="font-medium">{ann.title}</h4>
-            <p className="text-sm text-muted-foreground line-clamp-2">{ann.content}</p>
+            <p className="text-sm text-muted-foreground line-clamp-2">{ann.body}</p>
             <p className="text-xs text-muted-foreground mt-2">{new Date(ann.createdAt).toLocaleDateString()}</p>
           </CardContent>
         </Card>

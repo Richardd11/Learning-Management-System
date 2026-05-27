@@ -26,7 +26,17 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { api } from "@/lib/api";
 import { toast } from "sonner";
 import { getInitials } from "@/lib/utils";
-import type { ApiResponse, AdminStats, AcademicLevel, AcademicLevelType, Section, Role, Announcement, PaginatedResponse } from "@/types";
+import type { ApiResponse, AdminStats, AcademicLevel, AcademicLevelType, Section, Role, Announcement, PaginatedResponse, Course } from "@/types";
+
+type AnnouncementPriority = "low" | "normal" | "high" | "urgent";
+
+interface YouTubeMetadata {
+  videoId: string;
+  title: string;
+  channel: string;
+  thumbnail: string;
+  embedUrl: string;
+}
 
 interface AdminUser {
   id: string;
@@ -647,7 +657,7 @@ function CoursesTab() {
       let url = "/admin/courses?";
       if (statusFilter !== "ALL") url += `status=${statusFilter}`;
       if (levelFilter !== "ALL") url += `&academicLevelId=${levelFilter}`;
-      return api.get<ApiResponse<any[]>>(url);
+      return api.get<ApiResponse<Course[]>>(url);
     },
     select: (res) => res.data,
   });
@@ -687,7 +697,7 @@ function CoursesTab() {
         <div className="space-y-3">{[1, 2, 3].map((i) => <Skeleton key={i} className="h-24" />)}</div>
       ) : (
         <div className="space-y-2">
-          {coursesData?.map((course: any) => (
+          {coursesData?.map((course) => (
             <Card key={course.id}>
               <CardContent className="p-4 flex items-center gap-4">
                 {course.thumbnail ? (
@@ -736,7 +746,7 @@ function AnnouncementsTab() {
   const queryClient = useQueryClient();
   const [showCreate, setShowCreate] = useState(false);
   const [form, setForm] = useState({
-    title: "", content: "", courseId: "", isInstitutionWide: true, priority: "normal" as const,
+    title: "", content: "", courseId: "", isInstitutionWide: true, priority: "normal" as AnnouncementPriority,
   });
 
   const { data: announcements, isLoading } = useQuery({
@@ -746,7 +756,12 @@ function AnnouncementsTab() {
   });
 
   const createMutation = useMutation({
-    mutationFn: (data: typeof form) => api.post("/announcements", data),
+    mutationFn: (data: typeof form) => api.post("/announcements", {
+      title: data.title,
+      body: data.content,
+      courseId: data.courseId || undefined,
+      isInstitutionWide: data.isInstitutionWide,
+    }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["announcements"] });
       toast.success("Announcement created");
@@ -788,7 +803,7 @@ function AnnouncementsTab() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Priority</Label>
-                <Select value={form.priority} onValueChange={(v) => setForm({ ...form, priority: v as any })}>
+                <Select value={form.priority} onValueChange={(v) => setForm({ ...form, priority: v as AnnouncementPriority })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="low">Low</SelectItem>
@@ -826,11 +841,11 @@ function AnnouncementsTab() {
                   <div>
                     <div className="flex items-center gap-2 mb-1">
                       <h3 className="font-medium">{ann.title}</h3>
-                      <Badge className={priorityColors[ann.priority] || ""}>{ann.priority}</Badge>
+                      {ann.priority && <Badge className={priorityColors[ann.priority] || ""}>{ann.priority}</Badge>}
                       {ann.isInstitutionWide && <Badge variant="outline">Institution-wide</Badge>}
                       {ann.course && <Badge variant="secondary">{ann.course.title}</Badge>}
                     </div>
-                    <p className="text-sm text-muted-foreground line-clamp-2">{ann.content}</p>
+                    <p className="text-sm text-muted-foreground line-clamp-2">{ann.body}</p>
                     <p className="text-xs text-muted-foreground mt-2">
                       {new Date(ann.createdAt).toLocaleDateString()}
                     </p>
@@ -851,15 +866,15 @@ function AnnouncementsTab() {
 // ── YouTube Tab ────────────────────────────────────────────────────
 function YouTubeTab() {
   const [url, setUrl] = useState("");
-  const [metadata, setMetadata] = useState<any>(null);
+  const [metadata, setMetadata] = useState<YouTubeMetadata | null>(null);
   const [fetchingMeta, setFetchingMeta] = useState(false);
 
   const fetchMetadata = async () => {
     if (!url) return;
     setFetchingMeta(true);
     try {
-      const res = await api.post<ApiResponse<any>>("/youtube/fetch-metadata", { url });
-      setMetadata(res.data);
+      const res = await api.post<ApiResponse<YouTubeMetadata>>("/youtube/fetch-metadata", { url });
+      setMetadata(res.data ?? null);
     } catch (err) {
       toast.error("Failed to fetch YouTube metadata");
     } finally {
@@ -900,7 +915,6 @@ function YouTubeTab() {
                 <div>
                   <h3 className="font-semibold">{metadata.title}</h3>
                   <p className="text-sm text-muted-foreground">Channel: {metadata.channel}</p>
-                  {metadata.duration && <p className="text-sm text-muted-foreground">Duration: {metadata.duration} min</p>}
                 </div>
               </div>
             </div>
@@ -935,7 +949,7 @@ function AnalyticsTab() {
 
   const { data: coursesData, isLoading: coursesLoading } = useQuery({
     queryKey: ["adminCourses"],
-    queryFn: () => api.get<ApiResponse<any[]>>("/admin/courses"),
+    queryFn: () => api.get<ApiResponse<Course[]>>("/admin/courses"),
     select: (res) => res.data,
   });
 
@@ -954,15 +968,15 @@ function AnalyticsTab() {
   })) ?? [];
 
   const courseStatusData = coursesData ? [
-    { name: "Published", value: coursesData.filter((c: any) => c.status === "PUBLISHED").length, color: "hsl(var(--primary))" },
-    { name: "Draft", value: coursesData.filter((c: any) => c.status === "DRAFT").length, color: "hsl(var(--muted-foreground))" },
-    { name: "Archived", value: coursesData.filter((c: any) => c.status === "ARCHIVED").length, color: "hsl(var(--destructive))" },
+    { name: "Published", value: coursesData.filter((c) => c.status === "PUBLISHED").length, color: "hsl(var(--primary))" },
+    { name: "Draft", value: coursesData.filter((c) => c.status === "DRAFT").length, color: "hsl(var(--muted-foreground))" },
+    { name: "Archived", value: coursesData.filter((c) => c.status === "ARCHIVED").length, color: "hsl(var(--destructive))" },
   ].filter(d => d.value > 0) : [];
 
   const coursesByLevelData = levelsData?.map((level) => ({
     name: level.gradeLabel,
-    courses: coursesData?.filter((c: any) => c.academicLevelId === level.id).length ?? 0,
-    students: level.sections?.reduce((sum, s) => sum + s.currentEnrollment, 0) ?? 0,
+    courses: coursesData?.filter((c) => c.academicLevelId === level.id).length ?? 0,
+    students: level.sections?.reduce((sum, s) => sum + (s.currentEnrollment ?? 0), 0) ?? 0,
   })) ?? [];
 
   const roleDistributionData = stats ? [
@@ -972,9 +986,9 @@ function AnalyticsTab() {
   ].filter(d => d.value > 0) : [];
 
   const topCoursesData = coursesData
-    ?.sort((a: any, b: any) => (b._count?.enrollments ?? 0) - (a._count?.enrollments ?? 0))
+    ?.slice().sort((a, b) => (b._count?.enrollments ?? 0) - (a._count?.enrollments ?? 0))
     .slice(0, 5)
-    .map((c: any) => ({
+    .map((c) => ({
       name: c.title.length > 20 ? c.title.slice(0, 20) + "..." : c.title,
       enrollments: c._count?.enrollments ?? 0,
       modules: c._count?.modules ?? 0,

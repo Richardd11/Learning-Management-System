@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
-import type { ApiResponse, Course, PaginatedResponse } from "@/types";
+import type { ApiResponse, Course, LessonContentType, PaginatedResponse } from "@/types";
 
 export function useCourses(filters?: Record<string, string | number>) {
   const params = new URLSearchParams();
@@ -87,10 +87,21 @@ export function useCreateModule() {
   });
 }
 
+interface CreateLessonPayload {
+  moduleId: string;
+  title: string;
+  order: number;
+  content?: string;
+  contentType?: LessonContentType;
+  contentUrl?: string;
+  duration?: number;
+  isPublished?: boolean;
+}
+
 export function useCreateLesson() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ moduleId, ...data }: { moduleId: string; title: string; order: number; content?: string }) =>
+    mutationFn: ({ moduleId, ...data }: CreateLessonPayload) =>
       api.post(`/courses/modules/${moduleId}/lessons`, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["courseById"] });

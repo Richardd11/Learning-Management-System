@@ -9,9 +9,12 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/common/empty-state";
 import { Breadcrumbs } from "@/components/common/breadcrumbs";
+import { useQuery } from "@tanstack/react-query";
 import { useCourses } from "@/hooks/use-courses";
 import { useDebounce } from "@/hooks/use-debounce";
+import { api } from "@/lib/api";
 import { formatPrice, getDifficultyColor, truncate } from "@/lib/utils";
+import type { AcademicLevel, ApiResponse } from "@/types";
 
 const difficulties = ["all", "beginner", "intermediate", "advanced"];
 
@@ -28,13 +31,21 @@ const item = {
 export function CatalogPage() {
   const [search, setSearch] = useState("");
   const [difficulty, setDifficulty] = useState("all");
+  const [academicLevelId, setAcademicLevelId] = useState("all");
   const [page, setPage] = useState(1);
 
   const debouncedSearch = useDebounce(search, 300);
 
+  const { data: academicLevels } = useQuery({
+    queryKey: ["academicLevels", "catalog"],
+    queryFn: () => api.get<ApiResponse<AcademicLevel[]>>("/levels/levels"),
+    select: (res) => res.data ?? [],
+  });
+
   const { data, isLoading } = useCourses({
     search: debouncedSearch || undefined,
     difficulty: difficulty === "all" ? undefined : difficulty,
+    academicLevelId: academicLevelId === "all" ? undefined : academicLevelId,
     page,
     limit: 12,
   } as Record<string, string | number>);
@@ -49,8 +60,8 @@ export function CatalogPage() {
       </motion.div>
 
       {/* Filters */}
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="flex flex-col sm:flex-row gap-4 mb-8">
-        <div className="relative flex-1">
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="space-y-4 mb-8">
+        <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search courses..."
@@ -72,6 +83,25 @@ export function CatalogPage() {
                 {d}
               </Button>
             </motion.div>
+          ))}
+        </div>
+        <div className="flex gap-2 flex-wrap">
+          <Button
+            variant={academicLevelId === "all" ? "default" : "outline"}
+            size="sm"
+            onClick={() => { setAcademicLevelId("all"); setPage(1); }}
+          >
+            All levels
+          </Button>
+          {academicLevels?.map((level) => (
+            <Button
+              key={level.id}
+              variant={academicLevelId === level.id ? "default" : "outline"}
+              size="sm"
+              onClick={() => { setAcademicLevelId(level.id); setPage(1); }}
+            >
+              {level.gradeLabel}
+            </Button>
           ))}
         </div>
       </motion.div>
@@ -106,6 +136,9 @@ export function CatalogPage() {
                           <Badge variant="secondary" className={getDifficultyColor(course.difficulty)}>
                             {course.difficulty}
                           </Badge>
+                          {course.academicLevel && (
+                            <Badge variant="outline">{course.academicLevel.gradeLabel}</Badge>
+                          )}
                           {course.rating > 0 && (
                             <span className="flex items-center text-xs text-muted-foreground">
                               <Star className="h-3 w-3 fill-yellow-400 text-yellow-400 mr-0.5" />
@@ -152,7 +185,7 @@ export function CatalogPage() {
           title="No courses found"
           description={search ? `No results for "${search}". Try different keywords or clear your filters.` : "No courses are available right now. Check back soon!"}
           actionLabel="Clear filters"
-          onAction={() => { setSearch(""); setDifficulty("all"); }}
+          onAction={() => { setSearch(""); setDifficulty("all"); setAcademicLevelId("all"); }}
         />
       )}
     </div>
