@@ -9,13 +9,17 @@ datasource db {
   extensions = [vector]
 }
 
-// ── Enums ─────────────────────────────────────────────
+// ── Enums ────────────────────────────────────────────────────────
 
 enum Role {
-  SUPER_ADMIN
   ADMIN
-  INSTRUCTOR
+  TEACHER
   STUDENT
+}
+
+enum AcademicLevelType {
+  HIGH_SCHOOL
+  COLLEGE
 }
 
 enum CourseStatus {
@@ -28,6 +32,13 @@ enum EnrollmentStatus {
   ACTIVE
   COMPLETED
   DROPPED
+}
+
+enum LessonContentType {
+  VIDEO
+  PDF
+  TEXT
+  YOUTUBE
 }
 
 enum QuestionType {
@@ -44,160 +55,267 @@ enum NotificationType {
   SYSTEM
 }
 
-// ── Users ─────────────────────────────────────────────
+enum Semester {
+  FIRST
+  SECOND
+  SUMMER
+}
+
+// ── Academic Levels ──────────────────────────────────────────────
+
+model AcademicLevel {
+  id         String             @id @default(cuid())
+  type       AcademicLevelType
+  gradeLabel String             // "Grade 7", "1st Year", etc.
+  orderIndex Int                @default(0) // for sorting: Grade 7=0, Grade 8=1, etc.
+  isActive   Boolean            @default(true)
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
+
+  sections   Section[]
+  users      User[]
+  courses    Course[]
+
+  @@unique([type, gradeLabel])
+  @@map("academic_levels")
+}
+
+model Section {
+  id              String           @id @default(cuid())
+  name            String           // "Section A", "BSCS Block 1", etc.
+  academicLevelId String
+  schoolYear      String           // "2024-2025"
+  semester        Semester?        // Only for COLLEGE type
+  capacity        Int              @default(40)
+  isActive        Boolean          @default(true)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  academicLevel   AcademicLevel    @relation(fields: [academicLevelId], references: [id])
+  users           User[]
+  enrollments     Enrollment[]
+  courses         Course[]       @relation("SectionCourses")
+
+  @@unique([name, academicLevelId, schoolYear])
+  @@map("sections")
+}
+
+// ── Users ────────────────────────────────────────────────────────
 
 model User {
-  id            String   @id @default(cuid())
-  email         String   @unique
-  passwordHash  String?
-  firstName     String
-  lastName      String
-  avatar        String?
-  bio           String?
-  role          Role     @default(STUDENT)
-  xp            Int      @default(0)
-  streak        Int      @default(0)
-  lastActiveAt  DateTime @default(now())
-  isBanned      Boolean  @default(false)
-  socialLinks   Json?
-  googleId      String?  @unique
-  githubId      String?  @unique
-  refreshToken  String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id              String   @id @default(cuid())
+  email           String   @unique
+  passwordHash    String?
+  firstName       String
+  lastName        String
+  avatar          String?
+  bio             String?
+  role            Role     @default(STUDENT)
+  academicLevelId String?
+  sectionId       String?
+  studentIdNumber String?  // School-issued student ID
+  dateOfBirth     DateTime?
+  xp              Int      @default(0)
+  streak          Int      @default(0)
+  lastActiveAt    DateTime @default(now())
+  isBanned        Boolean  @default(false)
+  socialLinks     Json?
+  googleId        String?  @unique
+  githubId        String?  @unique
+  refreshToken    String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
-  courses       Course[]       @relation("InstructorCourses")
-  enrollments   Enrollment[]
-  reviews       Review[]
-  certificates  Certificate[]
-  notifications Notification[]
-  submissions   Submission[]
-  notes         Note[]
-  progress      LessonProgress[]
+  academicLevel   AcademicLevel?   @relation(fields: [academicLevelId], references: [id])
+  section         Section?         @relation(fields: [sectionId], references: [id])
+  courses         Course[]         @relation("InstructorCourses")
+  enrollments     Enrollment[]
+  reviews         Review[]
+  certificates    Certificate[]
+  notifications   Notification[]
+  notes           Note[]
+  progress        LessonProgress[]
+  quizAttempts    QuizAttempt[]
+  announcements   Announcement[]   @relation("AnnouncementAuthor")
 
   @@map("users")
 }
 
-// ── Courses ───────────────────────────────────────────
+// ── Courses ──────────────────────────────────────────────────────
 
 model Course {
-  id            String       @id @default(cuid())
-  title         String
-  slug          String       @unique
-  description   String
-  shortDesc     String?
-  thumbnail     String?
-  price         Float        @default(0)
-  difficulty    String       @default("beginner")
-  status        CourseStatus @default(DRAFT)
-  tags          String[]
-  rating        Float        @default(0)
-  ratingCount   Int          @default(0)
-  enrollCount   Int          @default(0)
-  instructorId  String
-  publishedAt   DateTime?
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  id               String       @id @default(cuid())
+  title            String
+  slug             String       @unique
+  description      String
+  shortDesc        String?
+  thumbnail        String?
+  subjectCode      String?      // "MATH101", "SCI-201", etc.
+  price            Float        @default(0)
+  difficulty       String       @default("beginner")
+  status           CourseStatus @default(DRAFT)
+  tags             String[]
+  rating           Float        @default(0)
+  ratingCount      Int          @default(0)
+  enrollCount      Int          @default(0)
+  instructorId     String
+  academicLevelId  String?
+  publishedAt      DateTime?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
 
-  instructor   User          @relation("InstructorCourses", fields: [instructorId], references: [id])
-  modules      Module[]
-  enrollments  Enrollment[]
-  reviews      Review[]
-  certificates Certificate[]
-  embeddings   CourseEmbedding[]
+  instructor       User           @relation("InstructorCourses", fields: [instructorId], references: [id])
+  academicLevel    AcademicLevel? @relation(fields: [academicLevelId], references: [id])
+  sections         Section[]      @relation("SectionCourses")
+  modules          Module[]
+  enrollments      Enrollment[]
+  reviews          Review[]
+  certificates     Certificate[]
+  embeddings       CourseEmbedding[]
+  announcements    Announcement[] @relation("CourseAnnouncements")
 
   @@map("courses")
 }
 
+// ── Modules & Lessons ────────────────────────────────────────────
+
 model Module {
-  id        String   @id @default(cuid())
-  title     String
-  order     Int
-  courseId  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(cuid())
+  title       String
+  order       Int
+  isPublished Boolean  @default(false)
+  courseId     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   course  Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
   lessons Lesson[]
+  quizzes Quiz[]
 
   @@map("modules")
 }
 
 model Lesson {
-  id          String   @id @default(cuid())
-  title       String
-  content     String?
-  videoUrl    String?
-  duration    Int?
-  order       Int
-  moduleId    String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id            String            @id @default(cuid())
+  title         String
+  content       String?           // Rich text content
+  contentType   LessonContentType @default(TEXT)
+  contentUrl    String?           // URL for uploaded PDF/DOCX/PPT, video URL
+  duration      Int?              // Duration in minutes
+  order         Int
+  isPublished   Boolean           @default(false)
+  moduleId      String
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
 
-  module     Module           @relation(fields: [moduleId], references: [id], onDelete: Cascade)
-  quizzes    Quiz[]
-  flashcards Flashcard[]
-  progress   LessonProgress[]
-  notes      Note[]
+  module           Module            @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  youtubeTutorial  YoutubeTutorial?
+  progress         LessonProgress[]
+  notes            Note[]
 
   @@map("lessons")
 }
 
-model Quiz {
-  id        String       @id @default(cuid())
-  question  String
-  type      QuestionType
-  options   Json?
-  answer    String
-  order     Int          @default(0)
-  lessonId  String
-  createdAt DateTime     @default(now())
+model YoutubeTutorial {
+  id           String   @id @default(cuid())
+  lessonId     String   @unique
+  ytVideoId    String   // YouTube video ID (e.g., "dQw4w9WgXcQ")
+  ytTitle      String?
+  ytThumbnail  String?
+  ytChannel    String?
+  ytDuration   String?  // ISO 8601 duration (e.g., "PT10M30S")
+  embedUrl     String?  // "https://www.youtube.com/embed/{ytVideoId}"
+  teacherNotes String?  // Optional teacher notes alongside video
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  lesson      Lesson       @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  submissions Submission[]
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@map("youtube_tutorials")
+}
+
+// ── Quiz System ──────────────────────────────────────────────────
+
+model Quiz {
+  id           String       @id @default(cuid())
+  title        String
+  moduleId     String
+  timeLimit    Int?         // Time limit in minutes (null = no limit)
+  passingScore Float        @default(50) // Percentage to pass
+  order        Int          @default(0)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  module    Module          @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  questions QuizQuestion[]
+  attempts  QuizAttempt[]
 
   @@map("quizzes")
 }
 
-model Flashcard {
-  id        String   @id @default(cuid())
-  front     String
-  back      String
-  order     Int      @default(0)
-  lessonId  String
-  createdAt DateTime @default(now())
+model QuizQuestion {
+  id           String       @id @default(cuid())
+  quizId       String
+  questionText String
+  questionType QuestionType
+  options      Json?        // Array of options for MC/TF: ["Option A", "Option B", ...]
+  correctAnswer String      // Index for MC/TF, text for short answer
+  points       Float        @default(1)
+  order        Int          @default(0)
+  createdAt    DateTime     @default(now())
 
-  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  quiz Quiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
 
-  @@map("flashcards")
+  @@map("quiz_questions")
 }
 
-// ── Enrollments & Progress ────────────────────────────
+model QuizAttempt {
+  id          String   @id @default(cuid())
+  studentId   String
+  quizId      String
+  score       Float    // Percentage score
+  totalPoints Float
+  earnedPoints Float
+  passed      Boolean
+  answers     Json     // Student's answers: [{ questionId, answer, isCorrect }]
+  submittedAt DateTime @default(now())
+
+  student User @relation(fields: [studentId], references: [id])
+  quiz    Quiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, quizId]) // One attempt per quiz (or remove for multiple attempts)
+  @@map("quiz_attempts")
+}
+
+// ── Enrollments & Progress ───────────────────────────────────────
 
 model Enrollment {
   id          String           @id @default(cuid())
   userId      String
-  courseId     String
+  courseId    String
+  sectionId   String?
   status      EnrollmentStatus @default(ACTIVE)
   progress    Float            @default(0)
   completedAt DateTime?
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
 
-  user   User   @relation(fields: [userId], references: [id])
-  course Course @relation(fields: [courseId], references: [id])
+  user    User     @relation(fields: [userId], references: [id])
+  course  Course   @relation(fields: [courseId], references: [id])
+  section Section? @relation(fields: [sectionId], references: [id])
 
   @@unique([userId, courseId])
   @@map("enrollments")
 }
 
 model LessonProgress {
-  id          String    @id @default(cuid())
-  userId      String
-  lessonId    String
-  completed   Boolean   @default(false)
-  completedAt DateTime?
-  createdAt   DateTime  @default(now())
+  id           String    @id @default(cuid())
+  userId       String
+  lessonId     String
+  completed    Boolean   @default(false)
+  completedAt  DateTime?
+  lastAccessed DateTime  @default(now())
+  createdAt    DateTime  @default(now())
 
   user   User   @relation(fields: [userId], references: [id])
   lesson Lesson @relation(fields: [lessonId], references: [id])
@@ -206,28 +324,32 @@ model LessonProgress {
   @@map("lesson_progress")
 }
 
-model Submission {
-  id        String   @id @default(cuid())
-  userId    String
-  quizId    String
-  answer    String
-  isCorrect Boolean?
-  feedback  String?
-  score     Float?
-  createdAt DateTime @default(now())
+// ── Announcements ────────────────────────────────────────────────
 
-  user User @relation(fields: [userId], references: [id])
-  quiz Quiz @relation(fields: [quizId], references: [id])
+model Announcement {
+  id               String    @id @default(cuid())
+  title            String
+  body             String
+  authorId         String
+  courseId         String?   // null = institution-wide
+  isInstitutionWide Boolean  @default(false)
+  scheduledFor     DateTime? // Scheduled publish date/time
+  isPublished      Boolean   @default(true)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
-  @@map("submissions")
+  author User   @relation("AnnouncementAuthor", fields: [authorId], references: [id])
+  course Course? @relation("CourseAnnouncements", fields: [courseId], references: [id])
+
+  @@map("announcements")
 }
 
-// ── Reviews ───────────────────────────────────────────
+// ── Reviews ──────────────────────────────────────────────────────
 
 model Review {
   id        String   @id @default(cuid())
   userId    String
-  courseId   String
+  courseId  String
   rating    Int
   comment   String?
   createdAt DateTime @default(now())
@@ -240,12 +362,12 @@ model Review {
   @@map("reviews")
 }
 
-// ── Certificates ──────────────────────────────────────
+// ── Certificates ─────────────────────────────────────────────────
 
 model Certificate {
   id             String   @id @default(cuid())
   userId         String
-  courseId        String
+  courseId       String
   verificationId String   @unique @default(cuid())
   pdfUrl         String?
   issuedAt       DateTime @default(now())
@@ -257,7 +379,7 @@ model Certificate {
   @@map("certificates")
 }
 
-// ── Notes ─────────────────────────────────────────────
+// ── Notes ────────────────────────────────────────────────────────
 
 model Note {
   id        String   @id @default(cuid())
@@ -274,7 +396,7 @@ model Note {
   @@map("notes")
 }
 
-// ── Notifications ─────────────────────────────────────
+// ── Notifications ────────────────────────────────────────────────
 
 model Notification {
   id        String           @id @default(cuid())
@@ -291,19 +413,7 @@ model Notification {
   @@map("notifications")
 }
 
-// ── Announcements ─────────────────────────────────────
-
-model Announcement {
-  id        String   @id @default(cuid())
-  title     String
-  message   String
-  authorId  String
-  createdAt DateTime @default(now())
-
-  @@map("announcements")
-}
-
-// ── AI Embeddings (for RAG) ───────────────────────────
+// ── AI Embeddings (for RAG) ──────────────────────────────────────
 
 model CourseEmbedding {
   id        String                      @id @default(cuid())

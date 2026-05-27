@@ -1,16 +1,20 @@
 import { motion } from "framer-motion";
 import { Link } from "@tanstack/react-router";
-import { BookOpen, Award, Flame, Zap, Clock, TrendingUp } from "lucide-react";
+import {
+  BookOpen, Award, Flame, Zap, Clock, TrendingUp,
+  GraduationCap, Megaphone, Layers, Youtube,
+} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuthStore } from "@/stores/auth-store";
 import { useEnrollments } from "@/hooks/use-enrollment";
 import { formatDate } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
-import type { ApiResponse, UserStats } from "@/types";
+import type { ApiResponse, UserStats, Announcement } from "@/types";
 
 const container = {
   hidden: { opacity: 0 },
@@ -22,7 +26,7 @@ const item = {
   show: { opacity: 1, y: 0 },
 };
 
-function AnimatedCounter({ value, label, icon: Icon }: { value: number; label: string; icon: React.ComponentType<{ className?: string }> }) {
+function AnimatedCounter({ value, label, icon: Icon }: { value: number | string; label: string; icon: React.ComponentType<{ className?: string }> }) {
   return (
     <motion.div variants={item}>
       <Card>
@@ -36,7 +40,7 @@ function AnimatedCounter({ value, label, icon: Icon }: { value: number; label: s
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.3 }}
               >
-                {value.toLocaleString()}
+                {typeof value === "number" ? value.toLocaleString() : value}
               </motion.p>
             </div>
             <Icon className="h-8 w-8 text-primary opacity-80" />
@@ -56,6 +60,13 @@ export function DashboardPage() {
     select: (res) => res.data,
   });
 
+  const { data: announcements } = useQuery({
+    queryKey: ["studentAnnouncements"],
+    queryFn: () => api.get<ApiResponse<Announcement[]>>("/announcements/my"),
+    select: (res) => res.data,
+    enabled: user?.role === "STUDENT",
+  });
+
   if (!user) {
     return (
       <div className="max-w-lg mx-auto min-h-[60vh] flex items-center justify-center">
@@ -69,9 +80,6 @@ export function DashboardPage() {
             <Link to="/login">
               <Button size="lg">Log in</Button>
             </Link>
-            <Link to="/register">
-              <Button variant="outline" size="lg">Create Account</Button>
-            </Link>
           </div>
         </motion.div>
       </div>
@@ -79,13 +87,34 @@ export function DashboardPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="max-w-7xl mx-auto p-6 space-y-6">
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-3xl font-bold mb-1">Welcome back, {user.firstName}!</h1>
-        <p className="text-muted-foreground mb-8">Here&apos;s your learning progress</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold mb-1">Welcome back, {user.firstName}!</h1>
+            <p className="text-muted-foreground">Here&apos;s your learning progress</p>
+          </div>
+          {user.role === "STUDENT" && (user.academicLevel || user.section) && (
+            <div className="flex items-center gap-2">
+              {user.academicLevel && (
+                <Badge variant="default" className="text-sm px-3 py-1">
+                  <Layers className="h-3 w-3 mr-1" /> {user.academicLevel.gradeLabel}
+                </Badge>
+              )}
+              {user.section && (
+                <Badge variant="secondary" className="text-sm px-3 py-1">
+                  <GraduationCap className="h-3 w-3 mr-1" /> {user.section.name}
+                </Badge>
+              )}
+              {user.studentIdNumber && (
+                <span className="text-sm text-muted-foreground">ID: {user.studentIdNumber}</span>
+              )}
+            </div>
+          )}
+        </div>
       </motion.div>
 
-      <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <AnimatedCounter value={stats?.enrollments ?? 0} label="Enrolled Courses" icon={BookOpen} />
         <AnimatedCounter value={stats?.completedCourses ?? 0} label="Completed" icon={Award} />
         <AnimatedCounter value={stats?.streak ?? 0} label="Day Streak" icon={Flame} />
@@ -93,6 +122,7 @@ export function DashboardPage() {
       </motion.div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Continue Learning */}
         <div className="lg:col-span-2">
           <Card>
             <CardHeader>
@@ -145,10 +175,41 @@ export function DashboardPage() {
         </div>
 
         <div className="space-y-6">
+          {/* Announcements */}
+          {user.role === "STUDENT" && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <Megaphone className="h-4 w-4" /> Announcements
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {announcements && announcements.length > 0 ? (
+                  <div className="space-y-3">
+                    {announcements.slice(0, 4).map((ann) => (
+                      <div key={ann.id} className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-medium">{ann.title}</p>
+                          {ann.isInstitutionWide && (
+                            <Badge variant="outline" className="text-[10px] px-1">School-wide</Badge>
+                          )}
+                        </div>
+                        <p className="text-xs text-muted-foreground line-clamp-2">{ann.content}</p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground text-center py-2">No announcements</p>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Recent Activity */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Clock className="h-5 w-5" /> Recent Activity
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Clock className="h-4 w-4" /> Recent Activity
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -170,10 +231,11 @@ export function DashboardPage() {
             </CardContent>
           </Card>
 
+          {/* Achievements */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Award className="h-5 w-5" /> Achievements
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Award className="h-4 w-4" /> Achievements
               </CardTitle>
             </CardHeader>
             <CardContent>

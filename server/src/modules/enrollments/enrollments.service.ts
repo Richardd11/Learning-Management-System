@@ -2,14 +2,32 @@ import { prisma } from "../../lib/prisma.js";
 import { certificateQueue } from "../../lib/queue.js";
 import type { Enrollment, LessonProgress } from "@prisma/client";
 
-export async function enrollInCourse(userId: string, courseId: string): Promise<Enrollment> {
+export async function enrollInCourse(userId: string, courseId: string, sectionId?: string): Promise<Enrollment> {
   const existing = await prisma.enrollment.findUnique({
     where: { userId_courseId: { userId, courseId } },
   });
   if (existing) throw new Error("Already enrolled");
 
+  // If no sectionId provided, try to use the student's assigned section
+  if (!sectionId) {
+    const user = await prisma.user.findUnique({ where: { id: userId }, select: { sectionId: true } });
+    sectionId = user?.sectionId ?? undefined;
+  }
+
   const enrollment = await prisma.enrollment.create({
-    data: { userId, courseId },
+    data: {
+      userId,
+      courseId,
+      sectionId: sectionId ?? null,
+    },
+    include: {
+      section: true,
+      course: {
+        include: {
+          academicLevel: true,
+        },
+      },
+    },
   });
 
   await prisma.course.update({
@@ -20,9 +38,53 @@ export async function enrollInCourse(userId: string, courseId: string): Promise<
   return enrollment;
 }
 
+/**
+ * Bulk enroll all students in a section to a course.
+ */
+export async function bulkEnrollSection(sectionId: string, courseId: string): Promise<{ enrolled: number; alreadyEnrolled: number }> {
+  const students = await prisma.user.findMany({
+    where: { sectionId, role: "STUDENT" },
+    select: { id: true },
+  });
+
+  let enrolled = 0;
+  let alreadyEnrolled = 0;
+
+  for (const student of students) {
+    const existing = await prisma.enrollment.findUnique({
+      where: { userId_courseId: { userId: student.id, courseId } },
+    });
+    if (existing) {
+      alreadyEnrolled++;
+      continue;
+    }
+
+    await prisma.enrollment.create({
+      data: {
+        userId: student.id,
+        courseId,
+        sectionId,
+      },
+    });
+    enrolled++;
+  }
+
+  if (enrolled > 0) {
+    await prisma.course.update({
+      where: { id: courseId },
+      data: { enrollCount: { increment: enrolled } },
+    });
+  }
+
+  return { enrolled, alreadyEnrolled };
+}
+
 export async function getEnrollment(userId: string, courseId: string) {
   return prisma.enrollment.findUnique({
     where: { userId_courseId: { userId, courseId } },
+    include: {
+      section: true,
+    },
   });
 }
 
@@ -33,9 +95,11 @@ export async function getUserEnrollments(userId: string) {
       course: {
         include: {
           instructor: { select: { id: true, firstName: true, lastName: true, avatar: true } },
+          academicLevel: true,
           _count: { select: { modules: true } },
         },
       },
+      section: true,
     },
     orderBy: { createdAt: "desc" },
   });
@@ -98,26 +162,6 @@ async function recalculateProgress(userId: string, courseId: string): Promise<vo
 
     await certificateQueue.add("generate-certificate", { userId, courseId });
   }
-}
-
-export async function submitQuizAnswer(userId: string, quizId: string, answer: string) {
-  const quiz = await prisma.quiz.findUnique({ where: { id: quizId } });
-  if (!quiz) throw new Error("Quiz not found");
-
-  const isCorrect = quiz.type === "SHORT_ANSWER" ? undefined : answer.toLowerCase() === quiz.answer.toLowerCase();
-
-  const submission = await prisma.submission.create({
-    data: { userId, quizId, answer, isCorrect },
-  });
-
-  if (isCorrect !== undefined) {
-    await prisma.user.update({
-      where: { id: userId },
-      data: { xp: { increment: isCorrect ? 10 : 0 } },
-    });
-  }
-
-  return { ...submission, correctAnswer: quiz.answer };
 }
 
 export async function getUserNotes(userId: string, lessonId: string) {

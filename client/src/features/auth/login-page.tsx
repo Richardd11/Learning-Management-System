@@ -40,8 +40,8 @@ export function LoginPage() {
       >
         <Card>
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl">Welcome back</CardTitle>
-            <CardDescription>Sign in to continue learning</CardDescription>
+            <CardTitle className="text-2xl">Welcome to LMS</CardTitle>
+            <CardDescription>Sign in to access your learning portal</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -111,10 +111,11 @@ export function LoginPage() {
               </div>
             </div>
 
-            <p className="mt-6 text-center text-sm text-muted-foreground">
-              Don&apos;t have an account?{" "}
-              <Link to="/register" className="text-primary hover:underline font-medium">Sign up</Link>
-            </p>
+            <div className="mt-6 p-4 bg-muted/50 rounded-lg text-center">
+              <p className="text-sm text-muted-foreground">
+                New to this platform? Please contact your administrator to create an account.
+              </p>
+            </div>
           </CardContent>
         </Card>
       </motion.div>

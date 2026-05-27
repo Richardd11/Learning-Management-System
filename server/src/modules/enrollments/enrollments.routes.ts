@@ -1,9 +1,14 @@
 import type { FastifyInstance } from "fastify";
-import { authenticate } from "../../middleware/auth.js";
+import { authenticate, requireRole } from "../../middleware/auth.js";
 import * as service from "./enrollments.service.js";
 import { z } from "zod";
 
+const bulkEnrollSchema = z.object({
+  sectionId: z.string().uuid(),
+});
+
 export async function enrollmentRoutes(app: FastifyInstance): Promise<void> {
+  // Student self-enroll (with optional sectionId)
   app.post("/:courseId/enroll", { preHandler: [authenticate] }, async (request, reply) => {
     const { courseId } = request.params as { courseId: string };
     try {
@@ -11,6 +16,19 @@ export async function enrollmentRoutes(app: FastifyInstance): Promise<void> {
       reply.code(201).send({ success: true, data: enrollment });
     } catch (err) {
       const message = err instanceof Error ? err.message : "Enrollment failed";
+      reply.code(400).send({ success: false, error: message });
+    }
+  });
+
+  // Admin/Teacher: Bulk enroll a section to a course
+  app.post("/:courseId/bulk-enroll", { preHandler: [requireRole("ADMIN", "TEACHER")] }, async (request, reply) => {
+    const { courseId } = request.params as { courseId: string };
+    const { sectionId } = bulkEnrollSchema.parse(request.body);
+    try {
+      const result = await service.bulkEnrollSection(sectionId, courseId);
+      reply.send({ success: true, data: result });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Bulk enrollment failed";
       reply.code(400).send({ success: false, error: message });
     }
   });
@@ -36,18 +54,6 @@ export async function enrollmentRoutes(app: FastifyInstance): Promise<void> {
     const { courseId } = request.params as { courseId: string };
     const progress = await service.getLessonProgress(request.user!.userId, courseId);
     reply.send({ success: true, data: progress });
-  });
-
-  app.post("/quizzes/:quizId/submit", { preHandler: [authenticate] }, async (request, reply) => {
-    const { quizId } = request.params as { quizId: string };
-    const { answer } = z.object({ answer: z.string() }).parse(request.body);
-    try {
-      const result = await service.submitQuizAnswer(request.user!.userId, quizId, answer);
-      reply.send({ success: true, data: result });
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "Submission failed";
-      reply.code(400).send({ success: false, error: message });
-    }
   });
 
   app.get("/lessons/:lessonId/notes", { preHandler: [authenticate] }, async (request, reply) => {
