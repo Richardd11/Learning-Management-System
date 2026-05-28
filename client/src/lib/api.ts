@@ -42,7 +42,9 @@ class ApiClient {
         }
         throw new Error("Session expired. Please log in again.");
       }
-      throw new Error("Unauthorized");
+      // Auth endpoint 401 — read the real error message from the body
+      const errBody = await response.json().catch(() => ({ error: "Invalid credentials" }));
+      throw new Error((errBody as ApiResponse).error ?? "Invalid credentials");
     }
 
     if (!response.ok) {

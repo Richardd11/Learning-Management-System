@@ -16,7 +16,7 @@ export function LoginPage() {
   const loginMutation = useLogin();
   const [showPassword, setShowPassword] = useState(false);
 
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<LoginForm>({
+  const { register, handleSubmit, setValue, formState: { errors, isSubmitting } } = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
   });
 
@@ -111,10 +111,23 @@ export function LoginPage() {
               </div>
             </div>
 
-            <div className="mt-6 p-4 bg-muted/50 rounded-lg text-center">
-              <p className="text-sm text-muted-foreground">
-                New to this platform? Please contact your administrator to create an account.
-              </p>
+            <div className="mt-6 p-4 bg-muted/50 rounded-lg space-y-2">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide text-center">Demo Credentials</p>
+              <div className="grid grid-cols-1 gap-1 text-xs text-muted-foreground">
+                {[
+                  { role: "Admin", email: "admin@school.edu" },
+                  { role: "Teacher", email: "teacher1@school.edu" },
+                  { role: "Student", email: "student1@school.edu" },
+                ].map((c) => (
+                  <div key={c.role} className="flex items-center justify-between px-2 py-1 rounded hover:bg-muted cursor-pointer"
+                    onClick={() => { setValue("email", c.email); setValue("password", "password123"); }}
+                  >
+                    <span className="font-medium text-foreground">{c.role}</span>
+                    <span>{c.email} / password123</span>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground text-center pt-1">Click a row to auto-fill credentials</p>
             </div>
           </CardContent>
         </Card>

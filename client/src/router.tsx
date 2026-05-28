@@ -307,6 +307,26 @@ const adminYoutubeRoute = createRoute({
   ),
 });
 
+const adminCoursesRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/admin/courses",
+  component: () => (
+    <AppLayout>
+      <AdminPanel />
+    </AppLayout>
+  ),
+});
+
+const adminAnalyticsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/admin/analytics",
+  component: () => (
+    <AppLayout>
+      <AdminPanel />
+    </AppLayout>
+  ),
+});
+
 const routeTree = rootRoute.addChildren([
   landingRoute,
   loginRoute,
@@ -336,6 +356,8 @@ const routeTree = rootRoute.addChildren([
   adminLevelsRoute,
   adminAnnouncementsRoute,
   adminYoutubeRoute,
+  adminCoursesRoute,
+  adminAnalyticsRoute,
   // Account
   profileRoute,
   settingsRoute,

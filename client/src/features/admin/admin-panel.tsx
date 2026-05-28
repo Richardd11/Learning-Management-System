@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { useLocation, useNavigate } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Shield, Users, BookOpen, TrendingUp, Ban, Megaphone, Layers,
@@ -51,8 +52,36 @@ interface AdminUser {
 const container = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.08 } } };
 const item = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } };
 
+const PATH_TO_TAB: Record<string, string> = {
+  "/admin/users": "users",
+  "/admin/levels": "levels",
+  "/admin/courses": "courses",
+  "/admin/announcements": "announcements",
+  "/admin/youtube": "youtube",
+  "/admin/analytics": "analytics",
+};
+
+const TAB_TO_PATH: Record<string, string> = {
+  overview: "/admin",
+  users: "/admin/users",
+  levels: "/admin/levels",
+  courses: "/admin/courses",
+  announcements: "/admin/announcements",
+  youtube: "/admin/youtube",
+  analytics: "/admin/analytics",
+};
+
 export function AdminPanel() {
   const { user } = useAuthStore();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const activeTab = PATH_TO_TAB[location.pathname] ?? "overview";
+
+  function handleTabChange(tab: string) {
+    const path = TAB_TO_PATH[tab] ?? "/admin";
+    navigate({ to: path });
+  }
 
   return (
     <div className="max-w-7xl mx-auto space-y-8">
@@ -85,7 +114,7 @@ export function AdminPanel() {
       </motion.div>
 
       {/* ── Tabs ───────────────────────────────────────────────── */}
-      <Tabs defaultValue="overview" className="space-y-6">
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
         <TabsList className="grid w-full grid-cols-3 lg:grid-cols-7 h-auto rounded-xl border bg-muted/40 p-1">
           <TabsTrigger value="overview" className="gap-1 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">
             <TrendingUp className="h-4 w-4" /> <span className="hidden sm:inline">Overview</span>

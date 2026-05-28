@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard, BookOpen, GraduationCap, Settings, Shield,
   PlusCircle, BarChart3, Award, Users, Layers, Megaphone, Youtube,
-  TrendingUp, FileText, ChevronLeft, ChevronRight, Flame, Zap,
+  TrendingUp, ChevronLeft, ChevronRight, Flame, Zap,
   ClipboardList, Bell,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -13,13 +13,13 @@ import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getInitials } from "@/lib/utils";
+import type { User } from "@/types";
 
 interface NavItem {
   href: string;
   label: string;
   icon: React.ComponentType<{ className?: string }>;
   roles: string[];
-  badge?: string;
 }
 
 interface NavGroup {
@@ -103,9 +103,11 @@ export function Sidebar() {
     STUDENT: "bg-blue-500/10 text-blue-600 border-blue-500/20",
   };
 
+  const sidebarWidth = collapsed ? 64 : 260;
+
   return (
     <>
-      {/* Mobile overlay */}
+      {/* ── Mobile overlay ──────────────────────────────────────── */}
       <AnimatePresence>
         {sidebarOpen && (
           <motion.div
@@ -118,148 +120,204 @@ export function Sidebar() {
         )}
       </AnimatePresence>
 
+      {/* ── Sidebar ─────────────────────────────────────────────── */}
+      {/* Desktop: sticky in flex flow; Mobile: fixed overlay */}
       <motion.aside
         initial={false}
-        animate={{ width: collapsed ? 64 : 260 }}
+        animate={{ width: sidebarWidth }}
         transition={{ type: "spring", damping: 28, stiffness: 220 }}
+        style={{ minWidth: sidebarWidth, maxWidth: sidebarWidth }}
         className={cn(
-          "fixed left-0 top-16 z-40 h-[calc(100vh-4rem)] border-r bg-card shadow-sm overflow-hidden",
-          "flex flex-col",
-          // Mobile: slide in/out; Desktop: always visible
-          sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0",
-          "md:sticky md:top-16"
+          // Desktop — sticky, part of normal flex flow
+          "hidden md:flex flex-col",
+          "sticky top-16 h-[calc(100vh-4rem)]",
+          "border-r bg-card shadow-sm overflow-hidden shrink-0",
         )}
-        style={{ minWidth: collapsed ? 64 : 260 }}
       >
-        {/* Collapse toggle — desktop only */}
-        <div className="hidden md:flex items-center justify-end px-2 py-2 border-b">
-          <button
-            onClick={() => setCollapsed(!collapsed)}
-            className="p-1.5 rounded-lg hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
-            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+        <SidebarContent
+          collapsed={collapsed}
+          setCollapsed={setCollapsed}
+          visibleGroups={visibleGroups}
+          roleColors={roleColors}
+          user={user}
+          location={location}
+          setSidebarOpen={setSidebarOpen}
+        />
+      </motion.aside>
+
+      {/* Mobile drawer — fixed overlay */}
+      <AnimatePresence>
+        {sidebarOpen && (
+          <motion.aside
+            initial={{ x: -280 }}
+            animate={{ x: 0 }}
+            exit={{ x: -280 }}
+            transition={{ type: "spring", damping: 28, stiffness: 220 }}
+            style={{ width: 260 }}
+            className="fixed left-0 top-16 z-50 h-[calc(100vh-4rem)] flex flex-col border-r bg-card shadow-lg overflow-hidden md:hidden"
           >
-            {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-          </button>
-        </div>
+            <SidebarContent
+              collapsed={false}
+              setCollapsed={() => {}}
+              visibleGroups={visibleGroups}
+              roleColors={roleColors}
+              user={user}
+              location={location}
+              setSidebarOpen={setSidebarOpen}
+            />
+          </motion.aside>
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
 
-        {/* User mini profile */}
-        <div className={cn("flex items-center gap-3 px-3 py-3 border-b", collapsed && "justify-center px-2")}>
-          <Avatar className="h-8 w-8 shrink-0">
-            <AvatarImage src={user.avatar ?? undefined} />
-            <AvatarFallback className="text-xs">{getInitials(user.firstName, user.lastName)}</AvatarFallback>
-          </Avatar>
-          <AnimatePresence>
-            {!collapsed && (
-              <motion.div
-                initial={{ opacity: 0, width: 0 }}
-                animate={{ opacity: 1, width: "auto" }}
-                exit={{ opacity: 0, width: 0 }}
-                className="overflow-hidden min-w-0"
-              >
-                <p className="text-sm font-semibold truncate leading-tight">
-                  {user.firstName} {user.lastName}
-                </p>
-                <span className={cn(
-                  "text-[10px] font-medium px-1.5 py-0.5 rounded-full border inline-block mt-0.5",
-                  roleColors[user.role]
-                )}>
-                  {user.role}
-                </span>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+// ── Shared sidebar inner content ──────────────────────────────────
+function SidebarContent({
+  collapsed,
+  setCollapsed,
+  visibleGroups,
+  roleColors,
+  user,
+  location,
+  setSidebarOpen,
+}: {
+  collapsed: boolean;
+  setCollapsed: (v: boolean) => void;
+  visibleGroups: NavGroup[];
+  roleColors: Record<string, string>;
+  user: User;
+  location: { pathname: string };
+  setSidebarOpen: (v: boolean) => void;
+}) {
+  return (
+    <>
+      {/* Collapse toggle — desktop only */}
+      <div className="hidden md:flex items-center justify-end px-2 py-2 border-b shrink-0">
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          className="p-1.5 rounded-lg hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
+          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+        </button>
+      </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-4">
-          {visibleGroups.map((group) => (
-            <div key={group.label}>
-              <AnimatePresence>
-                {!collapsed && (
-                  <motion.p
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 px-2 mb-1"
-                  >
-                    {group.label}
-                  </motion.p>
-                )}
-              </AnimatePresence>
-              <div className="space-y-0.5">
-                {group.items.map((navItem) => {
-                  const isActive =
-                    location.pathname === navItem.href ||
-                    (navItem.href !== "/dashboard" && location.pathname.startsWith(navItem.href + "/"));
-                  const Icon = navItem.icon;
-                  return (
-                    <Link
-                      key={navItem.href}
-                      to={navItem.href}
-                      onClick={() => setSidebarOpen(false)}
-                      className={cn(
-                        "relative flex items-center gap-3 rounded-lg px-2 py-2 text-sm font-medium transition-all duration-150",
-                        collapsed ? "justify-center" : "",
-                        isActive
-                          ? "bg-primary/10 text-primary"
-                          : "text-muted-foreground hover:bg-accent hover:text-foreground"
-                      )}
-                      title={collapsed ? navItem.label : undefined}
-                    >
-                      {isActive && (
-                        <motion.div
-                          layoutId="sidebar-active-indicator"
-                          className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-primary rounded-r-full"
-                          transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                        />
-                      )}
-                      <Icon className="h-4 w-4 shrink-0" />
-                      <AnimatePresence>
-                        {!collapsed && (
-                          <motion.span
-                            initial={{ opacity: 0, width: 0 }}
-                            animate={{ opacity: 1, width: "auto" }}
-                            exit={{ opacity: 0, width: 0 }}
-                            className="overflow-hidden whitespace-nowrap flex-1"
-                          >
-                            {navItem.label}
-                          </motion.span>
-                        )}
-                      </AnimatePresence>
-                      {!collapsed && navItem.badge && (
-                        <Badge className="text-[10px] px-1.5 py-0 h-4">{navItem.badge}</Badge>
-                      )}
-                    </Link>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
-        </nav>
-
-        {/* XP / streak footer */}
+      {/* User mini profile */}
+      <div className={cn("flex items-center gap-3 px-3 py-3 border-b shrink-0", collapsed && "justify-center px-2")}>
+        <Avatar className="h-8 w-8 shrink-0">
+          <AvatarImage src={user.avatar ?? undefined} />
+          <AvatarFallback className="text-xs">{getInitials(user.firstName, user.lastName)}</AvatarFallback>
+        </Avatar>
         <AnimatePresence>
-          {!collapsed && (user.xp > 0 || user.streak > 0) && (
+          {!collapsed && (
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="px-3 py-3 border-t"
+              initial={{ opacity: 0, width: 0 }}
+              animate={{ opacity: 1, width: "auto" }}
+              exit={{ opacity: 0, width: 0 }}
+              className="overflow-hidden min-w-0"
             >
-              <div className="flex items-center justify-between text-xs text-muted-foreground">
-                <span className="flex items-center gap-1">
-                  <Flame className="h-3.5 w-3.5 text-orange-500" />
-                  <span className="font-semibold text-foreground">{user.streak}</span> streak
-                </span>
-                <span className="flex items-center gap-1">
-                  <Zap className="h-3.5 w-3.5 text-yellow-500" />
-                  <span className="font-semibold text-foreground">{user.xp.toLocaleString()}</span> XP
-                </span>
-              </div>
+              <p className="text-sm font-semibold truncate leading-tight">
+                {user.firstName} {user.lastName}
+              </p>
+              <span className={cn(
+                "text-[10px] font-medium px-1.5 py-0.5 rounded-full border inline-block mt-0.5",
+                roleColors[user.role]
+              )}>
+                {user.role}
+              </span>
             </motion.div>
           )}
         </AnimatePresence>
-      </motion.aside>
+      </div>
+
+      {/* Navigation */}
+      <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-4">
+        {visibleGroups.map((group) => (
+          <div key={group.label}>
+            <AnimatePresence>
+              {!collapsed && (
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 px-2 mb-1"
+                >
+                  {group.label}
+                </motion.p>
+              )}
+            </AnimatePresence>
+            <div className="space-y-0.5">
+              {group.items.map((navItem) => {
+                const isActive =
+                  location.pathname === navItem.href ||
+                  (navItem.href !== "/dashboard" && navItem.href !== "/admin" && navItem.href !== "/teacher" &&
+                    location.pathname.startsWith(navItem.href + "/"));
+                const Icon = navItem.icon;
+                return (
+                  <Link
+                    key={navItem.href}
+                    to={navItem.href}
+                    onClick={() => setSidebarOpen(false)}
+                    className={cn(
+                      "relative flex items-center gap-3 rounded-lg px-2 py-2 text-sm font-medium transition-all duration-150",
+                      collapsed ? "justify-center" : "",
+                      isActive
+                        ? "bg-primary/10 text-primary"
+                        : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                    )}
+                    title={collapsed ? navItem.label : undefined}
+                  >
+                    {isActive && (
+                      <motion.div
+                        layoutId="sidebar-active-indicator"
+                        className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-primary rounded-r-full"
+                        transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                      />
+                    )}
+                    <Icon className="h-4 w-4 shrink-0" />
+                    <AnimatePresence>
+                      {!collapsed && (
+                        <motion.span
+                          initial={{ opacity: 0, width: 0 }}
+                          animate={{ opacity: 1, width: "auto" }}
+                          exit={{ opacity: 0, width: 0 }}
+                          className="overflow-hidden whitespace-nowrap flex-1"
+                        >
+                          {navItem.label}
+                        </motion.span>
+                      )}
+                    </AnimatePresence>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </nav>
+
+      {/* XP / streak footer */}
+      <AnimatePresence>
+        {!collapsed && (user.xp > 0 || user.streak > 0) && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="px-3 py-3 border-t shrink-0"
+          >
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <span className="flex items-center gap-1">
+                <Flame className="h-3.5 w-3.5 text-orange-500" />
+                <span className="font-semibold text-foreground">{user.streak}</span> streak
+              </span>
+              <span className="flex items-center gap-1">
+                <Zap className="h-3.5 w-3.5 text-yellow-500" />
+                <span className="font-semibold text-foreground">{user.xp.toLocaleString()}</span> XP
+              </span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }
