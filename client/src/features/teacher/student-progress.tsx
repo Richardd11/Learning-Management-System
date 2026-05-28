@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Users, TrendingUp, BookOpen, Award, Search } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -26,6 +26,13 @@ interface StudentProgressEntry {
 
 const container = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.06 } } };
 const item = { hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0 } };
+
+const statColors = [
+  { bg: "bg-blue-500/10", ring: "ring-blue-500/15", text: "text-blue-600" },
+  { bg: "bg-emerald-500/10", ring: "ring-emerald-500/15", text: "text-emerald-600" },
+  { bg: "bg-amber-500/10", ring: "ring-amber-500/15", text: "text-amber-600" },
+  { bg: "bg-violet-500/10", ring: "ring-violet-500/15", text: "text-violet-600" },
+];
 
 export function StudentProgressViewer() {
   const { data: courses, isLoading: coursesLoading } = useInstructorCourses();
@@ -57,27 +64,37 @@ export function StudentProgressViewer() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-6 space-y-6">
+    <div className="max-w-6xl mx-auto space-y-8">
+      {/* Hero Banner */}
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-3xl font-bold mb-1">Student Progress</h1>
-        <p className="text-muted-foreground">Track your students' learning progress per course</p>
+        <Card className="rounded-3xl border-0 bg-gradient-to-br from-card via-card to-muted/35 shadow-sm">
+          <CardContent className="p-6 flex items-center gap-4">
+            <div className="rounded-2xl bg-primary/10 ring-1 ring-primary/15 p-3">
+              <Users className="h-7 w-7 text-primary" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight">Student Progress</h1>
+              <p className="text-sm text-muted-foreground mt-0.5">Track your students' learning progress per course</p>
+            </div>
+          </CardContent>
+        </Card>
       </motion.div>
 
-      {/* Course selector */}
-      <Card>
-        <CardContent className="p-4">
+      {/* Course Selector */}
+      <Card className="rounded-3xl shadow-sm">
+        <CardContent className="p-5">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1">
-              <label className="text-sm font-medium mb-1 block">Select Course</label>
+              <label className="text-sm font-medium mb-1.5 block">Select Course</label>
               {coursesLoading ? (
-                <Skeleton className="h-9 w-full" />
+                <Skeleton className="h-9 w-full rounded-xl" />
               ) : (
                 <select
-                  className="w-full border rounded-md px-3 py-2 text-sm h-9"
+                  className="w-full bg-background border rounded-xl px-3 py-2 text-sm h-9 focus:outline-none focus:ring-2 focus:ring-primary/40 transition-shadow"
                   value={selectedCourseId}
                   onChange={(e) => { setSelectedCourseId(e.target.value); setSearch(""); }}
                 >
-                  <option value="">Choose a course…</option>
+                  <option value="">Choose a course...</option>
                   {courses?.map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.title} ({c._count?.enrollments ?? 0} students)
@@ -88,14 +105,14 @@ export function StudentProgressViewer() {
             </div>
             {selectedCourseId && (
               <div className="flex-1">
-                <label className="text-sm font-medium mb-1 block">Search Students</label>
+                <label className="text-sm font-medium mb-1.5 block">Search Students</label>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
-                    placeholder="Name or email…"
+                    placeholder="Name or email..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="pl-9"
+                    className="pl-9 rounded-xl"
                   />
                 </div>
               </div>
@@ -104,7 +121,7 @@ export function StudentProgressViewer() {
         </CardContent>
       </Card>
 
-      {/* Stats row */}
+      {/* Stats Row */}
       {selectedCourseId && !enrollLoading && filtered.length > 0 && (
         <motion.div
           variants={container}
@@ -117,15 +134,17 @@ export function StudentProgressViewer() {
             { label: "Avg Progress", value: `${avgProgress}%`, icon: TrendingUp },
             { label: "Completed", value: completed, icon: Award },
             { label: "Active", value: filtered.filter((e) => e.status === "ACTIVE").length, icon: BookOpen },
-          ].map((s) => (
-            <motion.div key={s.label} variants={item}>
-              <Card>
-                <CardContent className="p-4 flex items-center justify-between">
+          ].map((s, idx) => (
+            <motion.div key={s.label} variants={item} whileHover={{ y: -4 }}>
+              <Card className="rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+                <CardContent className="p-4 flex items-center gap-3">
+                  <div className={`rounded-xl p-2.5 ${statColors[idx].bg} ring-1 ${statColors[idx].ring}`}>
+                    <s.icon className={`h-5 w-5 ${statColors[idx].text}`} />
+                  </div>
                   <div>
                     <p className="text-xs text-muted-foreground">{s.label}</p>
-                    <p className="text-2xl font-bold">{s.value}</p>
+                    <p className="text-xl font-bold">{s.value}</p>
                   </div>
-                  <s.icon className="h-7 w-7 text-primary/60" />
                 </CardContent>
               </Card>
             </motion.div>
@@ -133,34 +152,47 @@ export function StudentProgressViewer() {
         </motion.div>
       )}
 
-      {/* Student list */}
+      {/* Empty: No course selected */}
       {!selectedCourseId && (
-        <div className="text-center py-16 text-muted-foreground">
-          <Users className="h-12 w-12 mx-auto mb-3 opacity-40" />
-          <p>Select a course above to view student progress</p>
+        <div className="text-center py-20">
+          <div className="inline-flex items-center justify-center rounded-3xl bg-muted/60 p-5 mb-4">
+            <Users className="h-10 w-10 text-muted-foreground/60" />
+          </div>
+          <h3 className="text-lg font-semibold text-foreground">Select a course</h3>
+          <p className="text-sm text-muted-foreground mt-1">Choose a course above to view student progress</p>
         </div>
       )}
 
+      {/* Loading */}
       {selectedCourseId && enrollLoading && (
         <div className="space-y-3">
-          {[1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-20 w-full rounded-xl" />)}
+          {[1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-20 w-full rounded-2xl" />)}
         </div>
       )}
 
+      {/* Empty: No results */}
       {selectedCourseId && !enrollLoading && filtered.length === 0 && (
-        <div className="text-center py-12 text-muted-foreground">
-          <Users className="h-10 w-10 mx-auto mb-3 opacity-40" />
-          <p>{search ? "No students match your search" : "No students enrolled yet"}</p>
+        <div className="text-center py-16">
+          <div className="inline-flex items-center justify-center rounded-3xl bg-muted/60 p-4 mb-4">
+            <Users className="h-9 w-9 text-muted-foreground/60" />
+          </div>
+          <h3 className="text-lg font-semibold text-foreground">
+            {search ? "No students match your search" : "No students enrolled yet"}
+          </h3>
+          <p className="text-sm text-muted-foreground mt-1">
+            {search ? "Try a different name or email" : "Students will appear here once enrolled"}
+          </p>
         </div>
       )}
 
+      {/* Student List */}
       {selectedCourseId && !enrollLoading && filtered.length > 0 && (
         <motion.div variants={container} initial="hidden" animate="show" className="space-y-3">
           {filtered.map((e) => (
-            <motion.div key={e.userId} variants={item}>
-              <Card>
+            <motion.div key={e.userId} variants={item} whileHover={{ y: -2 }}>
+              <Card className="rounded-2xl shadow-sm hover:shadow-md transition-shadow">
                 <CardContent className="p-4 flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0 font-semibold text-primary text-sm">
+                  <div className="w-10 h-10 rounded-full bg-primary/10 ring-2 ring-background flex items-center justify-center shrink-0 font-semibold text-primary text-sm shadow-sm">
                     {e.firstName[0]}{e.lastName[0]}
                   </div>
                   <div className="flex-1 min-w-0">

@@ -2,13 +2,14 @@ import { useState, useMemo } from "react";
 import { useParams } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  CheckCircle2, Circle, ChevronRight, MessageSquare, BookOpen,
-  Youtube, Video, FileText, Award,
+  CheckCircle2, Circle, ChevronRight, ChevronLeft, MessageSquare, BookOpen,
+  Youtube, Video, FileText, Award, Play,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { Breadcrumbs } from "@/components/common/breadcrumbs";
 import { useCourse } from "@/hooks/use-courses";
@@ -78,7 +79,7 @@ function LessonContent({ lesson }: { lesson: Lesson }) {
   }
 
   return (
-    <Card className="mb-6">
+    <Card className="mb-6 rounded-2xl">
       <CardContent className="p-6 prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap">
         {lesson.content ?? "No content available for this lesson."}
       </CardContent>
@@ -151,12 +152,29 @@ export function CoursePlayer() {
   };
 
   if (isLoading) {
-    return <div className="max-w-7xl mx-auto"><Skeleton className="h-[600px] w-full rounded-xl" /></div>;
+    return (
+      <div className="max-w-7xl mx-auto space-y-4">
+        <Skeleton className="h-8 w-1/3 rounded-xl" />
+        <div className="flex gap-6">
+          <Skeleton className="h-[600px] w-72 rounded-2xl hidden lg:block" />
+          <Skeleton className="h-[600px] flex-1 rounded-2xl" />
+        </div>
+      </div>
+    );
   }
 
   if (!course) {
-    return <div className="text-center py-16"><p className="text-xl text-muted-foreground">Course not found</p></div>;
+    return (
+      <div className="flex flex-col items-center justify-center py-24 text-muted-foreground gap-3">
+        <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-muted/60">
+          <BookOpen className="h-8 w-8" />
+        </div>
+        <p className="font-medium">Course not found</p>
+      </div>
+    );
   }
+
+  const currentIdx = activeLesson ? allLessons.indexOf(activeLesson) : 0;
 
   return (
     <div className="max-w-7xl mx-auto">
@@ -169,44 +187,51 @@ export function CoursePlayer() {
           animate={{ x: 0, opacity: 1 }}
           className="w-72 shrink-0 hidden lg:block"
         >
-          <Card className="sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto">
-            <CardHeader className="pb-3">
+          <Card className="sticky top-24 max-h-[calc(100vh-8rem)] overflow-hidden rounded-2xl flex flex-col">
+            <CardHeader className="pb-3 border-b bg-muted/20 shrink-0">
               <CardTitle className="text-sm flex items-center justify-between">
-                Progress
-                <Badge variant="secondary">{progress?.percentage ?? 0}%</Badge>
+                <span className="flex items-center gap-2">
+                  <Play className="h-4 w-4 text-primary" /> Course Progress
+                </span>
+                <Badge variant="secondary" className="tabular-nums">{progress?.percentage ?? 0}%</Badge>
               </CardTitle>
+              <Progress value={progress?.percentage ?? 0} className="h-1.5 mt-2" />
             </CardHeader>
-            <CardContent className="space-y-1 p-3">
-              {course.modules?.map((mod) => (
-                <div key={mod.id}>
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2 py-1">{mod.title}</p>
-                  {mod.lessons.map((lesson) => {
-                    const completed = isLessonCompleted(lesson.id);
-                    const isActive = activeLesson?.id === lesson.id;
-                    return (
-                      <button
-                        key={lesson.id}
-                        onClick={() => { setActiveLessonId(lesson.id); setActiveTab("content"); }}
-                        className={cn(
-                          "w-full flex items-center gap-2 px-2 py-2 rounded-md text-sm text-left transition-colors",
-                          isActive ? "bg-primary/10 text-primary" : "hover:bg-accent",
-                        )}
-                      >
-                        {completed ? (
-                          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}>
-                            <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />
-                          </motion.div>
-                        ) : (
-                          <Circle className="h-4 w-4 text-muted-foreground shrink-0" />
-                        )}
-                        <span className="truncate flex-1">{lesson.title}</span>
-                        <span className="text-muted-foreground shrink-0">{contentTypeIcon(lesson.contentType)}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              ))}
-            </CardContent>
+            <div className="overflow-y-auto flex-1">
+              <div className="space-y-0.5 p-3">
+                {course.modules?.map((mod) => (
+                  <div key={mod.id} className="mb-2">
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider px-2 py-1.5">{mod.title}</p>
+                    {mod.lessons.map((lesson) => {
+                      const completed = isLessonCompleted(lesson.id);
+                      const isActive = activeLesson?.id === lesson.id;
+                      return (
+                        <button
+                          key={lesson.id}
+                          onClick={() => { setActiveLessonId(lesson.id); setActiveTab("content"); }}
+                          className={cn(
+                            "w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-sm text-left transition-colors",
+                            isActive
+                              ? "bg-primary/10 text-primary font-medium"
+                              : "hover:bg-accent text-foreground",
+                          )}
+                        >
+                          {completed ? (
+                            <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}>
+                              <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                            </motion.div>
+                          ) : (
+                            <Circle className="h-4 w-4 text-muted-foreground/50 shrink-0" />
+                          )}
+                          <span className="truncate flex-1 text-xs">{lesson.title}</span>
+                          <span className="text-muted-foreground shrink-0">{contentTypeIcon(lesson.contentType)}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                ))}
+              </div>
+            </div>
           </Card>
         </motion.div>
 
@@ -214,21 +239,27 @@ export function CoursePlayer() {
         <div className="flex-1 min-w-0">
           {activeLesson && (
             <motion.div key={activeLesson.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h2 className="text-2xl font-bold">{activeLesson.title}</h2>
-                  <Badge variant="outline" className="mt-1 text-xs gap-1">
-                    {contentTypeIcon(activeLesson.contentType)}
-                    {activeLesson.contentType}
-                  </Badge>
+              {/* Lesson header */}
+              <div className="flex items-start justify-between gap-4 mb-5 rounded-2xl border bg-card/70 p-4 shadow-sm">
+                <div className="min-w-0">
+                  <h2 className="text-xl font-bold tracking-tight truncate">{activeLesson.title}</h2>
+                  <div className="flex items-center gap-2 mt-1.5">
+                    <Badge variant="outline" className="text-xs gap-1">
+                      {contentTypeIcon(activeLesson.contentType)}
+                      {activeLesson.contentType}
+                    </Badge>
+                    <span className="text-xs text-muted-foreground tabular-nums">
+                      {currentIdx + 1} / {allLessons.length}
+                    </span>
+                  </div>
                 </div>
-                {!isLessonCompleted(activeLesson.id) && (
-                  <Button size="sm" onClick={() => handleCompleteLesson(activeLesson.id)} disabled={completeLessonMutation.isPending}>
-                    Mark Complete
+                {!isLessonCompleted(activeLesson.id) ? (
+                  <Button size="sm" onClick={() => handleCompleteLesson(activeLesson.id)} disabled={completeLessonMutation.isPending} className="shrink-0">
+                    <CheckCircle2 className="h-3.5 w-3.5 mr-1.5" />
+                    {completeLessonMutation.isPending ? "Saving..." : "Mark Complete"}
                   </Button>
-                )}
-                {isLessonCompleted(activeLesson.id) && (
-                  <Badge className="bg-green-600 gap-1">
+                ) : (
+                  <Badge className="bg-emerald-600 gap-1 shrink-0">
                     <CheckCircle2 className="h-3 w-3" /> Completed
                   </Badge>
                 )}
@@ -240,20 +271,24 @@ export function CoursePlayer() {
               )}
 
               {/* Tabs */}
-              <div className="flex gap-2 mb-6 border-b pb-2">
+              <div className="flex gap-1.5 mb-5 rounded-xl bg-muted/50 border p-1">
                 {[
                   { key: "content" as const, icon: BookOpen, label: "Content" },
                   { key: "quiz" as const, icon: CheckCircle2, label: `Quiz (${activeLesson.quizzes?.length ?? 0})` },
                   { key: "notes" as const, icon: MessageSquare, label: "Notes" },
                 ].map((tab) => (
-                  <Button
+                  <button
                     key={tab.key}
-                    variant={activeTab === tab.key ? "default" : "ghost"}
-                    size="sm"
                     onClick={() => setActiveTab(tab.key)}
+                    className={cn(
+                      "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all",
+                      activeTab === tab.key
+                        ? "bg-background text-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground"
+                    )}
                   >
-                    <tab.icon className="h-4 w-4 mr-1" /> {tab.label}
-                  </Button>
+                    <tab.icon className="h-3.5 w-3.5" /> {tab.label}
+                  </button>
                 ))}
               </div>
 
@@ -263,7 +298,7 @@ export function CoursePlayer() {
                     {activeLesson.contentType === "TEXT" ? (
                       <LessonContent lesson={activeLesson} />
                     ) : (
-                      <Card>
+                      <Card className="rounded-2xl">
                         <CardContent className="p-6 text-sm text-muted-foreground">
                           {activeLesson.content
                             ? <p className="whitespace-pre-wrap">{activeLesson.content}</p>
@@ -278,29 +313,38 @@ export function CoursePlayer() {
                   <motion.div key="quiz" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
                     {activeLesson.quizzes?.length ? (
                       <>
-                        <Card>
-                          <CardHeader>
-                            <CardTitle className="text-lg">Quizzes</CardTitle>
-                          </CardHeader>
-                          <CardContent className="space-y-2">
-                            {activeLesson.quizzes.map((quiz) => (
-                              <div key={quiz.id} className="flex items-center gap-2">
-                                <Button
-                                  variant={activeQuizId === quiz.id ? "default" : "outline"}
-                                  className="flex-1 justify-between"
-                                  onClick={() => setActiveQuizId(activeQuizId === quiz.id ? null : quiz.id)}
-                                >
-                                  <span>{quiz.title}</span>
-                                  <div className="flex items-center gap-2">
-                                    {quizResults[quiz.id] && (
-                                      <Badge variant={quizResults[quiz.id].passed ? "default" : "destructive"} className="text-xs">
-                                        {quizResults[quiz.id].score}%
-                                      </Badge>
-                                    )}
-                                    <Badge variant="secondary">{quiz.questions.length} Qs</Badge>
-                                  </div>
-                                </Button>
+                        <Card className="rounded-2xl overflow-hidden">
+                          <CardHeader className="border-b bg-muted/20 pb-3">
+                            <CardTitle className="flex items-center gap-2 text-base">
+                              <div className="rounded-xl bg-primary/10 ring-1 ring-primary/15 p-2">
+                                <CheckCircle2 className="h-4 w-4 text-primary" />
                               </div>
+                              Quizzes
+                            </CardTitle>
+                            <CardDescription>Select a quiz below to begin</CardDescription>
+                          </CardHeader>
+                          <CardContent className="space-y-2 p-4">
+                            {activeLesson.quizzes.map((quiz) => (
+                              <button
+                                key={quiz.id}
+                                className={cn(
+                                  "w-full flex items-center justify-between rounded-xl px-4 py-3 text-sm font-medium border transition-all",
+                                  activeQuizId === quiz.id
+                                    ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                                    : "bg-muted/30 hover:bg-muted/60 border-border/60"
+                                )}
+                                onClick={() => setActiveQuizId(activeQuizId === quiz.id ? null : quiz.id)}
+                              >
+                                <span>{quiz.title}</span>
+                                <div className="flex items-center gap-2">
+                                  {quizResults[quiz.id] && (
+                                    <Badge variant={quizResults[quiz.id].passed ? "default" : "destructive"} className="text-xs">
+                                      {quizResults[quiz.id].score}%
+                                    </Badge>
+                                  )}
+                                  <Badge variant="secondary" className="text-xs">{quiz.questions.length} Qs</Badge>
+                                </div>
+                              </button>
                             ))}
                           </CardContent>
                         </Card>
@@ -311,13 +355,15 @@ export function CoursePlayer() {
                           return (
                             <>
                               {result && (
-                                <Card className={cn(result.passed ? "border-green-500/40 bg-green-500/5" : "border-destructive/40 bg-destructive/5")}>
-                                  <CardContent className="p-4 flex items-center gap-4">
-                                    <Award className={cn("h-8 w-8", result.passed ? "text-green-600" : "text-destructive")} />
+                                <Card className={cn("rounded-2xl overflow-hidden", result.passed ? "border-emerald-500/40 bg-emerald-500/5" : "border-destructive/40 bg-destructive/5")}>
+                                  <CardContent className="p-5 flex items-center gap-4">
+                                    <div className={cn("rounded-2xl p-3 ring-1", result.passed ? "bg-emerald-500/10 ring-emerald-500/20" : "bg-destructive/10 ring-destructive/20")}>
+                                      <Award className={cn("h-7 w-7", result.passed ? "text-emerald-600" : "text-destructive")} />
+                                    </div>
                                     <div>
-                                      <p className="font-semibold text-lg">{result.score}%</p>
+                                      <p className="font-bold text-xl tabular-nums">{result.score}%</p>
                                       <p className="text-sm text-muted-foreground">
-                                        {result.earnedPoints}/{result.totalPoints} points · {result.passed ? "Passed!" : "Not passed"}
+                                        {result.earnedPoints}/{result.totalPoints} points &middot; {result.passed ? "Passed!" : "Not passed yet"}
                                       </p>
                                     </div>
                                   </CardContent>
@@ -328,15 +374,21 @@ export function CoursePlayer() {
                                 const questionResult = result?.answers.find((a) => a.questionId === question.id);
                                 return (
                                   <Card key={question.id} className={cn(
-                                    questionResult ? (questionResult.isCorrect ? "border-green-500/30" : "border-destructive/30") : ""
+                                    "rounded-2xl overflow-hidden",
+                                    questionResult
+                                      ? questionResult.isCorrect
+                                        ? "border-emerald-500/30"
+                                        : "border-destructive/30"
+                                      : ""
                                   )}>
-                                    <CardContent className="p-6">
-                                      <p className="font-medium mb-3">
-                                        Q{qi + 1}: {question.question}
+                                    <CardContent className="p-5">
+                                      <p className="font-semibold mb-4 text-sm">
+                                        <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-primary/10 text-primary text-xs font-bold mr-2">{qi + 1}</span>
+                                        {question.question}
                                       </p>
                                       {question.type === "SHORT_ANSWER" ? (
                                         <input
-                                          className="w-full border rounded-md px-3 py-2 text-sm"
+                                          className="w-full border rounded-xl px-3 py-2.5 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary/40"
                                           placeholder="Type your answer..."
                                           disabled={!!result}
                                           value={quizAnswers[activeQuizId]?.[question.id] ?? ""}
@@ -354,16 +406,16 @@ export function CoursePlayer() {
                                               <label
                                                 key={oi}
                                                 className={cn(
-                                                  "flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors",
+                                                  "flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all",
                                                   result
                                                     ? isCorrectOpt
-                                                      ? "border-green-500 bg-green-500/10"
+                                                      ? "border-emerald-500 bg-emerald-500/10"
                                                       : isSelected && !questionResult?.isCorrect
                                                         ? "border-destructive bg-destructive/10"
                                                         : "opacity-60"
                                                     : isSelected
-                                                      ? "border-primary bg-primary/5"
-                                                      : "hover:bg-accent"
+                                                      ? "border-primary bg-primary/8 ring-1 ring-primary/20"
+                                                      : "hover:bg-accent border-border/60"
                                                 )}
                                               >
                                                 <input
@@ -390,33 +442,46 @@ export function CoursePlayer() {
                               })}
 
                               {!result && (
-                                <Card>
-                                  <CardContent className="p-4 flex justify-end">
-                                    <Button
-                                      onClick={() => handleSubmitQuiz(quiz)}
-                                      disabled={submitQuizMutation.isPending}
-                                    >
-                                      {submitQuizMutation.isPending ? "Submitting…" : "Submit Quiz"}
-                                    </Button>
-                                  </CardContent>
-                                </Card>
+                                <div className="flex justify-end">
+                                  <Button
+                                    className="rounded-xl"
+                                    onClick={() => handleSubmitQuiz(quiz)}
+                                    disabled={submitQuizMutation.isPending}
+                                  >
+                                    {submitQuizMutation.isPending ? "Submitting…" : "Submit Quiz"}
+                                  </Button>
+                                </div>
                               )}
                             </>
                           );
                         })()}
                       </>
                     ) : (
-                      <p className="text-muted-foreground text-center py-8">No quizzes for this lesson.</p>
+                      <div className="flex flex-col items-center justify-center py-12 gap-3 text-muted-foreground">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-muted/60">
+                          <CheckCircle2 className="h-6 w-6" />
+                        </div>
+                        <p className="text-sm font-medium">No quizzes for this lesson</p>
+                      </div>
                     )}
                   </motion.div>
                 )}
 
                 {activeTab === "notes" && (
                   <motion.div key="notes" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                    <Card>
-                      <CardContent className="p-6">
+                    <Card className="rounded-2xl overflow-hidden">
+                      <CardHeader className="border-b bg-muted/20 pb-3">
+                        <CardTitle className="flex items-center gap-2 text-base">
+                          <div className="rounded-xl bg-indigo-500/10 ring-1 ring-indigo-500/15 p-2">
+                            <MessageSquare className="h-4 w-4 text-indigo-500" />
+                          </div>
+                          Notes
+                        </CardTitle>
+                        <CardDescription>Your personal notes for this lesson</CardDescription>
+                      </CardHeader>
+                      <CardContent className="p-4">
                         <textarea
-                          className="w-full border rounded-lg p-3 min-h-[200px] text-sm resize-y"
+                          className="w-full border rounded-xl p-3.5 min-h-[200px] text-sm resize-y bg-background focus:outline-none focus:ring-2 focus:ring-primary/40"
                           placeholder="Write your notes here..."
                           value={notes}
                           onChange={(e) => setNotes(e.target.value)}
@@ -428,28 +493,28 @@ export function CoursePlayer() {
               </AnimatePresence>
 
               {/* Navigation */}
-              <div className="flex items-center justify-between mt-6">
+              <div className="flex items-center justify-between mt-6 rounded-2xl border bg-card/70 p-3 shadow-sm">
                 <Button
                   variant="outline"
-                  disabled={allLessons.indexOf(activeLesson) === 0}
+                  className="rounded-xl gap-1.5"
+                  disabled={currentIdx === 0}
                   onClick={() => {
-                    const idx = allLessons.indexOf(activeLesson);
-                    if (idx > 0) { setActiveLessonId(allLessons[idx - 1].id); setActiveTab("content"); }
+                    if (currentIdx > 0) { setActiveLessonId(allLessons[currentIdx - 1].id); setActiveTab("content"); }
                   }}
                 >
-                  Previous
+                  <ChevronLeft className="h-4 w-4" /> Previous
                 </Button>
-                <span className="text-sm text-muted-foreground">
-                  {allLessons.indexOf(activeLesson) + 1} / {allLessons.length}
+                <span className="text-xs font-medium text-muted-foreground tabular-nums">
+                  {currentIdx + 1} / {allLessons.length}
                 </span>
                 <Button
-                  disabled={allLessons.indexOf(activeLesson) === allLessons.length - 1}
+                  className="rounded-xl gap-1.5"
+                  disabled={currentIdx === allLessons.length - 1}
                   onClick={() => {
-                    const idx = allLessons.indexOf(activeLesson);
-                    if (idx < allLessons.length - 1) { setActiveLessonId(allLessons[idx + 1].id); setActiveTab("content"); }
+                    if (currentIdx < allLessons.length - 1) { setActiveLessonId(allLessons[currentIdx + 1].id); setActiveTab("content"); }
                   }}
                 >
-                  Next <ChevronRight className="h-4 w-4 ml-1" />
+                  Next <ChevronRight className="h-4 w-4" />
                 </Button>
               </div>
             </motion.div>

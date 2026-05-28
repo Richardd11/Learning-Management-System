@@ -54,15 +54,20 @@ export function CatalogPage() {
     <div className="max-w-7xl mx-auto">
       <Breadcrumbs items={[{ label: "Courses" }]} />
 
-      <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-3xl font-bold tracking-tight mb-2">Course Catalog</h1>
-        <p className="text-muted-foreground/80 text-base mb-6">Discover courses to expand your skills</p>
+      <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
+        <h1 className="text-3xl font-bold tracking-tight mb-1">Course Catalog</h1>
+        <p className="text-muted-foreground/80 text-base">Discover courses to expand your skills</p>
       </motion.div>
 
       {/* Filters */}
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="flex flex-col gap-4 mb-8">
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="relative flex-1 bg-background/60 backdrop-blur-sm rounded-lg">
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.15 }}
+        className="rounded-3xl border bg-card/70 p-4 shadow-sm mb-8 space-y-3"
+      >
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search courses..."
@@ -75,7 +80,7 @@ export function CatalogPage() {
             <div className="flex items-center gap-2">
               <Layers className="h-4 w-4 text-muted-foreground shrink-0" />
               <select
-                className="border rounded-md px-3 py-2 text-sm h-9"
+                className="border rounded-xl px-3 py-2 text-sm h-9 bg-background"
                 value={levelId}
                 onChange={(e) => { setLevelId(e.target.value); setPage(1); }}
               >
@@ -89,12 +94,12 @@ export function CatalogPage() {
         </div>
         <div className="flex gap-2 flex-wrap">
           {difficulties.map((d) => (
-            <motion.div key={d} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <motion.div key={d} whileTap={{ scale: 0.95 }}>
               <Button
                 variant={difficulty === d ? "default" : "outline"}
                 size="sm"
                 onClick={() => { setDifficulty(d); setPage(1); }}
-                className={`capitalize ${difficulty === d ? "bg-primary text-primary-foreground shadow-sm" : "bg-muted/50 hover:bg-muted text-muted-foreground"}`}
+                className={`capitalize rounded-xl ${difficulty === d ? "shadow-sm" : "bg-muted/40 hover:bg-muted text-muted-foreground"}`}
               >
                 {d === "all" && <Filter className="h-3 w-3 mr-1" />}
                 {d}
@@ -120,40 +125,48 @@ export function CatalogPage() {
         </div>
       ) : data && data.data.length > 0 ? (
         <>
-          <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             {data.data.map((course) => (
-              <motion.div key={course.id} variants={item}>
+              <motion.div key={course.id} variants={item} whileHover={{ y: -5 }} transition={{ type: "spring", stiffness: 280 }}>
                 <Link to="/courses/$slug" params={{ slug: course.slug }}>
-                  <motion.div whileHover={{ y: -4, boxShadow: "0 10px 40px rgba(0,0,0,0.1)" }} transition={{ type: "spring", stiffness: 300 }}>
-                    <Card className="overflow-hidden h-full cursor-pointer group hover:-translate-y-1 hover:shadow-md transition-all duration-200">
-                      <div className="h-40 bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-                        <span className="text-4xl">📚</span>
+                  <Card className="overflow-hidden rounded-2xl h-full cursor-pointer group hover:shadow-lg transition-all duration-200 border-border/60">
+                    {course.thumbnail ? (
+                      <img
+                        src={course.thumbnail}
+                        alt={course.title}
+                        className="h-40 w-full object-cover"
+                      />
+                    ) : (
+                      <div className="h-40 bg-gradient-to-br from-primary/20 via-violet-500/10 to-cyan-500/10 flex items-center justify-center">
+                        <div className="rounded-2xl bg-white/20 p-4 backdrop-blur-sm">
+                          <BookOpen className="h-8 w-8 text-primary/70" />
+                        </div>
                       </div>
-                      <CardContent className="p-4">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Badge variant="secondary" className={getDifficultyColor(course.difficulty)}>
-                            {course.difficulty}
-                          </Badge>
-                          {course.rating > 0 && (
-                            <span className="flex items-center text-xs text-muted-foreground">
-                              <Star className="h-3 w-3 fill-yellow-400 text-yellow-400 mr-0.5" />
-                              {course.rating.toFixed(1)}
-                            </span>
-                          )}
-                        </div>
-                        <h3 className="font-semibold text-sm leading-snug group-hover:text-primary transition-colors mb-1 line-clamp-2">{course.title}</h3>
-                        <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
-                          {truncate(course.shortDesc ?? course.description, 80)}
+                    )}
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Badge variant="secondary" className={getDifficultyColor(course.difficulty)}>
+                          {course.difficulty}
+                        </Badge>
+                        {course.rating > 0 && (
+                          <span className="flex items-center text-xs text-muted-foreground ml-auto">
+                            <Star className="h-3 w-3 fill-yellow-400 text-yellow-400 mr-0.5" />
+                            {course.rating.toFixed(1)}
+                          </span>
+                        )}
+                      </div>
+                      <h3 className="font-semibold text-sm leading-snug group-hover:text-primary transition-colors mb-1.5 line-clamp-2">{course.title}</h3>
+                      <p className="text-xs text-muted-foreground mb-3 line-clamp-2">
+                        {truncate(course.shortDesc ?? course.description, 80)}
+                      </p>
+                      <div className="flex items-center justify-between">
+                        <p className="text-xs text-muted-foreground truncate max-w-[60%]">
+                          {course.instructor?.firstName} {course.instructor?.lastName}
                         </p>
-                        <div className="flex items-center justify-between">
-                          <p className="text-xs text-muted-foreground">
-                            {course.instructor?.firstName} {course.instructor?.lastName}
-                          </p>
-                          <p className="font-bold text-foreground">{formatPrice(course.price)}</p>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
+                        <p className="font-bold text-sm text-foreground shrink-0">{formatPrice(course.price)}</p>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </Link>
               </motion.div>
             ))}
