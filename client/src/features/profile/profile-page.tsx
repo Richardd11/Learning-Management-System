@@ -55,27 +55,25 @@ export function ProfilePage() {
   return (
     <div className="max-w-3xl mx-auto">
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-3xl font-bold mb-2">Profile & Settings</h1>
-        <p className="text-muted-foreground mb-8">Manage your account information</p>
+        <h1 className="text-2xl font-bold tracking-tight mb-2">Profile & Settings</h1>
+        <p className="text-muted-foreground/80 text-base mb-6">Manage your account information</p>
       </motion.div>
 
       <div className="space-y-6">
         {/* Stats */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-0 rounded-xl border border-border/50 overflow-hidden divide-x divide-border">
             {[
               { icon: Zap, label: "XP", value: user.xp },
               { icon: Flame, label: "Streak", value: `${user.streak} days` },
               { icon: BookOpen, label: "Role", value: user.role.toLowerCase() },
               { icon: Award, label: "Member since", value: new Date(user.createdAt).getFullYear().toString() },
             ].map((stat) => (
-              <Card key={stat.label}>
-                <CardContent className="p-4 text-center">
-                  <stat.icon className="h-5 w-5 text-primary mx-auto mb-1" />
-                  <p className="text-xs text-muted-foreground">{stat.label}</p>
-                  <p className="font-semibold capitalize">{stat.value}</p>
-                </CardContent>
-              </Card>
+              <div key={stat.label} className="p-4 text-center bg-card">
+                <stat.icon className="h-5 w-5 text-primary mx-auto mb-1" />
+                <p className="text-xs text-muted-foreground">{stat.label}</p>
+                <p className="font-semibold capitalize">{stat.value}</p>
+              </div>
             ))}
           </div>
         </motion.div>
@@ -84,17 +82,20 @@ export function ProfilePage() {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2"><User className="h-5 w-5" /> Personal Information</CardTitle>
+              <CardTitle className="text-base font-semibold mb-4 border-b border-border/50 pb-3 flex items-center gap-2"><User className="h-5 w-5" /> Personal Information</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-4 mb-6">
-                <Avatar className="h-20 w-20">
+                <Avatar className="h-20 w-20 ring-4 ring-background shadow-lg">
                   <AvatarImage src={user.avatar ?? undefined} />
                   <AvatarFallback className="text-lg">{getInitials(user.firstName, user.lastName)}</AvatarFallback>
                 </Avatar>
                 <div>
-                  <p className="font-semibold text-lg">{user.firstName} {user.lastName}</p>
-                  <p className="text-sm text-muted-foreground flex items-center gap-1"><Mail className="h-3 w-3" /> {user.email}</p>
+                  <p className="text-2xl font-bold tracking-tight">{user.firstName} {user.lastName}</p>
+                  <span className={`inline-block mt-1 text-xs font-medium px-2 py-0.5 rounded-full ${user.role === "ADMIN" ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400" : user.role === "TEACHER" ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400" : "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"}`}>
+                    {user.role.toLowerCase()}
+                  </span>
+                  <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1"><Mail className="h-3 w-3" /> {user.email}</p>
                 </div>
               </div>
 
@@ -119,7 +120,7 @@ export function ProfilePage() {
                     {...register("bio")}
                   />
                 </div>
-                <Button type="submit" disabled={updateMutation.isPending}>
+                <Button type="submit" disabled={updateMutation.isPending} className="shadow-sm">
                   <Save className="h-4 w-4 mr-2" /> {updateMutation.isPending ? "Saving..." : "Save Changes"}
                 </Button>
               </form>

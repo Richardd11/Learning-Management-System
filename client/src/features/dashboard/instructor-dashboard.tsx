@@ -50,15 +50,16 @@ export function InstructorDashboard() {
       <motion.div
         initial={{ opacity: 0, y: -16 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-600/90 to-purple-800 p-6 text-white shadow-lg"
+        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-violet-600 via-purple-700 to-purple-800 p-6 text-white shadow-lg"
       >
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(255,255,255,0.08)_0%,_transparent_60%)] pointer-events-none" />
         <div className="relative z-10 flex items-start justify-between gap-4 flex-wrap">
           <div>
-            <p className="text-white/70 text-sm font-medium mb-1">Teacher Portal</p>
-            <h1 className="text-2xl md:text-3xl font-bold">
+            <p className="text-white/75 text-sm font-medium mb-1">Teacher Portal</p>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
               Welcome, {user?.firstName}!
             </h1>
-            <p className="text-white/70 text-sm mt-1">
+            <p className="text-white/75 text-sm mt-1.5 font-medium">
               Manage your courses, students, and content below.
             </p>
           </div>
@@ -75,8 +76,8 @@ export function InstructorDashboard() {
             </Link>
           </div>
         </div>
-        <div className="absolute -top-8 -right-8 w-48 h-48 rounded-full bg-white/5 pointer-events-none" />
-        <div className="absolute -bottom-6 -left-6 w-32 h-32 rounded-full bg-white/5 pointer-events-none" />
+        <div className="absolute -top-8 -right-8 w-48 h-48 rounded-full bg-white/8 pointer-events-none" />
+        <div className="absolute -bottom-6 -left-6 w-32 h-32 rounded-full bg-white/8 pointer-events-none" />
       </motion.div>
 
       {/* ── KPI cards ─────────────────────────────────────────── */}
@@ -112,7 +113,13 @@ export function InstructorDashboard() {
               ) : chartData.length > 0 ? (
                 <ResponsiveContainer width="100%" height={220}>
                   <BarChart data={chartData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <defs>
+                      <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.9} />
+                        <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0.5} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.5} />
                     <XAxis dataKey="name" tick={{ fontSize: 10 }} stroke="hsl(var(--muted-foreground))" />
                     <YAxis tick={{ fontSize: 10 }} stroke="hsl(var(--muted-foreground))" />
                     <Tooltip
@@ -121,9 +128,10 @@ export function InstructorDashboard() {
                         border: "1px solid hsl(var(--border))",
                         borderRadius: 8,
                         fontSize: 12,
+                        boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
                       }}
                     />
-                    <Bar dataKey="students" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="students" fill="url(#barGradient)" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               ) : (
@@ -157,10 +165,10 @@ export function InstructorDashboard() {
                     <motion.div
                       key={course.id}
                       variants={fadeUp}
-                      className="flex items-center gap-4 p-4 hover:bg-accent/50 transition-colors group"
+                      className="flex items-center gap-4 p-4 hover:bg-accent/60 transition-colors group cursor-pointer"
                     >
-                      <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
-                        <BookOpen className="h-5 w-5 text-primary" />
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/10 flex items-center justify-center shrink-0 group-hover:from-primary/30 transition-all">
+                        <BookOpen className="h-4 w-4 text-primary" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-semibold text-sm truncate">{course.title}</p>

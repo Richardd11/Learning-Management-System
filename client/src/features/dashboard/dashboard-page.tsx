@@ -79,10 +79,10 @@ function StudentDashboard() {
     : 0;
 
   const priorityColor: Record<string, string> = {
-    urgent: "bg-red-500/10 border-red-500/30 text-red-700",
-    high: "bg-orange-500/10 border-orange-500/30 text-orange-700",
-    normal: "bg-blue-500/10 border-blue-500/30 text-blue-700",
-    low: "bg-muted border-border text-muted-foreground",
+    urgent: "bg-red-500/8 border-red-500/20 border-l-[3px] border-l-red-500 text-red-700 dark:text-red-400",
+    high: "bg-orange-500/8 border-orange-500/20 border-l-[3px] border-l-orange-500 text-orange-700 dark:text-orange-400",
+    normal: "bg-blue-500/8 border-blue-500/20 border-l-[3px] border-l-blue-500 text-blue-700 dark:text-blue-400",
+    low: "bg-muted/50 border-border/50 border-l-[3px] border-l-muted-foreground/30 text-muted-foreground",
   };
 
   return (
@@ -92,12 +92,13 @@ function StudentDashboard() {
       <motion.div
         initial={{ opacity: 0, y: -16 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/90 to-primary p-6 text-primary-foreground shadow-lg"
+        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary/90 to-primary/80 p-6 text-primary-foreground shadow-lg"
       >
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(255,255,255,0.08)_0%,_transparent_60%)] pointer-events-none" />
         <div className="relative z-10 flex items-start justify-between gap-4 flex-wrap">
           <div>
-            <p className="text-primary-foreground/70 text-sm font-medium mb-1">Welcome back 👋</p>
-            <h1 className="text-2xl md:text-3xl font-bold">
+            <p className="text-primary-foreground/75 text-sm font-medium mb-1">Welcome back 👋</p>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
               {user?.firstName} {user?.lastName}
             </h1>
             <div className="flex flex-wrap gap-2 mt-3">
@@ -129,8 +130,8 @@ function StudentDashboard() {
           </div>
         </div>
         {/* decorative blobs */}
-        <div className="absolute -top-8 -right-8 w-40 h-40 rounded-full bg-white/5 pointer-events-none" />
-        <div className="absolute -bottom-6 -left-6 w-28 h-28 rounded-full bg-white/5 pointer-events-none" />
+        <div className="absolute -top-8 -right-8 w-40 h-40 rounded-full bg-white/8 pointer-events-none" />
+        <div className="absolute -bottom-6 -left-6 w-28 h-28 rounded-full bg-white/8 pointer-events-none" />
       </motion.div>
 
       {/* ── Stats row ────────────────────────────────────────────── */}
@@ -190,21 +191,21 @@ function StudentDashboard() {
                   {active.slice(0, 5).map((enrollment) => (
                     <motion.div key={enrollment.id} variants={fadeUp}>
                       <Link to="/player/$slug" params={{ slug: enrollment.course?.slug ?? "" }}>
-                        <div className="flex items-center gap-4 p-4 hover:bg-accent/50 transition-colors group">
-                          <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
-                            <BookOpen className="h-6 w-6 text-primary" />
+                        <div className="flex items-center gap-4 p-4 hover:bg-accent/60 transition-colors group cursor-pointer">
+                          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary/15 to-primary/5 border border-primary/10 flex items-center justify-center shrink-0 group-hover:from-primary/25 group-hover:to-primary/10 transition-all">
+                            <BookOpen className="h-5 w-5 text-primary" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="font-semibold truncate text-sm">{enrollment.course?.title}</p>
-                            <p className="text-xs text-muted-foreground truncate mt-0.5">
+                            <p className="font-semibold truncate text-sm tracking-[-0.01em]">{enrollment.course?.title}</p>
+                            <p className="text-xs text-muted-foreground/80 truncate mt-0.5">
                               {enrollment.course?.instructor?.firstName} {enrollment.course?.instructor?.lastName}
                             </p>
                             <div className="flex items-center gap-2 mt-2">
                               <Progress value={enrollment.progress} className="flex-1 h-1.5" />
-                              <span className="text-xs font-semibold text-primary shrink-0">{enrollment.progress}%</span>
+                              <span className="text-xs font-bold text-primary shrink-0 tabular">{enrollment.progress}%</span>
                             </div>
                           </div>
-                          <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors shrink-0" />
+                          <ChevronRight className="h-4 w-4 text-muted-foreground/50 group-hover:text-foreground group-hover:translate-x-0.5 transition-all shrink-0" />
                         </div>
                       </Link>
                     </motion.div>

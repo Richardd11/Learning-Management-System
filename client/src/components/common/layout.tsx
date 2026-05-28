@@ -29,7 +29,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             animate="animate"
             exit="exit"
             transition={{ duration: 0.3 }}
-            className="flex-1 p-4 md:p-6 overflow-x-hidden"
+            className="flex-1 p-4 md:p-6 lg:p-8 overflow-x-hidden min-h-[calc(100vh-4rem)]"
           >
             {children}
           </motion.main>

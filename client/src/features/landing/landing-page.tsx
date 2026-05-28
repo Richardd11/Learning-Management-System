@@ -72,13 +72,14 @@ export function LandingPage() {
       {/* Hero */}
       <section className="relative min-h-[90vh] flex items-center justify-center px-4">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-pink-500/5" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,hsl(var(--primary)/0.15),transparent)]" />
         <div className="relative max-w-5xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6">
+            <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight leading-tight mb-6">
               Your Institution's{" "}
               <span className="gradient-text">Learning Platform</span>
             </h1>
@@ -109,9 +110,9 @@ export function LandingPage() {
             className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-6 text-center"
           >
             {highlights.map((stat) => (
-              <div key={stat.label} className="flex flex-col items-center gap-1">
+              <div key={stat.label} className="flex flex-col items-center gap-1 bg-gradient-to-br from-card to-muted/30 border border-border/50 shadow-sm rounded-2xl p-4">
                 <stat.icon className="h-5 w-5 text-primary mb-1" />
-                <span className="text-2xl font-bold"><AnimatedCounter value={stat.value} suffix={stat.suffix} /></span>
+                <span className="text-4xl font-extrabold tracking-tight"><AnimatedCounter value={stat.value} suffix={stat.suffix} /></span>
                 <span className="text-xs text-muted-foreground">{stat.label}</span>
               </div>
             ))}
@@ -162,11 +163,13 @@ export function LandingPage() {
                   whileHover={{ scale: 1.02, y: -4 }}
                   transition={{ type: "spring", stiffness: 300 }}
                 >
-                  <Card className="h-full">
+                  <Card className="h-full group hover:-translate-y-1 hover:shadow-md transition-all duration-200">
                     <CardContent className="p-6">
-                      <feature.icon className="h-10 w-10 text-primary mb-4" />
-                      <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
-                      <p className="text-muted-foreground">{feature.desc}</p>
+                      <div className="bg-gradient-to-br from-primary/20 to-primary/5 rounded-2xl p-3 w-fit mb-4">
+                        <feature.icon className="h-10 w-10 text-primary" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-foreground mb-2">{feature.title}</h3>
+                      <p className="text-sm text-muted-foreground/80 leading-relaxed">{feature.desc}</p>
                     </CardContent>
                   </Card>
                 </motion.div>

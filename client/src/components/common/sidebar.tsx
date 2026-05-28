@@ -114,24 +114,24 @@ export function Sidebar() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-40 bg-black/50 md:hidden"
+            className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm md:hidden"
             onClick={() => setSidebarOpen(false)}
           />
         )}
       </AnimatePresence>
 
-      {/* ── Sidebar ─────────────────────────────────────────────── */}
-      {/* Desktop: sticky in flex flow; Mobile: fixed overlay */}
+      {/* ── Desktop sidebar ─────────────────────────────────────── */}
       <motion.aside
         initial={false}
         animate={{ width: sidebarWidth }}
         transition={{ type: "spring", damping: 28, stiffness: 220 }}
         style={{ minWidth: sidebarWidth, maxWidth: sidebarWidth }}
         className={cn(
-          // Desktop — sticky, part of normal flex flow
           "hidden md:flex flex-col",
           "sticky top-16 h-[calc(100vh-4rem)]",
-          "border-r bg-card shadow-sm overflow-hidden shrink-0",
+          "bg-gradient-to-b from-card via-card to-card/95",
+          "shadow-[1px_0_0_0_hsl(var(--border)/0.8)]",
+          "overflow-hidden shrink-0",
         )}
       >
         <SidebarContent
@@ -145,7 +145,7 @@ export function Sidebar() {
         />
       </motion.aside>
 
-      {/* Mobile drawer — fixed overlay */}
+      {/* ── Mobile drawer ───────────────────────────────────────── */}
       <AnimatePresence>
         {sidebarOpen && (
           <motion.aside
@@ -154,7 +154,7 @@ export function Sidebar() {
             exit={{ x: -280 }}
             transition={{ type: "spring", damping: 28, stiffness: 220 }}
             style={{ width: 260 }}
-            className="fixed left-0 top-16 z-50 h-[calc(100vh-4rem)] flex flex-col border-r bg-card shadow-lg overflow-hidden md:hidden"
+            className="fixed left-0 top-16 z-50 h-[calc(100vh-4rem)] flex flex-col bg-card shadow-2xl overflow-hidden md:hidden"
           >
             <SidebarContent
               collapsed={false}
@@ -193,10 +193,10 @@ function SidebarContent({
   return (
     <>
       {/* Collapse toggle — desktop only */}
-      <div className="hidden md:flex items-center justify-end px-2 py-2 border-b shrink-0">
+      <div className="hidden md:flex items-center justify-end px-3 pt-3 pb-1 shrink-0">
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="p-1.5 rounded-lg hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
+          className="p-1.5 rounded-lg bg-muted/50 hover:bg-accent text-muted-foreground hover:text-foreground transition-all duration-150 hover:scale-105"
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
@@ -204,10 +204,13 @@ function SidebarContent({
       </div>
 
       {/* User mini profile */}
-      <div className={cn("flex items-center gap-3 px-3 py-3 border-b shrink-0", collapsed && "justify-center px-2")}>
-        <Avatar className="h-8 w-8 shrink-0">
+      <div className={cn(
+        "mx-2 mb-1 rounded-xl bg-muted/30 border border-border/40 flex items-center gap-3 px-3 py-3 shrink-0",
+        collapsed && "justify-center px-2"
+      )}>
+        <Avatar className="h-8 w-8 shrink-0 ring-2 ring-background shadow-sm">
           <AvatarImage src={user.avatar ?? undefined} />
-          <AvatarFallback className="text-xs">{getInitials(user.firstName, user.lastName)}</AvatarFallback>
+          <AvatarFallback className="text-xs font-semibold">{getInitials(user.firstName, user.lastName)}</AvatarFallback>
         </Avatar>
         <AnimatePresence>
           {!collapsed && (
@@ -217,11 +220,11 @@ function SidebarContent({
               exit={{ opacity: 0, width: 0 }}
               className="overflow-hidden min-w-0"
             >
-              <p className="text-sm font-semibold truncate leading-tight">
+              <p className="text-sm font-semibold truncate leading-tight tracking-[-0.01em]">
                 {user.firstName} {user.lastName}
               </p>
               <span className={cn(
-                "text-[10px] font-medium px-1.5 py-0.5 rounded-full border inline-block mt-0.5",
+                "text-[10px] font-semibold px-1.5 py-0.5 rounded-full border inline-block mt-0.5",
                 roleColors[user.role]
               )}>
                 {user.role}
@@ -232,7 +235,7 @@ function SidebarContent({
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-4">
+      <nav className="flex-1 overflow-y-auto py-2 px-2 space-y-1">
         {visibleGroups.map((group) => (
           <div key={group.label}>
             <AnimatePresence>
@@ -241,7 +244,7 @@ function SidebarContent({
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 px-2 mb-1"
+                  className="text-[9px] font-bold uppercase tracking-[0.12em] text-muted-foreground/50 px-3 mb-1.5 mt-2"
                 >
                   {group.label}
                 </motion.p>
@@ -260,29 +263,29 @@ function SidebarContent({
                     to={navItem.href}
                     onClick={() => setSidebarOpen(false)}
                     className={cn(
-                      "relative flex items-center gap-3 rounded-lg px-2 py-2 text-sm font-medium transition-all duration-150",
+                      "relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150",
                       collapsed ? "justify-center" : "",
                       isActive
-                        ? "bg-primary/10 text-primary"
-                        : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                        ? "bg-primary/10 text-primary font-semibold shadow-[inset_0_0_0_1px_hsl(var(--primary)/0.15)]"
+                        : "text-muted-foreground hover:bg-accent/70 hover:text-foreground"
                     )}
                     title={collapsed ? navItem.label : undefined}
                   >
                     {isActive && (
                       <motion.div
                         layoutId="sidebar-active-indicator"
-                        className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-primary rounded-r-full"
+                        className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-primary rounded-r-full shadow-[0_0_6px_hsl(var(--primary)/0.5)]"
                         transition={{ type: "spring", damping: 25, stiffness: 300 }}
                       />
                     )}
-                    <Icon className="h-4 w-4 shrink-0" />
+                    <Icon className="h-4 w-4 shrink-0 transition-transform duration-150" />
                     <AnimatePresence>
                       {!collapsed && (
                         <motion.span
                           initial={{ opacity: 0, width: 0 }}
                           animate={{ opacity: 1, width: "auto" }}
                           exit={{ opacity: 0, width: 0 }}
-                          className="overflow-hidden whitespace-nowrap flex-1"
+                          className="overflow-hidden whitespace-nowrap flex-1 tracking-[-0.01em]"
                         >
                           {navItem.label}
                         </motion.span>
@@ -303,16 +306,18 @@ function SidebarContent({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="px-3 py-3 border-t shrink-0"
+            className="mx-2 mb-2 rounded-xl bg-muted/20 border border-border/40 px-3 py-2.5 shrink-0"
           >
             <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <span className="flex items-center gap-1">
+              <span className="flex items-center gap-1.5">
                 <Flame className="h-3.5 w-3.5 text-orange-500" />
-                <span className="font-semibold text-foreground">{user.streak}</span> streak
+                <span className="font-bold text-foreground tabular">{user.streak}</span>
+                <span className="text-[11px]">streak</span>
               </span>
-              <span className="flex items-center gap-1">
+              <span className="flex items-center gap-1.5">
                 <Zap className="h-3.5 w-3.5 text-yellow-500" />
-                <span className="font-semibold text-foreground">{user.xp.toLocaleString()}</span> XP
+                <span className="font-bold text-foreground tabular">{user.xp.toLocaleString()}</span>
+                <span className="text-[11px]">XP</span>
               </span>
             </div>
           </motion.div>

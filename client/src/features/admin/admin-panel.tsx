@@ -90,15 +90,16 @@ export function AdminPanel() {
       <motion.div
         initial={{ opacity: 0, y: -16 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 p-6 text-white shadow-lg"
+        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-800 via-slate-800/95 to-slate-900 p-6 text-white shadow-lg"
       >
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_rgba(139,92,246,0.15)_0%,_transparent_60%)] pointer-events-none" />
         <div className="relative z-10 flex items-start justify-between gap-4 flex-wrap">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <Shield className="h-5 w-5 text-white/80" />
-              <p className="text-white/70 text-sm font-medium">Admin Panel</p>
+              <p className="text-white/75 text-sm font-medium">Admin Panel</p>
             </div>
-            <h1 className="text-2xl md:text-3xl font-bold">
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
               Welcome, {user?.firstName ?? "Admin"}!
             </h1>
             <p className="text-white/60 text-sm mt-1">
@@ -109,33 +110,33 @@ export function AdminPanel() {
             <AdminQuickStats />
           </div>
         </div>
-        <div className="absolute -top-10 -right-10 w-56 h-56 rounded-full bg-white/5 pointer-events-none" />
-        <div className="absolute -bottom-8 -left-8 w-36 h-36 rounded-full bg-white/5 pointer-events-none" />
+        <div className="absolute -top-10 -right-10 w-56 h-56 rounded-full bg-white/6 pointer-events-none" />
+        <div className="absolute -bottom-8 -left-8 w-36 h-36 rounded-full bg-white/6 pointer-events-none" />
       </motion.div>
 
       {/* ── Tabs ───────────────────────────────────────────────── */}
       <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3 lg:grid-cols-7 h-auto rounded-xl border bg-muted/40 p-1">
-          <TabsTrigger value="overview" className="gap-1 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">
-            <TrendingUp className="h-4 w-4" /> <span className="hidden sm:inline">Overview</span>
+        <TabsList className="flex flex-wrap gap-1 w-full h-auto rounded-xl bg-muted/50 border border-border/60 p-1.5">
+          <TabsTrigger value="overview" className="gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium">
+            <TrendingUp className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Overview</span>
           </TabsTrigger>
-          <TabsTrigger value="users" className="gap-1 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">
-            <Users className="h-4 w-4" /> <span className="hidden sm:inline">Users</span>
+          <TabsTrigger value="users" className="gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium">
+            <Users className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Users</span>
           </TabsTrigger>
-          <TabsTrigger value="levels" className="gap-1 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">
-            <Layers className="h-4 w-4" /> <span className="hidden sm:inline">Levels</span>
+          <TabsTrigger value="levels" className="gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium">
+            <Layers className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Levels</span>
           </TabsTrigger>
-          <TabsTrigger value="courses" className="gap-1 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">
-            <BookOpen className="h-4 w-4" /> <span className="hidden sm:inline">Courses</span>
+          <TabsTrigger value="courses" className="gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium">
+            <BookOpen className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Courses</span>
           </TabsTrigger>
-          <TabsTrigger value="announcements" className="gap-1 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">
-            <Megaphone className="h-4 w-4" /> <span className="hidden sm:inline">Announce</span>
+          <TabsTrigger value="announcements" className="gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium">
+            <Megaphone className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Announce</span>
           </TabsTrigger>
-          <TabsTrigger value="youtube" className="gap-1 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">
-            <Youtube className="h-4 w-4" /> <span className="hidden sm:inline">YouTube</span>
+          <TabsTrigger value="youtube" className="gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium">
+            <Youtube className="h-3.5 w-3.5" /> <span className="hidden sm:inline">YouTube</span>
           </TabsTrigger>
-          <TabsTrigger value="analytics" className="gap-1 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">
-            <BarChart3 className="h-4 w-4" /> <span className="hidden sm:inline">Analytics</span>
+          <TabsTrigger value="analytics" className="gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium">
+            <BarChart3 className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Analytics</span>
           </TabsTrigger>
         </TabsList>
 

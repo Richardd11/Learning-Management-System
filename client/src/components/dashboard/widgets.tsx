@@ -7,14 +7,29 @@ import { Card, CardContent } from "@/components/ui/card";
 
 // ── Animation variants ────────────────────────────────────────────
 export const fadeUp = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0 },
+  hidden: { opacity: 0, y: 16 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: "easeOut" } },
 };
 
 export const stagger = {
   hidden: { opacity: 0 },
   show: { opacity: 1, transition: { staggerChildren: 0.07 } },
 };
+
+// ── Icon background helper ────────────────────────────────────────
+function iconBg(colorClass: string): string {
+  const map: Record<string, string> = {
+    "text-blue-500":    "bg-blue-500/10",
+    "text-green-500":   "bg-green-500/10",
+    "text-orange-500":  "bg-orange-500/10",
+    "text-yellow-500":  "bg-yellow-500/10",
+    "text-purple-500":  "bg-purple-500/10",
+    "text-red-500":     "bg-red-500/10",
+    "text-pink-500":    "bg-pink-500/10",
+    "text-primary":     "bg-primary/10",
+  };
+  return map[colorClass] ?? "bg-muted";
+}
 
 // ── StatsCard ─────────────────────────────────────────────────────
 interface StatsCardProps {
@@ -32,21 +47,30 @@ interface StatsCardProps {
 export function StatsCard({ label, value, icon: Icon, color = "text-primary", trend, trendUp, className }: StatsCardProps) {
   return (
     <motion.div variants={fadeUp}>
-      <Card className={cn("overflow-hidden", className)}>
+      <Card className={cn(
+        "overflow-hidden group hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-default",
+        "border-b-2 border-b-transparent hover:border-b-primary/20",
+        className
+      )}>
         <CardContent className="p-5">
           <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide truncate">{label}</p>
-              <p className="text-3xl font-bold mt-1 tabular-nums">
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider truncate">
+                {label}
+              </p>
+              <p className="text-2xl font-bold mt-1.5 tabular tracking-tight">
                 {typeof value === "number" ? value.toLocaleString() : value}
               </p>
               {trend && (
-                <p className={cn("text-xs mt-1.5 font-medium", trendUp ? "text-green-600" : "text-muted-foreground")}>
-                  {trend}
+                <p className={cn(
+                  "text-xs mt-1.5 font-medium flex items-center gap-1",
+                  trendUp ? "text-green-600 dark:text-green-400" : "text-muted-foreground"
+                )}>
+                  {trendUp ? "↑" : "→"} {trend}
                 </p>
               )}
             </div>
-            <div className={cn("p-2.5 rounded-xl bg-current/10 shrink-0", color)}>
+            <div className={cn("p-3 rounded-2xl shrink-0", iconBg(color))}>
               <Icon className={cn("h-5 w-5", color)} />
             </div>
           </div>
@@ -105,7 +129,7 @@ export function ProgressRing({
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-sm font-bold">{Math.round(value)}%</span>
+          <span className="text-sm font-bold tabular">{Math.round(value)}%</span>
         </div>
       </div>
       {label && <p className="text-xs font-medium text-center">{label}</p>}
@@ -117,8 +141,10 @@ export function ProgressRing({
 // ── SectionHeading ────────────────────────────────────────────────
 export function SectionHeading({ title, action }: { title: string; action?: React.ReactNode }) {
   return (
-    <div className="flex items-center justify-between mb-3">
-      <h2 className="text-base font-semibold text-foreground">{title}</h2>
+    <div className="flex items-center justify-between mb-4">
+      <h2 className="text-[15px] font-semibold tracking-[-0.01em] text-foreground border-l-[3px] border-primary pl-3">
+        {title}
+      </h2>
       {action}
     </div>
   );
@@ -138,11 +164,13 @@ export function EmptyPlaceholder({
 }) {
   return (
     <div className="flex flex-col items-center justify-center py-12 text-center">
-      <div className="p-4 rounded-full bg-muted mb-4">
-        <Icon className="h-8 w-8 text-muted-foreground" />
+      <div className="p-5 rounded-2xl bg-muted/60 border border-border/50 mx-auto w-fit mb-4">
+        <Icon className="h-7 w-7 text-muted-foreground" />
       </div>
-      <p className="font-medium mb-1">{title}</p>
-      {description && <p className="text-sm text-muted-foreground mb-4">{description}</p>}
+      <p className="font-semibold text-sm text-foreground mb-1">{title}</p>
+      {description && (
+        <p className="text-sm text-muted-foreground/80 mb-4 max-w-xs mx-auto leading-relaxed">{description}</p>
+      )}
       {action}
     </div>
   );

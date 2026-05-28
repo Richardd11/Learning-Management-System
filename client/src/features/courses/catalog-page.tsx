@@ -55,14 +55,14 @@ export function CatalogPage() {
       <Breadcrumbs items={[{ label: "Courses" }]} />
 
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-3xl font-bold mb-2">Course Catalog</h1>
-        <p className="text-muted-foreground mb-8">Discover courses to expand your skills</p>
+        <h1 className="text-3xl font-bold tracking-tight mb-2">Course Catalog</h1>
+        <p className="text-muted-foreground/80 text-base mb-6">Discover courses to expand your skills</p>
       </motion.div>
 
       {/* Filters */}
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="flex flex-col gap-4 mb-8">
         <div className="flex flex-col sm:flex-row gap-4">
-          <div className="relative flex-1">
+          <div className="relative flex-1 bg-background/60 backdrop-blur-sm rounded-lg">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search courses..."
@@ -94,7 +94,7 @@ export function CatalogPage() {
                 variant={difficulty === d ? "default" : "outline"}
                 size="sm"
                 onClick={() => { setDifficulty(d); setPage(1); }}
-                className="capitalize"
+                className={`capitalize ${difficulty === d ? "bg-primary text-primary-foreground shadow-sm" : "bg-muted/50 hover:bg-muted text-muted-foreground"}`}
               >
                 {d === "all" && <Filter className="h-3 w-3 mr-1" />}
                 {d}
@@ -125,7 +125,7 @@ export function CatalogPage() {
               <motion.div key={course.id} variants={item}>
                 <Link to="/courses/$slug" params={{ slug: course.slug }}>
                   <motion.div whileHover={{ y: -4, boxShadow: "0 10px 40px rgba(0,0,0,0.1)" }} transition={{ type: "spring", stiffness: 300 }}>
-                    <Card className="overflow-hidden h-full cursor-pointer">
+                    <Card className="overflow-hidden h-full cursor-pointer group hover:-translate-y-1 hover:shadow-md transition-all duration-200">
                       <div className="h-40 bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
                         <span className="text-4xl">📚</span>
                       </div>
@@ -141,15 +141,15 @@ export function CatalogPage() {
                             </span>
                           )}
                         </div>
-                        <h3 className="font-semibold mb-1 line-clamp-2">{course.title}</h3>
+                        <h3 className="font-semibold text-sm leading-snug group-hover:text-primary transition-colors mb-1 line-clamp-2">{course.title}</h3>
                         <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
                           {truncate(course.shortDesc ?? course.description, 80)}
                         </p>
                         <div className="flex items-center justify-between">
-                          <p className="text-sm text-muted-foreground">
+                          <p className="text-xs text-muted-foreground">
                             {course.instructor?.firstName} {course.instructor?.lastName}
                           </p>
-                          <p className="font-bold text-primary">{formatPrice(course.price)}</p>
+                          <p className="font-bold text-foreground">{formatPrice(course.price)}</p>
                         </div>
                       </CardContent>
                     </Card>
@@ -162,13 +162,16 @@ export function CatalogPage() {
           {/* Pagination */}
           {data.totalPages > 1 && (
             <div className="flex items-center justify-center gap-2 mt-8">
-              <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
+              <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage((p) => p - 1)} className="hover:bg-accent transition-colors">
                 Previous
               </Button>
-              <span className="text-sm text-muted-foreground">
-                Page {page} of {data.totalPages}
+              <span className="text-sm font-medium bg-primary text-primary-foreground px-3 py-1 rounded-md">
+                {page}
               </span>
-              <Button variant="outline" size="sm" disabled={page >= data.totalPages} onClick={() => setPage((p) => p + 1)}>
+              <span className="text-sm text-muted-foreground">
+                of {data.totalPages}
+              </span>
+              <Button variant="outline" size="sm" disabled={page >= data.totalPages} onClick={() => setPage((p) => p + 1)} className="hover:bg-accent transition-colors">
                 Next
               </Button>
             </div>

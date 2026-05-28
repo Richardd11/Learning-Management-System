@@ -23,77 +23,110 @@ export function Navbar() {
       <motion.header
         initial={{ y: -100 }}
         animate={{ y: 0 }}
-        className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
+        transition={{ type: "spring", damping: 25, stiffness: 200 }}
+        className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/70 shadow-[0_1px_0_0_hsl(var(--border)/0.5)]"
       >
-        <div className="flex h-16 items-center px-4 md:px-6">
+        <div className="flex h-16 items-center px-4 md:px-6 gap-2">
           {isAuthenticated ? (
-            <Button variant="ghost" size="icon" className="mr-2 md:hidden" onClick={toggleSidebar} aria-label="Toggle sidebar">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="mr-1 md:hidden text-muted-foreground hover:text-foreground"
+              onClick={toggleSidebar}
+              aria-label="Toggle sidebar"
+            >
               <Menu className="h-5 w-5" />
             </Button>
           ) : (
-            <Button variant="ghost" size="icon" className="mr-2 md:hidden" onClick={() => setMobileMenuOpen(true)} aria-label="Open menu">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="mr-1 md:hidden text-muted-foreground hover:text-foreground"
+              onClick={() => setMobileMenuOpen(true)}
+              aria-label="Open menu"
+            >
               <Menu className="h-5 w-5" />
             </Button>
           )}
 
           <Link to="/" className="flex items-center gap-2 mr-6">
-            <BookOpen className="h-6 w-6 text-primary" />
-            <span className="text-xl font-bold gradient-text hidden sm:inline">LearnHub</span>
+            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+              <BookOpen className="h-4 w-4 text-primary" />
+            </div>
+            <span className="text-[17px] font-bold tracking-tight gradient-text hidden sm:inline">LearnHub</span>
           </Link>
 
           {!isAuthenticated && (
-            <nav className="hidden md:flex items-center gap-6 ml-6">
-              <Link to="/courses" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+            <nav className="hidden md:flex items-center gap-1 ml-2">
+              <Link
+                to="/courses"
+                className="px-3 py-1.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent/60 transition-all duration-150"
+              >
                 Courses
               </Link>
             </nav>
           )}
 
-          <div className="ml-auto flex items-center gap-2">
+          <div className="ml-auto flex items-center gap-1">
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
               aria-label="Toggle theme"
+              className="text-muted-foreground hover:text-foreground transition-all duration-300"
             >
-              <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-              <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+              <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+              <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
             </Button>
 
             {isAuthenticated ? (
               <>
-                <Button variant="ghost" size="icon" className="relative" onClick={toggleNotificationDrawer} aria-label="Notifications">
-                  <Bell className="h-5 w-5" />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="relative text-muted-foreground hover:text-foreground"
+                  onClick={toggleNotificationDrawer}
+                  aria-label="Notifications"
+                >
+                  <Bell className="h-4 w-4" />
                   {(unreadCount ?? 0) > 0 && (
                     <motion.span
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
-                      className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-destructive text-destructive-foreground text-xs flex items-center justify-center"
+                      className="absolute -top-0.5 -right-0.5 min-w-[1.1rem] h-[1.1rem] rounded-full bg-primary text-primary-foreground text-[10px] flex items-center justify-center font-bold shadow-sm px-1"
                     >
                       {unreadCount}
                     </motion.span>
                   )}
                 </Button>
 
-                <div className="flex items-center gap-2 ml-2">
+                <div className="flex items-center gap-1 ml-1 pl-2 border-l border-border/60">
                   <Link to="/profile">
-                    <Avatar className="h-8 w-8 cursor-pointer">
+                    <Avatar className="h-8 w-8 cursor-pointer ring-2 ring-background ring-offset-1 ring-offset-background shadow-sm hover:ring-primary/30 transition-all duration-150">
                       <AvatarImage src={user?.avatar ?? undefined} />
-                      <AvatarFallback>{user ? getInitials(user.firstName, user.lastName) : "U"}</AvatarFallback>
+                      <AvatarFallback className="text-xs font-semibold">
+                        {user ? getInitials(user.firstName, user.lastName) : "U"}
+                      </AvatarFallback>
                     </Avatar>
                   </Link>
-                  <Button variant="ghost" size="icon" onClick={logout} aria-label="Logout">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={logout}
+                    aria-label="Logout"
+                    className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors duration-150"
+                  >
                     <LogOut className="h-4 w-4" />
                   </Button>
                 </div>
               </>
             ) : (
-              <div className="hidden md:flex items-center gap-2">
+              <div className="hidden md:flex items-center gap-2 ml-1">
                 <Link to="/login">
-                  <Button variant="ghost" size="sm">Log in</Button>
+                  <Button variant="ghost" size="sm" className="text-sm font-medium">Log in</Button>
                 </Link>
                 <Link to="/login">
-                  <Button size="sm">Sign up</Button>
+                  <Button size="sm" className="text-sm font-medium shadow-sm">Sign up</Button>
                 </Link>
               </div>
             )}
