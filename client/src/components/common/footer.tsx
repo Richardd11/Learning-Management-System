@@ -38,7 +38,7 @@ const socialLinks = [
 
 export function Footer() {
   return (
-    <footer className="border-t bg-muted/30">
+    <footer className="border-t border-border/50 bg-muted/20">
       <div className="max-w-6xl mx-auto px-4 py-12">
         <div className="grid grid-cols-2 md:grid-cols-6 gap-8">
           <div className="col-span-2">
@@ -46,7 +46,7 @@ export function Footer() {
               <BookOpen className="h-6 w-6 text-primary" />
               <span className="text-xl font-bold gradient-text">LearnHub</span>
             </Link>
-            <p className="text-sm text-muted-foreground mb-6 max-w-xs">
+            <p className="text-sm text-muted-foreground/80 mb-6 max-w-xs leading-relaxed">
               AI-powered learning platform with interactive courses, personalized tutoring, and verifiable certificates.
             </p>
             <div className="flex items-center gap-3">

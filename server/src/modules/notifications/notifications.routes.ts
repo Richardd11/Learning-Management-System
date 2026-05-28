@@ -37,13 +37,13 @@ export async function notificationRoutes(app: FastifyInstance): Promise<void> {
     reply.send({ success: true });
   });
 
-  app.post("/broadcast", { preHandler: [requireRole("ADMIN", "SUPER_ADMIN")] }, async (request, reply) => {
+  app.post("/broadcast", { preHandler: [requireRole("ADMIN")] }, async (request, reply) => {
     const { title, message } = z.object({ title: z.string(), message: z.string() }).parse(request.body);
 
     const users = await prisma.user.findMany({ select: { id: true } });
 
     await prisma.announcement.create({
-      data: { title, message, authorId: request.user!.userId },
+      data: { title, body: message, authorId: request.user!.userId, isInstitutionWide: true },
     });
 
     await prisma.notification.createMany({

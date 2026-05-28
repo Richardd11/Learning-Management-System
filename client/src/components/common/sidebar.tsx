@@ -2,11 +2,18 @@ import { Link, useLocation } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard, BookOpen, GraduationCap, Settings, Shield,
-  PlusCircle, BarChart3, Award,
+  PlusCircle, BarChart3, Award, Users, Layers, Megaphone, Youtube,
+  TrendingUp, ChevronLeft, ChevronRight, Flame, Zap,
+  ClipboardList, Bell,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
 import { useUIStore } from "@/stores/ui-store";
+import { useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { getInitials } from "@/lib/utils";
+import type { User } from "@/types";
 
 interface NavItem {
   href: string;
@@ -15,81 +22,307 @@ interface NavItem {
   roles: string[];
 }
 
-const navItems: NavItem[] = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["STUDENT", "INSTRUCTOR", "ADMIN", "SUPER_ADMIN"] },
-  { href: "/courses", label: "Browse Courses", icon: BookOpen, roles: ["STUDENT", "INSTRUCTOR", "ADMIN", "SUPER_ADMIN"] },
-  { href: "/my-courses", label: "My Courses", icon: GraduationCap, roles: ["STUDENT"] },
-  { href: "/builder", label: "Course Builder", icon: PlusCircle, roles: ["INSTRUCTOR", "ADMIN", "SUPER_ADMIN"] },
-  { href: "/instructor", label: "Instructor Panel", icon: BarChart3, roles: ["INSTRUCTOR", "ADMIN", "SUPER_ADMIN"] },
-  { href: "/certificates", label: "Certificates", icon: Award, roles: ["STUDENT"] },
-  { href: "/admin", label: "Admin Panel", icon: Shield, roles: ["ADMIN", "SUPER_ADMIN"] },
-  { href: "/settings", label: "Settings", icon: Settings, roles: ["STUDENT", "INSTRUCTOR", "ADMIN", "SUPER_ADMIN"] },
+interface NavGroup {
+  label: string;
+  roles: string[];
+  items: NavItem[];
+}
+
+const navGroups: NavGroup[] = [
+  {
+    label: "Overview",
+    roles: ["STUDENT", "TEACHER", "ADMIN"],
+    items: [
+      { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["STUDENT", "TEACHER", "ADMIN"] },
+    ],
+  },
+  {
+    label: "Learning",
+    roles: ["STUDENT"],
+    items: [
+      { href: "/courses", label: "Browse Courses", icon: BookOpen, roles: ["STUDENT"] },
+      { href: "/my-courses", label: "My Courses", icon: GraduationCap, roles: ["STUDENT"] },
+      { href: "/progress", label: "My Progress", icon: TrendingUp, roles: ["STUDENT"] },
+      { href: "/announcements", label: "Announcements", icon: Bell, roles: ["STUDENT"] },
+      { href: "/certificates", label: "Certificates", icon: Award, roles: ["STUDENT"] },
+    ],
+  },
+  {
+    label: "Teaching",
+    roles: ["TEACHER"],
+    items: [
+      { href: "/teacher", label: "Teacher Panel", icon: BarChart3, roles: ["TEACHER"] },
+      { href: "/builder", label: "Content Builder", icon: PlusCircle, roles: ["TEACHER"] },
+      { href: "/teacher/quiz-builder", label: "Quiz Builder", icon: ClipboardList, roles: ["TEACHER"] },
+      { href: "/teacher/students", label: "My Students", icon: Users, roles: ["TEACHER"] },
+      { href: "/teacher/sections", label: "Sections", icon: Layers, roles: ["TEACHER"] },
+      { href: "/courses", label: "Browse Courses", icon: BookOpen, roles: ["TEACHER"] },
+    ],
+  },
+  {
+    label: "Administration",
+    roles: ["ADMIN"],
+    items: [
+      { href: "/admin", label: "Admin Panel", icon: Shield, roles: ["ADMIN"] },
+      { href: "/admin/users", label: "User Management", icon: Users, roles: ["ADMIN"] },
+      { href: "/admin/levels", label: "Academic Levels", icon: Layers, roles: ["ADMIN"] },
+      { href: "/admin/announcements", label: "Announcements", icon: Megaphone, roles: ["ADMIN"] },
+      { href: "/admin/youtube", label: "YouTube Tutorials", icon: Youtube, roles: ["ADMIN"] },
+      { href: "/builder", label: "Course Builder", icon: PlusCircle, roles: ["ADMIN"] },
+      { href: "/courses", label: "Browse Courses", icon: BookOpen, roles: ["ADMIN"] },
+    ],
+  },
+  {
+    label: "Account",
+    roles: ["STUDENT", "TEACHER", "ADMIN"],
+    items: [
+      { href: "/settings", label: "Settings", icon: Settings, roles: ["STUDENT", "TEACHER", "ADMIN"] },
+    ],
+  },
 ];
 
 export function Sidebar() {
   const { user } = useAuthStore();
   const { sidebarOpen, setSidebarOpen } = useUIStore();
   const location = useLocation();
+  const [collapsed, setCollapsed] = useState(false);
 
   if (!user) return null;
 
-  const filteredItems = navItems.filter((item) => item.roles.includes(user.role));
+  const visibleGroups = navGroups
+    .filter((g) => g.roles.includes(user.role))
+    .map((g) => ({
+      ...g,
+      items: g.items.filter((item) => item.roles.includes(user.role)),
+    }))
+    .filter((g) => g.items.length > 0);
+
+  const roleColors: Record<string, string> = {
+    ADMIN: "bg-red-500/10 text-red-600 border-red-500/20",
+    TEACHER: "bg-purple-500/10 text-purple-600 border-purple-500/20",
+    STUDENT: "bg-blue-500/10 text-blue-600 border-blue-500/20",
+  };
+
+  const sidebarWidth = collapsed ? 64 : 260;
 
   return (
     <>
-      {/* Mobile overlay */}
+      {/* ── Mobile overlay ──────────────────────────────────────── */}
       <AnimatePresence>
         {sidebarOpen && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-40 bg-black/50 md:hidden"
+            className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm md:hidden"
             onClick={() => setSidebarOpen(false)}
           />
         )}
       </AnimatePresence>
 
+      {/* ── Desktop sidebar ─────────────────────────────────────── */}
       <motion.aside
-        initial={{ x: -280 }}
-        animate={{ x: sidebarOpen ? 0 : -280 }}
-        transition={{ type: "spring", damping: 25, stiffness: 200 }}
+        initial={false}
+        animate={{ width: sidebarWidth }}
+        transition={{ type: "spring", damping: 28, stiffness: 220 }}
+        style={{ minWidth: sidebarWidth, maxWidth: sidebarWidth }}
         className={cn(
-          "fixed left-0 top-16 z-40 h-[calc(100vh-4rem)] w-[280px] border-r bg-background p-4",
-          "md:sticky md:translate-x-0 md:block",
-          !sidebarOpen && "md:w-[280px]"
+          "hidden md:flex flex-col",
+          "sticky top-16 h-[calc(100vh-4rem)]",
+          "bg-gradient-to-b from-card via-card to-card/95",
+          "shadow-[1px_0_0_0_hsl(var(--border)/0.8)]",
+          "overflow-hidden shrink-0",
         )}
       >
-        <nav className="space-y-1">
-          {filteredItems.map((item) => {
-            const isActive = location.pathname === item.href || location.pathname.startsWith(item.href + "/");
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.href}
-                to={item.href}
-                onClick={() => setSidebarOpen(false)}
-                className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
-                  isActive
-                    ? "bg-primary/10 text-primary"
-                    : "text-muted-foreground hover:bg-accent hover:text-foreground"
-                )}
-              >
-                <Icon className="h-5 w-5 shrink-0" />
-                <span>{item.label}</span>
-                {isActive && (
-                  <motion.div
-                    layoutId="sidebar-active"
-                    className="absolute left-0 w-1 h-8 bg-primary rounded-r-full"
-                    transition={{ type: "spring", damping: 25 }}
-                  />
-                )}
-              </Link>
-            );
-          })}
-        </nav>
+        <SidebarContent
+          collapsed={collapsed}
+          setCollapsed={setCollapsed}
+          visibleGroups={visibleGroups}
+          roleColors={roleColors}
+          user={user}
+          location={location}
+          setSidebarOpen={setSidebarOpen}
+        />
       </motion.aside>
+
+      {/* ── Mobile drawer ───────────────────────────────────────── */}
+      <AnimatePresence>
+        {sidebarOpen && (
+          <motion.aside
+            initial={{ x: -280 }}
+            animate={{ x: 0 }}
+            exit={{ x: -280 }}
+            transition={{ type: "spring", damping: 28, stiffness: 220 }}
+            style={{ width: 260 }}
+            className="fixed left-0 top-16 z-50 h-[calc(100vh-4rem)] flex flex-col bg-card shadow-2xl overflow-hidden md:hidden"
+          >
+            <SidebarContent
+              collapsed={false}
+              setCollapsed={() => {}}
+              visibleGroups={visibleGroups}
+              roleColors={roleColors}
+              user={user}
+              location={location}
+              setSidebarOpen={setSidebarOpen}
+            />
+          </motion.aside>
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
+
+// ── Shared sidebar inner content ──────────────────────────────────
+function SidebarContent({
+  collapsed,
+  setCollapsed,
+  visibleGroups,
+  roleColors,
+  user,
+  location,
+  setSidebarOpen,
+}: {
+  collapsed: boolean;
+  setCollapsed: (v: boolean) => void;
+  visibleGroups: NavGroup[];
+  roleColors: Record<string, string>;
+  user: User;
+  location: { pathname: string };
+  setSidebarOpen: (v: boolean) => void;
+}) {
+  return (
+    <>
+      {/* Collapse toggle — desktop only */}
+      <div className="hidden md:flex items-center justify-end px-3 pt-3 pb-1 shrink-0">
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          className="p-1.5 rounded-lg bg-muted/50 hover:bg-accent text-muted-foreground hover:text-foreground transition-all duration-150 hover:scale-105"
+          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+        </button>
+      </div>
+
+      {/* User mini profile */}
+      <div className={cn(
+        "mx-2 mb-1 rounded-xl bg-muted/30 border border-border/40 flex items-center gap-3 px-3 py-3 shrink-0",
+        collapsed && "justify-center px-2"
+      )}>
+        <Avatar className="h-8 w-8 shrink-0 ring-2 ring-background shadow-sm">
+          <AvatarImage src={user.avatar ?? undefined} />
+          <AvatarFallback className="text-xs font-semibold">{getInitials(user.firstName, user.lastName)}</AvatarFallback>
+        </Avatar>
+        <AnimatePresence>
+          {!collapsed && (
+            <motion.div
+              initial={{ opacity: 0, width: 0 }}
+              animate={{ opacity: 1, width: "auto" }}
+              exit={{ opacity: 0, width: 0 }}
+              className="overflow-hidden min-w-0"
+            >
+              <p className="text-sm font-semibold truncate leading-tight tracking-[-0.01em]">
+                {user.firstName} {user.lastName}
+              </p>
+              <span className={cn(
+                "text-[10px] font-semibold px-1.5 py-0.5 rounded-full border inline-block mt-0.5",
+                roleColors[user.role]
+              )}>
+                {user.role}
+              </span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Navigation */}
+      <nav className="flex-1 overflow-y-auto py-2 px-2 space-y-1">
+        {visibleGroups.map((group) => (
+          <div key={group.label}>
+            <AnimatePresence>
+              {!collapsed && (
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="text-[9px] font-bold uppercase tracking-[0.12em] text-muted-foreground/50 px-3 mb-1.5 mt-2"
+                >
+                  {group.label}
+                </motion.p>
+              )}
+            </AnimatePresence>
+            <div className="space-y-0.5">
+              {group.items.map((navItem) => {
+                const isActive =
+                  location.pathname === navItem.href ||
+                  (navItem.href !== "/dashboard" && navItem.href !== "/admin" && navItem.href !== "/teacher" &&
+                    location.pathname.startsWith(navItem.href + "/"));
+                const Icon = navItem.icon;
+                return (
+                  <Link
+                    key={navItem.href}
+                    to={navItem.href}
+                    onClick={() => setSidebarOpen(false)}
+                    className={cn(
+                      "relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150",
+                      collapsed ? "justify-center" : "",
+                      isActive
+                        ? "bg-primary/10 text-primary font-semibold shadow-[inset_0_0_0_1px_hsl(var(--primary)/0.15)]"
+                        : "text-muted-foreground hover:bg-accent/70 hover:text-foreground"
+                    )}
+                    title={collapsed ? navItem.label : undefined}
+                  >
+                    {isActive && (
+                      <motion.div
+                        layoutId="sidebar-active-indicator"
+                        className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-primary rounded-r-full shadow-[0_0_6px_hsl(var(--primary)/0.5)]"
+                        transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                      />
+                    )}
+                    <Icon className="h-4 w-4 shrink-0 transition-transform duration-150" />
+                    <AnimatePresence>
+                      {!collapsed && (
+                        <motion.span
+                          initial={{ opacity: 0, width: 0 }}
+                          animate={{ opacity: 1, width: "auto" }}
+                          exit={{ opacity: 0, width: 0 }}
+                          className="overflow-hidden whitespace-nowrap flex-1 tracking-[-0.01em]"
+                        >
+                          {navItem.label}
+                        </motion.span>
+                      )}
+                    </AnimatePresence>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </nav>
+
+      {/* XP / streak footer */}
+      <AnimatePresence>
+        {!collapsed && (user.xp > 0 || user.streak > 0) && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="mx-2 mb-2 rounded-xl bg-muted/20 border border-border/40 px-3 py-2.5 shrink-0"
+          >
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <span className="flex items-center gap-1.5">
+                <Flame className="h-3.5 w-3.5 text-orange-500" />
+                <span className="font-bold text-foreground tabular">{user.streak}</span>
+                <span className="text-[11px]">streak</span>
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Zap className="h-3.5 w-3.5 text-yellow-500" />
+                <span className="font-bold text-foreground tabular">{user.xp.toLocaleString()}</span>
+                <span className="text-[11px]">XP</span>
+              </span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }

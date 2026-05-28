@@ -1,19 +1,16 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import {
-  Plus, Trash2, GripVertical, ChevronDown, Sparkles,
-  Save, Eye, Upload, FileText,
+  Plus, Trash2, GripVertical, Sparkles,
+  Save, Upload, FileText, Youtube, AlignLeft, Video,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useCreateCourse, useCreateModule, useCreateLesson } from "@/hooks/use-courses";
+import { useCreateModule, useCreateLesson, useInstructorCourses } from "@/hooks/use-courses";
 import { useNavigate } from "@tanstack/react-router";
-import { courseSchema, type CourseForm } from "@/lib/schemas";
 
 interface BuilderModule {
   id: string;
@@ -21,17 +18,21 @@ interface BuilderModule {
   lessons: BuilderLesson[];
 }
 
+type LessonType = "TEXT" | "VIDEO" | "PDF" | "YOUTUBE";
+
 interface BuilderLesson {
   id: string;
   title: string;
   content: string;
+  contentType: LessonType;
+  contentUrl: string;
 }
 
 export function CourseBuilder() {
   const navigate = useNavigate();
-  const createCourseMutation = useCreateCourse();
   const createModuleMutation = useCreateModule();
   const createLessonMutation = useCreateLesson();
+  const { data: assignedCourses, isLoading: coursesLoading } = useInstructorCourses();
 
   const [step, setStep] = useState<"details" | "content">("details");
   const [courseId, setCourseId] = useState<string | null>(null);
@@ -39,30 +40,12 @@ export function CourseBuilder() {
   const [aiGenerating, setAiGenerating] = useState(false);
   const [aiTopic, setAiTopic] = useState("");
 
-  const { register, handleSubmit, formState: { errors } } = useForm<CourseForm>({
-    resolver: zodResolver(courseSchema),
-    defaultValues: { difficulty: "beginner", price: 0 },
-  });
-
-  const onSubmitDetails = async (data: CourseForm) => {
-    try {
-      const tags = data.tags ? data.tags.split(",").map((t) => t.trim()).filter(Boolean) : [];
-      const res = await createCourseMutation.mutateAsync({
-        title: data.title,
-        description: data.description,
-        shortDesc: data.shortDesc,
-        price: data.price,
-        difficulty: data.difficulty,
-        tags,
-      });
-      if (res.data) {
-        setCourseId(res.data.id);
-        setStep("content");
-        toast.success("Course created! Now add modules and lessons.");
-      }
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to create course");
+  const beginContentAuthoring = () => {
+    if (!courseId) {
+      toast.error("Select an assigned course first");
+      return;
     }
+    setStep("content");
   };
 
   const addModule = () => {
@@ -84,13 +67,13 @@ export function CourseBuilder() {
     setModules((prev) =>
       prev.map((m, i) =>
         i === moduleIdx
-          ? { ...m, lessons: [...m.lessons, { id: `temp-${Date.now()}`, title: "", content: "" }] }
+          ? { ...m, lessons: [...m.lessons, { id: `temp-${Date.now()}`, title: "", content: "", contentType: "TEXT" as LessonType, contentUrl: "" }] }
           : m
       )
     );
   };
 
-  const updateLesson = (moduleIdx: number, lessonIdx: number, field: "title" | "content", value: string) => {
+  const updateLesson = (moduleIdx: number, lessonIdx: number, field: keyof BuilderLesson, value: string) => {
     setModules((prev) =>
       prev.map((m, mi) =>
         mi === moduleIdx
@@ -133,9 +116,11 @@ export function CourseBuilder() {
           await createLessonMutation.mutateAsync({
             moduleId: (modRes as { data?: { id: string } }).data?.id ?? "",
             title: lesson.title,
-            content: lesson.content,
+            content: lesson.contentType === "TEXT" ? lesson.content : undefined,
+            contentType: lesson.contentType,
+            contentUrl: lesson.contentUrl || undefined,
             order: li,
-          });
+          } as Parameters<typeof createLessonMutation.mutateAsync>[0]);
         }
       }
       toast.success("Course content saved!");
@@ -158,8 +143,10 @@ export function CourseBuilder() {
   return (
     <div className="max-w-4xl mx-auto">
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-3xl font-bold mb-2">Course Builder</h1>
-        <p className="text-muted-foreground mb-8">Create a new course with modules and lessons</p>
+        <h1 className="text-3xl font-bold mb-2">Content Builder</h1>
+        <p className="text-muted-foreground mb-8">
+          Add topics, lessons, and learning materials to courses assigned by an administrator.
+        </p>
       </motion.div>
 
       {/* AI Generate Modal */}
@@ -168,10 +155,10 @@ export function CourseBuilder() {
           <CardContent className="p-6">
             <div className="flex items-center gap-3 mb-3">
               <Sparkles className="h-5 w-5 text-primary" />
-              <h3 className="font-semibold">AI Course Generator</h3>
+              <h3 className="font-semibold">AI Content Outline Assistant</h3>
             </div>
             <p className="text-sm text-muted-foreground mb-4">
-              Enter a topic and let AI generate a complete course outline with modules, lessons, quizzes, and flashcards.
+              Enter a topic and let AI draft content modules, lessons, quizzes, and flashcards for an assigned course.
             </p>
             <div className="flex gap-2">
               <Input
@@ -193,55 +180,45 @@ export function CourseBuilder() {
           <motion.div key="details" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
             <Card>
               <CardHeader>
-                <CardTitle>Course Details</CardTitle>
+                <CardTitle>Select Assigned Course</CardTitle>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleSubmit(onSubmitDetails)} className="space-y-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Title</label>
-                    <Input placeholder="Course title" {...register("title")} />
-                    {errors.title && <p className="text-sm text-destructive">{errors.title.message}</p>}
+                <div className="space-y-4">
+                  <div className="rounded-2xl border bg-muted/30 p-4">
+                    <p className="text-sm font-medium">Admin-managed course offerings</p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Course title, subject code, level, instructor assignment, and publishing are handled in the admin portal.
+                      Teachers only author the modules, topics, lessons, and learning materials for assigned courses.
+                    </p>
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Description</label>
-                    <textarea
-                      className="w-full min-h-[120px] border rounded-md px-3 py-2 text-sm resize-y"
-                      placeholder="Describe your course..."
-                      {...register("description")}
-                    />
-                    {errors.description && <p className="text-sm text-destructive">{errors.description.message}</p>}
+                    <label className="text-sm font-medium">Assigned Course</label>
+                    <select
+                      className="w-full border rounded-xl px-3 py-2.5 text-sm bg-background"
+                      value={courseId ?? ""}
+                      disabled={coursesLoading}
+                      onChange={(e) => setCourseId(e.target.value || null)}
+                    >
+                      <option value="">{coursesLoading ? "Loading courses..." : "Choose a course..."}</option>
+                      {assignedCourses?.map((course) => (
+                        <option key={course.id} value={course.id}>
+                          {course.subjectCode ? `${course.subjectCode} - ` : ""}{course.title}
+                        </option>
+                      ))}
+                    </select>
                   </div>
 
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Short Description</label>
-                    <Input placeholder="One-line summary" {...register("shortDesc")} />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Price ($)</label>
-                      <Input type="number" step="0.01" {...register("price")} />
+                  {assignedCourses?.length === 0 && (
+                    <div className="rounded-2xl border border-amber-500/25 bg-amber-500/10 p-4 text-sm text-amber-700 dark:text-amber-300">
+                      No courses are assigned to you yet. Ask an administrator to create a course offering and assign you as instructor.
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Difficulty</label>
-                      <select className="w-full border rounded-md px-3 py-2 text-sm h-9" {...register("difficulty")}>
-                        <option value="beginner">Beginner</option>
-                        <option value="intermediate">Intermediate</option>
-                        <option value="advanced">Advanced</option>
-                      </select>
-                    </div>
-                  </div>
+                  )}
 
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Tags (comma-separated)</label>
-                    <Input placeholder="react, typescript, web-dev" {...register("tags")} />
-                  </div>
-
-                  <Button type="submit" className="w-full" disabled={createCourseMutation.isPending}>
-                    {createCourseMutation.isPending ? "Creating..." : "Create Course & Continue"}
+                  <Button className="w-full" onClick={beginContentAuthoring} disabled={!courseId}>
+                    Continue to Content Builder
                   </Button>
-                </form>
+                </div>
               </CardContent>
             </Card>
           </motion.div>
@@ -284,16 +261,44 @@ export function CourseBuilder() {
                               placeholder={`Lesson ${li + 1} title`}
                               className="text-sm"
                             />
+                            <select
+                              className="border rounded-md px-2 py-1 text-xs h-8"
+                              value={lesson.contentType}
+                              onChange={(e) => updateLesson(mi, li, "contentType", e.target.value)}
+                            >
+                              <option value="TEXT">Text</option>
+                              <option value="VIDEO">Video</option>
+                              <option value="YOUTUBE">YouTube</option>
+                              <option value="PDF">PDF</option>
+                            </select>
                             <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => removeLesson(mi, li)}>
                               <Trash2 className="h-3 w-3 text-destructive" />
                             </Button>
                           </div>
-                          <textarea
-                            value={lesson.content}
-                            onChange={(e) => updateLesson(mi, li, "content", e.target.value)}
-                            placeholder="Lesson content (Markdown supported)"
-                            className="w-full min-h-[80px] border rounded-md px-3 py-2 text-sm resize-y"
-                          />
+                          {lesson.contentType === "TEXT" && (
+                            <textarea
+                              value={lesson.content}
+                              onChange={(e) => updateLesson(mi, li, "content", e.target.value)}
+                              placeholder="Lesson content (Markdown supported)"
+                              className="w-full min-h-[80px] border rounded-md px-3 py-2 text-sm resize-y"
+                            />
+                          )}
+                          {(lesson.contentType === "VIDEO" || lesson.contentType === "PDF") && (
+                            <Input
+                              value={lesson.contentUrl}
+                              onChange={(e) => updateLesson(mi, li, "contentUrl", e.target.value)}
+                              placeholder={lesson.contentType === "VIDEO" ? "Video URL (mp4, etc.)" : "PDF URL"}
+                              className="text-sm"
+                            />
+                          )}
+                          {lesson.contentType === "YOUTUBE" && (
+                            <Input
+                              value={lesson.contentUrl}
+                              onChange={(e) => updateLesson(mi, li, "contentUrl", e.target.value)}
+                              placeholder="YouTube URL (e.g. https://youtube.com/watch?v=...)"
+                              className="text-sm"
+                            />
+                          )}
                         </motion.div>
                       ))}
                       <Button variant="outline" size="sm" onClick={() => addLesson(mi)}>

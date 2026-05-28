@@ -21,20 +21,30 @@ class ApiClient {
     const response = await fetch(`${API_BASE}${path}`, { ...options, headers });
 
     if (response.status === 401) {
-      const refreshed = await this.tryRefreshToken();
-      if (refreshed) {
-        headers.Authorization = `Bearer ${this.getToken()}`;
-        const retryResponse = await fetch(`${API_BASE}${path}`, { ...options, headers });
-        if (!retryResponse.ok) {
-          const error = await retryResponse.json().catch(() => ({ error: "Request failed" }));
-          throw new Error((error as ApiResponse).error ?? "Request failed");
+      // Don't try to refresh on the auth endpoints themselves
+      const isAuthEndpoint = path.includes("/auth/refresh") || path.includes("/auth/login") || path.includes("/auth/me");
+      if (!isAuthEndpoint) {
+        const refreshed = await this.tryRefreshToken();
+        if (refreshed) {
+          headers.Authorization = `Bearer ${this.getToken()}`;
+          const retryResponse = await fetch(`${API_BASE}${path}`, { ...options, headers });
+          if (!retryResponse.ok) {
+            const error = await retryResponse.json().catch(() => ({ error: "Request failed" }));
+            throw new Error((error as ApiResponse).error ?? "Request failed");
+          }
+          return retryResponse.json() as Promise<T>;
         }
-        return retryResponse.json() as Promise<T>;
+        // Refresh failed — clear tokens and redirect
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        if (typeof window !== "undefined" && !window.location.pathname.includes("/login")) {
+          window.location.href = "/login";
+        }
+        throw new Error("Session expired. Please log in again.");
       }
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
-      window.location.href = "/login";
-      throw new Error("Session expired");
+      // Auth endpoint 401 — read the real error message from the body
+      const errBody = await response.json().catch(() => ({ error: "Invalid credentials" }));
+      throw new Error((errBody as ApiResponse).error ?? "Invalid credentials");
     }
 
     if (!response.ok) {
