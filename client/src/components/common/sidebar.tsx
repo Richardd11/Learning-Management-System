@@ -52,7 +52,7 @@ const navGroups: NavGroup[] = [
     roles: ["TEACHER"],
     items: [
       { href: "/teacher", label: "Teacher Panel", icon: BarChart3, roles: ["TEACHER"] },
-      { href: "/builder", label: "Course Builder", icon: PlusCircle, roles: ["TEACHER"] },
+      { href: "/builder", label: "Content Builder", icon: PlusCircle, roles: ["TEACHER"] },
       { href: "/teacher/quiz-builder", label: "Quiz Builder", icon: ClipboardList, roles: ["TEACHER"] },
       { href: "/teacher/students", label: "My Students", icon: Users, roles: ["TEACHER"] },
       { href: "/teacher/sections", label: "Sections", icon: Layers, roles: ["TEACHER"] },

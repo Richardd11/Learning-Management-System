@@ -199,7 +199,7 @@ export function InstructorDashboard() {
                   icon={BookOpen}
                   title="No courses yet"
                   description="Create your first course to get started"
-                  action={<Link to="/builder"><Button size="sm">Create Course</Button></Link>}
+                  action={<Link to="/builder"><Button size="sm">Add Content</Button></Link>}
                 />
               )}
             </CardContent>
@@ -217,6 +217,7 @@ export function InstructorDashboard() {
             <CardContent className="px-4 pb-4 space-y-1.5">
               {[
                 { href: "/builder", icon: Plus, label: "Create New Course", desc: "Build and publish content" },
+                { href: "/builder", icon: BookOpen, label: "Add Content", desc: "Create topics and materials" },
                 { href: "/teacher/quiz-builder", icon: ClipboardList, label: "Build a Quiz", desc: "Create assessments" },
                 { href: "/teacher/students", icon: Users, label: "View Students", desc: "Monitor progress" },
                 { href: "/teacher/sections", icon: Layers, label: "Manage Sections", desc: "Organize classes" },

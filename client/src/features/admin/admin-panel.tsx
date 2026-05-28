@@ -755,7 +755,7 @@ function LevelsTab() {
           <h2 className="text-lg font-semibold">Academic Levels &amp; Sections</h2>
           <p className="text-muted-foreground text-sm">Manage grade levels and class sections for your institution</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Dialog open={showLevelDialog} onOpenChange={setShowLevelDialog}>
             <DialogTrigger asChild>
               <Button><Plus className="h-4 w-4 mr-2" /> Add Level</Button>
@@ -943,8 +943,21 @@ function LevelsTab() {
 
 // ── Courses Tab ────────────────────────────────────────────────────
 function CoursesTab() {
+  const queryClient = useQueryClient();
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [levelFilter, setLevelFilter] = useState<string>("ALL");
+  const [showCreateCourse, setShowCreateCourse] = useState(false);
+  const [courseForm, setCourseForm] = useState({
+    title: "",
+    subjectCode: "",
+    description: "",
+    shortDesc: "",
+    instructorId: "",
+    academicLevelId: "",
+    price: 0,
+    difficulty: "beginner",
+    status: "DRAFT",
+  });
 
   const { data: coursesData, isLoading } = useQuery({
     queryKey: ["adminCourses", statusFilter, levelFilter],
@@ -963,6 +976,42 @@ function CoursesTab() {
     select: (res) => res.data,
   });
 
+  const { data: teachersData } = useQuery({
+    queryKey: ["adminUsers", "TEACHER"],
+    queryFn: () => api.get<ApiResponse<PaginatedResponse<AdminUser>>>("/admin/users?role=TEACHER&limit=100"),
+    select: (res) => res.data?.data ?? [],
+  });
+
+  const createCourseMutation = useMutation({
+    mutationFn: (data: typeof courseForm) =>
+      api.post("/admin/courses", {
+        ...data,
+        academicLevelId: data.academicLevelId || null,
+        subjectCode: data.subjectCode || undefined,
+        shortDesc: data.shortDesc || undefined,
+        price: Number(data.price) || 0,
+        tags: [],
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["adminCourses"] });
+      queryClient.invalidateQueries({ queryKey: ["instructorCourses"] });
+      toast.success("Course offering created");
+      setShowCreateCourse(false);
+      setCourseForm({
+        title: "",
+        subjectCode: "",
+        description: "",
+        shortDesc: "",
+        instructorId: "",
+        academicLevelId: "",
+        price: 0,
+        difficulty: "beginner",
+        status: "DRAFT",
+      });
+    },
+    onError: (err: Error) => toast.error(err.message || "Failed to create course offering"),
+  });
+
   const statusMeta: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline"; dot: string }> = {
     PUBLISHED: { label: "Published", variant: "default", dot: "bg-emerald-500" },
     DRAFT:     { label: "Draft",     variant: "secondary", dot: "bg-amber-500" },
@@ -977,7 +1026,7 @@ function CoursesTab() {
           <h2 className="text-base font-semibold px-1">Course Management</h2>
           <p className="text-xs text-muted-foreground px-1">View and filter all courses across your institution</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className="w-[140px]"><SelectValue placeholder="Status" /></SelectTrigger>
             <SelectContent>
@@ -996,6 +1045,92 @@ function CoursesTab() {
               ))}
             </SelectContent>
           </Select>
+          <Dialog open={showCreateCourse} onOpenChange={setShowCreateCourse}>
+            <DialogTrigger asChild>
+              <Button size="sm"><Plus className="h-4 w-4 mr-1.5" /> New Offering</Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>Create Course Offering</DialogTitle>
+              </DialogHeader>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-4">
+                <div className="space-y-2 sm:col-span-2">
+                  <Label>Course Title</Label>
+                  <Input value={courseForm.title} onChange={(e) => setCourseForm({ ...courseForm, title: e.target.value })} placeholder="e.g., General Mathematics" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Subject Code</Label>
+                  <Input value={courseForm.subjectCode} onChange={(e) => setCourseForm({ ...courseForm, subjectCode: e.target.value })} placeholder="e.g., MATH101" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Assigned Teacher</Label>
+                  <Select value={courseForm.instructorId} onValueChange={(v) => setCourseForm({ ...courseForm, instructorId: v })}>
+                    <SelectTrigger><SelectValue placeholder="Select teacher" /></SelectTrigger>
+                    <SelectContent>
+                      {teachersData?.map((teacher: AdminUser) => (
+                        <SelectItem key={teacher.id} value={teacher.id}>
+                          {teacher.firstName} {teacher.lastName}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Academic Level</Label>
+                  <Select value={courseForm.academicLevelId} onValueChange={(v) => setCourseForm({ ...courseForm, academicLevelId: v })}>
+                    <SelectTrigger><SelectValue placeholder="Select level" /></SelectTrigger>
+                    <SelectContent>
+                      {levels?.map((level) => (
+                        <SelectItem key={level.id} value={level.id}>{level.gradeLabel}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Status</Label>
+                  <Select value={courseForm.status} onValueChange={(v) => setCourseForm({ ...courseForm, status: v })}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="DRAFT">Draft</SelectItem>
+                      <SelectItem value="PUBLISHED">Published</SelectItem>
+                      <SelectItem value="ARCHIVED">Archived</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Difficulty</Label>
+                  <Select value={courseForm.difficulty} onValueChange={(v) => setCourseForm({ ...courseForm, difficulty: v })}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="beginner">Beginner</SelectItem>
+                      <SelectItem value="intermediate">Intermediate</SelectItem>
+                      <SelectItem value="advanced">Advanced</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Price</Label>
+                  <Input type="number" value={courseForm.price} onChange={(e) => setCourseForm({ ...courseForm, price: Number(e.target.value) || 0 })} />
+                </div>
+                <div className="space-y-2 sm:col-span-2">
+                  <Label>Short Description</Label>
+                  <Input value={courseForm.shortDesc} onChange={(e) => setCourseForm({ ...courseForm, shortDesc: e.target.value })} placeholder="One-line summary for students" />
+                </div>
+                <div className="space-y-2 sm:col-span-2">
+                  <Label>Description</Label>
+                  <Textarea value={courseForm.description} onChange={(e) => setCourseForm({ ...courseForm, description: e.target.value })} placeholder="Describe the offering..." rows={4} />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button
+                  onClick={() => createCourseMutation.mutate(courseForm)}
+                  disabled={!courseForm.title || !courseForm.description || !courseForm.instructorId || createCourseMutation.isPending}
+                >
+                  {createCourseMutation.isPending ? "Creating..." : "Create Offering"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
       </motion.div>
 

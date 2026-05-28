@@ -70,6 +70,53 @@ export async function updateCourse(courseId: string, input: UpdateCourseInput): 
   });
 }
 
+export async function getCourseOwner(courseId: string) {
+  return prisma.course.findUnique({
+    where: { id: courseId },
+    select: { id: true, instructorId: true },
+  });
+}
+
+export async function getModuleOwner(moduleId: string) {
+  return prisma.module.findUnique({
+    where: { id: moduleId },
+    select: {
+      id: true,
+      course: { select: { id: true, instructorId: true } },
+    },
+  });
+}
+
+export async function getLessonOwner(lessonId: string) {
+  return prisma.lesson.findUnique({
+    where: { id: lessonId },
+    select: {
+      id: true,
+      module: {
+        select: {
+          id: true,
+          course: { select: { id: true, instructorId: true } },
+        },
+      },
+    },
+  });
+}
+
+export async function getQuizOwner(quizId: string) {
+  return prisma.quiz.findUnique({
+    where: { id: quizId },
+    select: {
+      id: true,
+      module: {
+        select: {
+          id: true,
+          course: { select: { id: true, instructorId: true } },
+        },
+      },
+    },
+  });
+}
+
 export async function deleteCourse(courseId: string): Promise<void> {
   await prisma.course.delete({ where: { id: courseId } });
 }

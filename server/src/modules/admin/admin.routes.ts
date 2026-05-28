@@ -3,6 +3,7 @@ import { requireRole } from "../../middleware/auth.js";
 import { prisma } from "../../lib/prisma.js";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
+import * as courseService from "../courses/courses.service.js";
 
 // ── Schemas ──────────────────────────────────────────────────────
 
@@ -26,6 +27,20 @@ const updateUserSchema = z.object({
   sectionId: z.string().optional().nullable(),
   studentIdNumber: z.string().optional().nullable(),
   isBanned: z.boolean().optional(),
+});
+
+const createCourseOfferingSchema = z.object({
+  title: z.string().min(3).max(200),
+  description: z.string().min(10),
+  shortDesc: z.string().max(300).optional(),
+  subjectCode: z.string().max(20).optional(),
+  academicLevelId: z.string().uuid().optional().nullable(),
+  instructorId: z.string().min(1),
+  price: z.number().min(0).default(0),
+  difficulty: z.enum(["beginner", "intermediate", "advanced"]).default("beginner"),
+  tags: z.array(z.string()).default([]),
+  thumbnail: z.string().optional(),
+  status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]).default("DRAFT"),
 });
 
 const bulkImportSchema = z.object({
@@ -280,6 +295,39 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
     });
 
     reply.send({ success: true, data: courses });
+  });
+
+  app.post("/courses", { preHandler: [requireRole("ADMIN")] }, async (request, reply) => {
+    const input = createCourseOfferingSchema.parse(request.body);
+
+    const instructor = await prisma.user.findUnique({
+      where: { id: input.instructorId },
+      select: { id: true, role: true },
+    });
+    if (!instructor || instructor.role !== "TEACHER") {
+      reply.code(400).send({ success: false, error: "Course offerings must be assigned to a teacher" });
+      return;
+    }
+
+    const { instructorId, status, ...courseInput } = input;
+    const course = await courseService.createCourse(instructorId, courseInput);
+    const finalCourse = status === "DRAFT"
+      ? course
+      : await prisma.course.update({
+          where: { id: course.id },
+          data: {
+            status,
+            publishedAt: status === "PUBLISHED" ? new Date() : null,
+          },
+          include: {
+            instructor: { select: { id: true, firstName: true, lastName: true, email: true, avatar: true } },
+            academicLevel: { select: { id: true, type: true, gradeLabel: true } },
+            sections: { select: { id: true, name: true } },
+            _count: { select: { enrollments: true, modules: true } },
+          },
+        });
+
+    reply.code(201).send({ success: true, data: finalCourse });
   });
 
   // Assign sections to course
