@@ -6,7 +6,7 @@ import {
   Shield, Users, BookOpen, TrendingUp, Ban, Megaphone, Layers,
   GraduationCap, Plus, Pencil, Trash2, Upload, Search, Filter,
   Youtube, FileText, BarChart3, UserPlus, School, Activity,
-  AlertTriangle, CheckCircle2,
+  AlertTriangle, CheckCircle2, type LucideIcon,
 } from "lucide-react";
 import { useAuthStore } from "@/stores/auth-store";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -49,8 +49,22 @@ interface AdminUser {
   _count: { enrollments: number; courses: number };
 }
 
-const container = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.08 } } };
-const item = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } };
+const container = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.07 } } };
+const item = { hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: 0.32, ease: "easeOut" } } };
+
+function adminIconBg(colorClass: string): string {
+  const map: Record<string, string> = {
+    "text-blue-500": "bg-blue-500/10 ring-blue-500/15",
+    "text-green-500": "bg-green-500/10 ring-green-500/15",
+    "text-purple-500": "bg-purple-500/10 ring-purple-500/15",
+    "text-orange-500": "bg-orange-500/10 ring-orange-500/15",
+    "text-pink-500": "bg-pink-500/10 ring-pink-500/15",
+    "text-cyan-500": "bg-cyan-500/10 ring-cyan-500/15",
+    "text-indigo-500": "bg-indigo-500/10 ring-indigo-500/15",
+    "text-emerald-500": "bg-emerald-500/10 ring-emerald-500/15",
+  };
+  return map[colorClass] ?? "bg-primary/10 ring-primary/15";
+}
 
 const PATH_TO_TAB: Record<string, string> = {
   "/admin/users": "users",
@@ -88,35 +102,65 @@ export function AdminPanel() {
 
       {/* ── Hero banner ────────────────────────────────────────── */}
       <motion.div
-        initial={{ opacity: 0, y: -16 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-800 via-slate-800/95 to-slate-900 p-6 text-white shadow-lg"
+        initial={{ opacity: 0, y: -18, scale: 0.985 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.42, ease: "easeOut" }}
+        className="relative overflow-hidden rounded-[1.75rem] bg-[linear-gradient(135deg,#0f172a_0%,#1e1b4b_52%,#111827_100%)] p-6 md:p-7 text-white shadow-2xl shadow-slate-950/15"
       >
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_rgba(139,92,246,0.15)_0%,_transparent_60%)] pointer-events-none" />
-        <div className="relative z-10 flex items-start justify-between gap-4 flex-wrap">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <Shield className="h-5 w-5 text-white/80" />
-              <p className="text-white/75 text-sm font-medium">Admin Panel</p>
-            </div>
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-              Welcome, {user?.firstName ?? "Admin"}!
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_rgba(139,92,246,0.35)_0%,_transparent_48%),radial-gradient(ellipse_at_bottom_right,_rgba(14,165,233,0.22)_0%,_transparent_42%)] pointer-events-none" />
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+        <motion.div
+          className="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-violet-400/20 blur-3xl"
+          animate={{ scale: [1, 1.08, 1], opacity: [0.55, 0.85, 0.55] }}
+          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div
+          className="absolute -bottom-20 left-10 h-48 w-48 rounded-full bg-cyan-400/15 blur-3xl"
+          animate={{ x: [0, 12, 0], opacity: [0.4, 0.7, 0.4] }}
+          transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
+        />
+
+        <div className="relative z-10 grid gap-6 lg:grid-cols-[1fr_420px] lg:items-center">
+          <div className="max-w-2xl">
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.08, duration: 0.3, ease: "easeOut" }}
+              className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white/80 backdrop-blur"
+            >
+              <Shield className="h-3.5 w-3.5 text-violet-200" />
+              Institution Control Center
+            </motion.div>
+            <h1 className="max-w-xl text-3xl md:text-4xl font-bold tracking-tight text-balance">
+              Welcome back, {user?.firstName ?? "Admin"}.
             </h1>
-            <p className="text-white/60 text-sm mt-1">
-              Manage your institution, users, courses, and system settings.
+            <p className="mt-3 max-w-xl text-sm md:text-base text-white/68 leading-relaxed">
+              Monitor institution health, manage students and staff, publish announcements, and keep your learning ecosystem running smoothly.
             </p>
+            <div className="mt-5 flex flex-wrap gap-2">
+              <Badge className="border-white/15 bg-white/10 text-white hover:bg-white/15">
+                <Activity className="mr-1 h-3 w-3 text-emerald-300" /> Live system
+              </Badge>
+              <Badge className="border-white/15 bg-white/10 text-white hover:bg-white/15">
+                <CheckCircle2 className="mr-1 h-3 w-3 text-cyan-300" /> Role-based access
+              </Badge>
+            </div>
           </div>
-          <div className="flex gap-2 flex-wrap">
+
+          <motion.div
+            variants={container}
+            initial="hidden"
+            animate="show"
+            className="rounded-2xl border border-white/10 bg-white/[0.07] p-3 backdrop-blur-xl shadow-2xl shadow-black/10"
+          >
             <AdminQuickStats />
-          </div>
+          </motion.div>
         </div>
-        <div className="absolute -top-10 -right-10 w-56 h-56 rounded-full bg-white/6 pointer-events-none" />
-        <div className="absolute -bottom-8 -left-8 w-36 h-36 rounded-full bg-white/6 pointer-events-none" />
       </motion.div>
 
       {/* ── Tabs ───────────────────────────────────────────────── */}
       <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
-        <TabsList className="flex flex-wrap gap-1 w-full h-auto rounded-xl bg-muted/50 border border-border/60 p-1.5">
+        <TabsList className="sticky top-[4.75rem] z-20 flex flex-wrap gap-1 w-full h-auto rounded-2xl bg-background/80 border border-border/70 p-1.5 shadow-sm backdrop-blur-xl">
           <TabsTrigger value="overview" className="gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium">
             <TrendingUp className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Overview</span>
           </TabsTrigger>
@@ -167,15 +211,24 @@ function AdminQuickStats() {
   ];
 
   return (
-    <div className="flex gap-3 flex-wrap">
+    <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-2">
       {items.map((s) => (
-        <div key={s.label} className="flex items-center gap-2 bg-white/10 rounded-xl px-3 py-2">
-          <s.icon className="h-4 w-4 text-white/70" />
-          <div>
-            <p className="text-white font-bold text-lg leading-none">{typeof s.value === "number" ? s.value.toLocaleString() : s.value}</p>
-            <p className="text-white/60 text-[10px]">{s.label}</p>
+        <motion.div
+          key={s.label}
+          variants={item}
+          whileHover={{ y: -2, scale: 1.01 }}
+          className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/10 px-3 py-2.5"
+        >
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/12">
+            <s.icon className="h-4 w-4 text-white/75" />
           </div>
-        </div>
+          <div>
+            <p className="text-white font-bold text-lg leading-none tabular-nums">
+              {typeof s.value === "number" ? s.value.toLocaleString() : s.value}
+            </p>
+            <p className="text-white/58 text-[10px] uppercase tracking-wider">{s.label}</p>
+          </div>
+        </motion.div>
       ))}
     </div>
   );
@@ -210,19 +263,102 @@ function OverviewTab() {
 
   return (
     <motion.div variants={container} initial="hidden" animate="show" className="space-y-6">
+      <motion.div variants={item} className="grid grid-cols-1 xl:grid-cols-[1.15fr_0.85fr] gap-6">
+        <Card className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-card via-card to-muted/35">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_hsl(var(--primary)/0.12)_0%,_transparent_55%)] pointer-events-none" />
+          <CardContent className="relative p-6">
+            <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+              <div>
+                <div className="inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/8 px-3 py-1 text-xs font-semibold text-primary">
+                  <Activity className="h-3.5 w-3.5" /> Institution snapshot
+                </div>
+                <h2 className="mt-4 text-2xl md:text-3xl font-bold tracking-tight text-balance">
+                  {stats?.totalUsers?.toLocaleString() ?? 0} people across your learning ecosystem
+                </h2>
+                <p className="mt-2 max-w-xl text-sm text-muted-foreground leading-relaxed">
+                  Students, teachers, sections, enrollments, and completion data are consolidated here so admins can act quickly.
+                </p>
+              </div>
+              <div className="grid grid-cols-3 gap-2 md:min-w-[260px]">
+                {[
+                  { label: "Students", value: stats?.totalStudents ?? 0, color: "text-green-500" },
+                  { label: "Teachers", value: stats?.totalTeachers ?? 0, color: "text-purple-500" },
+                  { label: "Courses", value: stats?.totalCourses ?? 0, color: "text-orange-500" },
+                ].map((summary) => (
+                  <motion.div
+                    key={summary.label}
+                    whileHover={{ y: -3 }}
+                    className="rounded-2xl border bg-background/70 p-3 text-center shadow-sm"
+                  >
+                    <p className={`text-2xl font-bold tabular-nums ${summary.color}`}>
+                      {summary.value.toLocaleString()}
+                    </p>
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{summary.label}</p>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="rounded-3xl overflow-hidden">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <div className="rounded-xl bg-emerald-500/10 p-2">
+                <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+              </div>
+              System Signals
+            </CardTitle>
+            <CardDescription>Operational indicators for today</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {[
+              { label: "Completion rate", value: `${stats?.averageCompletionRate ?? 0}%`, icon: BarChart3, color: "text-emerald-500" },
+              { label: "Active sections", value: stats?.totalSections ?? 0, icon: Layers, color: "text-indigo-500" },
+              { label: "Total enrollments", value: stats?.totalEnrollments ?? 0, icon: TrendingUp, color: "text-pink-500" },
+            ].map((signal) => (
+              <motion.div
+                key={signal.label}
+                variants={item}
+                whileHover={{ x: 3 }}
+                className="flex items-center justify-between rounded-2xl border bg-muted/25 px-3 py-3"
+              >
+                <span className="flex items-center gap-3 text-sm font-medium">
+                  <span className={`rounded-xl p-2 ring-1 ${adminIconBg(signal.color)}`}>
+                    <signal.icon className={`h-4 w-4 ${signal.color}`} />
+                  </span>
+                  {signal.label}
+                </span>
+                <span className="font-bold tabular-nums">{typeof signal.value === "number" ? signal.value.toLocaleString() : signal.value}</span>
+              </motion.div>
+            ))}
+          </CardContent>
+        </Card>
+      </motion.div>
+
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {statCards.map((stat) => (
-          <motion.div key={stat.label} variants={item}>
-            <Card className="rounded-2xl hover:shadow-md transition-shadow">
-              <CardContent className="p-5 flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{stat.label}</p>
-                  <p className="text-3xl font-bold mt-1 tabular-nums">
-                    {typeof stat.value === "number" ? stat.value.toLocaleString() : stat.value}
-                  </p>
+          <motion.div key={stat.label} variants={item} whileHover={{ y: -4 }}>
+            <Card className="group overflow-hidden rounded-2xl hover:shadow-lg transition-all duration-200">
+              <CardContent className="p-5">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-[11px] font-bold text-muted-foreground/75 uppercase tracking-wider truncate">{stat.label}</p>
+                    <p className="text-2xl font-bold mt-2 tabular-nums tracking-tight">
+                      {typeof stat.value === "number" ? stat.value.toLocaleString() : stat.value}
+                    </p>
+                  </div>
+                  <div className={`p-3 rounded-2xl ring-1 ${adminIconBg(stat.color)}`}>
+                    <stat.icon className={`h-5 w-5 ${stat.color}`} />
+                  </div>
                 </div>
-                <div className={`p-2.5 rounded-xl bg-current/10 ${stat.color}`}>
-                  <stat.icon className={`h-5 w-5 ${stat.color}`} />
+                <div className="mt-4 h-1 rounded-full bg-muted overflow-hidden">
+                  <motion.div
+                    className="h-full rounded-full bg-primary/45"
+                    initial={{ width: 0 }}
+                    animate={{ width: "58%" }}
+                    transition={{ duration: 0.55, ease: "easeOut" }}
+                  />
                 </div>
               </CardContent>
             </Card>
@@ -231,41 +367,64 @@ function OverviewTab() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader><CardTitle>Enrollment by Academic Level</CardTitle></CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {stats?.enrollmentByLevel?.map((item) => (
-                <div key={item.level} className="flex items-center justify-between text-sm">
-                  <span>{item.level}</span>
-                  <div className="flex items-center gap-2">
-                    <div className="w-32 bg-muted rounded-full h-2">
-                      <div
-                        className="bg-primary h-2 rounded-full"
-                        style={{ width: `${Math.min(100, (item.count / (stats.totalEnrollments || 1)) * 100)}%` }}
-                      />
+        <motion.div variants={item}>
+          <Card className="rounded-3xl">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <BarChart3 className="h-4 w-4 text-primary" /> Enrollment by Academic Level
+              </CardTitle>
+              <CardDescription>Distribution across configured levels</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {stats?.enrollmentByLevel?.map((level) => {
+                  const percentage = Math.min(100, (level.count / (stats.totalEnrollments || 1)) * 100);
+                  return (
+                    <div key={level.level} className="space-y-1.5">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="font-medium">{level.level}</span>
+                        <span className="text-xs font-semibold text-muted-foreground tabular-nums">{level.count}</span>
+                      </div>
+                      <div className="h-2.5 rounded-full bg-muted overflow-hidden">
+                        <motion.div
+                          className="h-full rounded-full bg-gradient-to-r from-primary to-blue-500"
+                          initial={{ width: 0 }}
+                          animate={{ width: `${percentage}%` }}
+                          transition={{ duration: 0.6, ease: "easeOut" }}
+                        />
+                      </div>
                     </div>
-                    <span className="font-medium">{item.count}</span>
-                  </div>
-                </div>
-              )) || <p className="text-muted-foreground text-sm">No enrollment data yet</p>}
-            </div>
-          </CardContent>
-        </Card>
+                  );
+                }) || <p className="text-muted-foreground text-sm">No enrollment data yet</p>}
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
 
-        <Card>
-          <CardHeader><CardTitle>Recent Enrollments</CardTitle></CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {stats?.recentEnrollments?.map((e) => (
-                <div key={e.id} className="flex items-center justify-between text-sm border-b last:border-0 pb-2">
-                  <span className="font-medium">{e.user.firstName} {e.user.lastName}</span>
-                  <span className="text-muted-foreground">{e.course.title}</span>
-                </div>
-              )) || <p className="text-muted-foreground text-sm">No recent enrollments</p>}
-            </div>
-          </CardContent>
-        </Card>
+        <motion.div variants={item}>
+          <Card className="rounded-3xl">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Activity className="h-4 w-4 text-primary" /> Recent Enrollments
+              </CardTitle>
+              <CardDescription>Latest students joining courses</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                {stats?.recentEnrollments?.map((enrollment) => (
+                  <motion.div
+                    key={enrollment.id}
+                    whileHover={{ x: 4 }}
+                    className="flex items-center justify-between gap-3 rounded-2xl border bg-muted/20 px-3 py-3 text-sm transition-colors hover:bg-accent/40"
+                  >
+                    <span className="font-semibold truncate">{enrollment.user.firstName} {enrollment.user.lastName}</span>
+                    <span className="text-muted-foreground truncate text-right">{enrollment.course.title}</span>
+                  </motion.div>
+                )) || <p className="text-muted-foreground text-sm">No recent enrollments</p>}
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
       </div>
     </motion.div>
   );
@@ -313,8 +472,8 @@ function UsersTab() {
   });
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
+    <motion.div variants={container} initial="hidden" animate="show" className="space-y-4">
+      <motion.div variants={item} className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between rounded-3xl border bg-card/70 p-3 shadow-sm">
         <div className="flex gap-2 flex-1 w-full sm:w-auto">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -352,22 +511,23 @@ function UsersTab() {
             <CreateUserForm onClose={() => setShowCreateDialog(false)} />
           </DialogContent>
         </Dialog>
-      </div>
+      </motion.div>
 
       {isLoading ? (
         <div className="space-y-3">{[1, 2, 3, 4, 5].map((i) => <Skeleton key={i} className="h-20" />)}</div>
       ) : (
-        <div className="space-y-2">
+        <motion.div variants={container} className="space-y-2">
           {usersData?.data?.map((user) => (
-            <Card key={user.id}>
-              <CardContent className="p-4 flex items-center gap-4">
-                <Avatar className="h-10 w-10">
-                  <AvatarFallback>{getInitials(user.firstName, user.lastName)}</AvatarFallback>
+            <motion.div key={user.id} variants={item} whileHover={{ y: -2 }}>
+            <Card className="group overflow-hidden rounded-2xl hover:shadow-md transition-all duration-200">
+              <CardContent className="p-4 flex flex-col gap-4 sm:flex-row sm:items-center">
+                <Avatar className="h-11 w-11 ring-2 ring-background shadow-sm">
+                  <AvatarFallback className="font-semibold">{getInitials(user.firstName, user.lastName)}</AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium">{user.firstName} {user.lastName}</p>
-                  <p className="text-sm text-muted-foreground">{user.email}</p>
-                  <div className="flex gap-2 mt-1">
+                  <p className="font-semibold tracking-[-0.01em]">{user.firstName} {user.lastName}</p>
+                  <p className="text-sm text-muted-foreground truncate">{user.email}</p>
+                  <div className="flex flex-wrap gap-2 mt-2">
                     <Badge variant={user.role === "ADMIN" ? "default" : user.role === "TEACHER" ? "secondary" : "outline"}>
                       {user.role}
                     </Badge>
@@ -382,7 +542,7 @@ function UsersTab() {
                     )}
                   </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2 sm:justify-end">
                   <Button variant="outline" size="sm" onClick={() => resetPasswordMutation.mutate(user.id)}>
                     Reset Pwd
                   </Button>
@@ -396,6 +556,7 @@ function UsersTab() {
                   <Button
                     variant="ghost"
                     size="sm"
+                    className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                     onClick={() => { if (confirm("Delete this user?")) deleteMutation.mutate(user.id); }}
                   >
                     <Trash2 className="h-3 w-3" />
@@ -403,6 +564,7 @@ function UsersTab() {
                 </div>
               </CardContent>
             </Card>
+            </motion.div>
           ))}
           {usersData?.data?.length === 0 && (
             <Card>
@@ -412,9 +574,9 @@ function UsersTab() {
               </CardContent>
             </Card>
           )}
-        </div>
+        </motion.div>
       )}
-    </div>
+    </motion.div>
   );
 }
 
@@ -586,10 +748,11 @@ function LevelsTab() {
   });
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <motion.div variants={container} initial="hidden" animate="show" className="space-y-6">
+      {/* Header bar */}
+      <motion.div variants={item} className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between rounded-3xl border bg-card/70 p-4 shadow-sm">
         <div>
-          <h2 className="text-xl font-semibold">Academic Levels & Sections</h2>
+          <h2 className="text-lg font-semibold">Academic Levels &amp; Sections</h2>
           <p className="text-muted-foreground text-sm">Manage grade levels and class sections for your institution</p>
         </div>
         <div className="flex gap-2">
@@ -680,62 +843,101 @@ function LevelsTab() {
             </DialogContent>
           </Dialog>
         </div>
-      </div>
+      </motion.div>
 
       {isLoading ? (
-        <div className="space-y-3">{[1, 2, 3].map((i) => <Skeleton key={i} className="h-32" />)}</div>
+        <div className="space-y-3">{[1, 2, 3].map((i) => <Skeleton key={i} className="h-36 rounded-3xl" />)}</div>
       ) : (
-        <div className="space-y-4">
+        <motion.div variants={container} className="space-y-4">
           {levels?.sort((a, b) => a.orderIndex - b.orderIndex).map((level) => (
-            <Card key={level.id}>
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <CardTitle className="text-lg">{level.gradeLabel}</CardTitle>
-                    <Badge variant={level.type === "HIGH_SCHOOL" ? "default" : "secondary"}>{level.type === "HIGH_SCHOOL" ? "High School" : "College"}</Badge>
-                    <Badge variant={level.isActive ? "outline" : "destructive"}>{level.isActive ? "Active" : "Inactive"}</Badge>
-                    <span className="text-sm text-muted-foreground">SY: {level.schoolYear}</span>
-                  </div>
-                  <Button variant="ghost" size="sm" onClick={() => { if (confirm("Delete this level?")) deleteLevelMutation.mutate(level.id); }}>
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                {level.sections && level.sections.length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {level.sections.map((section) => (
-                      <div key={section.id} className="flex items-center justify-between border rounded-lg p-3">
-                        <div>
-                          <p className="font-medium text-sm">{section.name}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {section.currentEnrollment}/{section.capacity ?? "∞"} students
-                            {section.semester && ` • ${section.semester} Sem`}
-                          </p>
-                        </div>
-                        <Button variant="ghost" size="sm" onClick={() => { if (confirm("Delete this section?")) deleteSectionMutation.mutate(section.id); }}>
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
+            <motion.div key={level.id} variants={item}>
+              <Card className="overflow-hidden rounded-3xl hover:shadow-lg transition-all duration-200">
+                <CardHeader className="pb-3 bg-muted/25">
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="flex flex-wrap items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 ring-1 ring-primary/15">
+                        <GraduationCap className="h-5 w-5 text-primary" />
                       </div>
-                    ))}
+                      <div>
+                        <CardTitle className="text-base">{level.gradeLabel}</CardTitle>
+                        <p className="text-xs text-muted-foreground">SY: {level.schoolYear}</p>
+                      </div>
+                      <Badge variant={level.type === "HIGH_SCHOOL" ? "default" : "secondary"} className="text-xs">
+                        {level.type === "HIGH_SCHOOL" ? "High School" : "College"}
+                      </Badge>
+                      <Badge variant={level.isActive ? "outline" : "destructive"} className="text-xs">
+                        {level.isActive ? "Active" : "Inactive"}
+                      </Badge>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl"
+                      onClick={() => { if (confirm("Delete this level?")) deleteLevelMutation.mutate(level.id); }}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   </div>
-                ) : (
-                  <p className="text-sm text-muted-foreground">No sections assigned yet</p>
-                )}
-              </CardContent>
-            </Card>
+                </CardHeader>
+                <CardContent className="p-4">
+                  {level.sections && level.sections.length > 0 ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {level.sections.map((section) => (
+                        <motion.div
+                          key={section.id}
+                          whileHover={{ y: -2 }}
+                          className="group flex items-center justify-between rounded-2xl border bg-background/80 p-3 hover:shadow-sm transition-all"
+                        >
+                          <div>
+                            <p className="font-medium text-sm">{section.name}</p>
+                            <div className="flex items-center gap-1.5 mt-1">
+                              <div className="h-1.5 w-20 rounded-full bg-muted overflow-hidden">
+                                <div
+                                  className="h-full rounded-full bg-primary/50"
+                                  style={{ width: section.capacity ? `${Math.min(100, (section.currentEnrollment / section.capacity) * 100)}%` : "0%" }}
+                                />
+                              </div>
+                              <p className="text-xs text-muted-foreground">
+                                {section.currentEnrollment}/{section.capacity ?? "∞"}
+                                {section.semester && ` • ${section.semester}`}
+                              </p>
+                            </div>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl transition-all"
+                            onClick={() => { if (confirm("Delete this section?")) deleteSectionMutation.mutate(section.id); }}
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        </motion.div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-3 rounded-2xl bg-muted/40 px-4 py-3">
+                      <Layers className="h-4 w-4 text-muted-foreground" />
+                      <p className="text-sm text-muted-foreground">No sections assigned yet</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </motion.div>
           ))}
           {levels?.length === 0 && (
-            <Card>
-              <CardContent className="p-8 text-center">
-                <Layers className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground">No academic levels created yet. Add your first level above.</p>
+            <Card className="rounded-3xl">
+              <CardContent className="p-12 text-center">
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-3xl bg-muted/60">
+                  <Layers className="h-8 w-8 text-muted-foreground" />
+                </div>
+                <p className="font-medium text-muted-foreground">No academic levels yet</p>
+                <p className="text-sm text-muted-foreground/70 mt-1">Add your first level using the button above.</p>
               </CardContent>
             </Card>
           )}
-        </div>
+        </motion.div>
       )}
-    </div>
+    </motion.div>
   );
 }
 
@@ -761,10 +963,20 @@ function CoursesTab() {
     select: (res) => res.data,
   });
 
+  const statusMeta: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline"; dot: string }> = {
+    PUBLISHED: { label: "Published", variant: "default", dot: "bg-emerald-500" },
+    DRAFT:     { label: "Draft",     variant: "secondary", dot: "bg-amber-500" },
+    ARCHIVED:  { label: "Archived",  variant: "destructive", dot: "bg-slate-400" },
+  };
+
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
-        <h2 className="text-xl font-semibold">Course Management</h2>
+    <motion.div variants={container} initial="hidden" animate="show" className="space-y-4">
+      {/* Filter bar */}
+      <motion.div variants={item} className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between rounded-3xl border bg-card/70 p-3 shadow-sm">
+        <div>
+          <h2 className="text-base font-semibold px-1">Course Management</h2>
+          <p className="text-xs text-muted-foreground px-1">View and filter all courses across your institution</p>
+        </div>
         <div className="flex gap-2">
           <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className="w-[140px]"><SelectValue placeholder="Status" /></SelectTrigger>
@@ -785,52 +997,72 @@ function CoursesTab() {
             </SelectContent>
           </Select>
         </div>
-      </div>
+      </motion.div>
+
       {isLoading ? (
-        <div className="space-y-3">{[1, 2, 3].map((i) => <Skeleton key={i} className="h-24" />)}</div>
+        <div className="space-y-3">{[1, 2, 3].map((i) => <Skeleton key={i} className="h-24 rounded-2xl" />)}</div>
       ) : (
-        <div className="space-y-2">
-          {coursesData?.map((course: any) => (
-            <Card key={course.id}>
-              <CardContent className="p-4 flex items-center gap-4">
-                {course.thumbnail ? (
-                  <img src={course.thumbnail} alt="" className="h-16 w-24 object-cover rounded" />
-                ) : (
-                  <div className="h-16 w-24 bg-muted rounded flex items-center justify-center">
-                    <BookOpen className="h-6 w-6 text-muted-foreground" />
-                  </div>
-                )}
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium">{course.title}</p>
-                  <div className="flex flex-wrap gap-2 mt-1">
-                    {course.subjectCode && <Badge variant="outline">{course.subjectCode}</Badge>}
-                    <Badge variant={course.status === "PUBLISHED" ? "default" : course.status === "DRAFT" ? "secondary" : "destructive"}>
-                      {course.status}
-                    </Badge>
-                    {course.academicLevel && <Badge variant="outline">{course.academicLevel.gradeLabel}</Badge>}
-                    <span className="text-xs text-muted-foreground">{course._count?.enrollments ?? 0} enrolled</span>
-                    <span className="text-xs text-muted-foreground">{course._count?.modules ?? 0} modules</span>
-                  </div>
-                  {course.instructor && (
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Instructor: {course.instructor.firstName} {course.instructor.lastName}
-                    </p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+        <motion.div variants={container} className="space-y-2">
+          {coursesData?.map((course: any) => {
+            const sm = statusMeta[course.status] ?? statusMeta.DRAFT;
+            return (
+              <motion.div key={course.id} variants={item} whileHover={{ y: -2 }}>
+                <Card className="group overflow-hidden rounded-2xl hover:shadow-md transition-all duration-200">
+                  <CardContent className="p-4 flex items-center gap-4">
+                    {course.thumbnail ? (
+                      <img src={course.thumbnail} alt="" className="h-16 w-24 flex-shrink-0 object-cover rounded-xl" />
+                    ) : (
+                      <div className="h-16 w-24 flex-shrink-0 rounded-xl bg-primary/8 ring-1 ring-primary/10 flex items-center justify-center">
+                        <BookOpen className="h-6 w-6 text-primary/60" />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold tracking-[-0.01em] truncate">{course.title}</p>
+                      <div className="flex flex-wrap items-center gap-2 mt-1.5">
+                        {course.subjectCode && (
+                          <Badge variant="outline" className="text-[10px] font-mono">{course.subjectCode}</Badge>
+                        )}
+                        <Badge variant={sm.variant} className="gap-1 text-xs">
+                          <span className={`h-1.5 w-1.5 rounded-full ${sm.dot}`} />
+                          {sm.label}
+                        </Badge>
+                        {course.academicLevel && (
+                          <Badge variant="outline" className="text-xs">{course.academicLevel.gradeLabel}</Badge>
+                        )}
+                      </div>
+                      <div className="flex flex-wrap gap-3 mt-1.5">
+                        <span className="text-xs text-muted-foreground flex items-center gap-1">
+                          <Users className="h-3 w-3" /> {course._count?.enrollments ?? 0} enrolled
+                        </span>
+                        <span className="text-xs text-muted-foreground flex items-center gap-1">
+                          <FileText className="h-3 w-3" /> {course._count?.modules ?? 0} modules
+                        </span>
+                        {course.instructor && (
+                          <span className="text-xs text-muted-foreground">
+                            {course.instructor.firstName} {course.instructor.lastName}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            );
+          })}
           {coursesData?.length === 0 && (
-            <Card>
-              <CardContent className="p-8 text-center">
-                <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground">No courses found matching your filters.</p>
+            <Card className="rounded-3xl">
+              <CardContent className="p-12 text-center">
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-3xl bg-muted/60">
+                  <BookOpen className="h-8 w-8 text-muted-foreground" />
+                </div>
+                <p className="font-medium text-muted-foreground">No courses found</p>
+                <p className="text-sm text-muted-foreground/70 mt-1">Try adjusting your filters.</p>
               </CardContent>
             </Card>
           )}
-        </div>
+        </motion.div>
       )}
-    </div>
+    </motion.div>
   );
 }
 
@@ -863,91 +1095,139 @@ function AnnouncementsTab() {
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["announcements"] }); toast.success("Announcement deleted"); },
   });
 
-  const priorityColors: Record<string, string> = {
-    low: "bg-gray-100 text-gray-700",
-    normal: "bg-blue-100 text-blue-700",
-    high: "bg-orange-100 text-orange-700",
-    urgent: "bg-red-100 text-red-700",
+  const priorityMeta: Record<string, { label: string; band: string; badge: string }> = {
+    low:    { label: "Low",    band: "bg-slate-400",   badge: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300" },
+    normal: { label: "Normal", band: "bg-blue-500",    badge: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300" },
+    high:   { label: "High",   band: "bg-orange-500",  badge: "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300" },
+    urgent: { label: "Urgent", band: "bg-destructive", badge: "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300" },
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold">Announcements</h2>
-        <Button onClick={() => setShowCreate(true)}><Plus className="h-4 w-4 mr-2" /> New Announcement</Button>
-      </div>
+    <motion.div variants={container} initial="hidden" animate="show" className="space-y-4">
+      {/* Header */}
+      <motion.div variants={item} className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between rounded-3xl border bg-card/70 p-4 shadow-sm">
+        <div>
+          <h2 className="text-base font-semibold">Announcements</h2>
+          <p className="text-xs text-muted-foreground">Publish institution-wide or course-specific announcements</p>
+        </div>
+        <Button onClick={() => setShowCreate(!showCreate)}>
+          <Plus className="h-4 w-4 mr-2" /> New Announcement
+        </Button>
+      </motion.div>
 
+      {/* Compose form */}
       {showCreate && (
-        <Card>
-          <CardContent className="p-6 space-y-4">
-            <div className="space-y-2">
-              <Label>Title</Label>
-              <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="Announcement title..." />
-            </div>
-            <div className="space-y-2">
-              <Label>Content</Label>
-              <Textarea value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} placeholder="Write your announcement..." rows={4} />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.25 }}
+        >
+          <Card className="overflow-hidden rounded-3xl border-primary/20">
+            <div className="h-1 w-full bg-gradient-to-r from-primary via-violet-500 to-cyan-500" />
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Megaphone className="h-4 w-4 text-primary" />
+                Compose Announcement
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label>Priority</Label>
-                <Select value={form.priority} onValueChange={(v) => setForm({ ...form, priority: v as any })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="low">Low</SelectItem>
-                    <SelectItem value="normal">Normal</SelectItem>
-                    <SelectItem value="high">High</SelectItem>
-                    <SelectItem value="urgent">Urgent</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Label>Title</Label>
+                <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="Announcement title..." />
               </div>
-              <div className="space-y-2 flex items-end">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" checked={form.isInstitutionWide} onChange={(e) => setForm({ ...form, isInstitutionWide: e.target.checked })} className="rounded" />
-                  <span className="text-sm">Institution-wide</span>
-                </label>
+              <div className="space-y-2">
+                <Label>Content</Label>
+                <Textarea value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} placeholder="Write your announcement..." rows={4} />
               </div>
-            </div>
-            <div className="flex gap-2">
-              <Button onClick={() => createMutation.mutate(form)} disabled={!form.title || !form.content}>
-                Publish Announcement
-              </Button>
-              <Button variant="outline" onClick={() => setShowCreate(false)}>Cancel</Button>
-            </div>
-          </CardContent>
-        </Card>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Priority</Label>
+                  <Select value={form.priority} onValueChange={(v) => setForm({ ...form, priority: v as any })}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="low">Low</SelectItem>
+                      <SelectItem value="normal">Normal</SelectItem>
+                      <SelectItem value="high">High</SelectItem>
+                      <SelectItem value="urgent">Urgent</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2 flex items-end">
+                  <label className="flex items-center gap-2 cursor-pointer rounded-xl border bg-muted/30 px-3 py-2.5 w-full hover:bg-muted/50 transition-colors">
+                    <input type="checkbox" checked={form.isInstitutionWide} onChange={(e) => setForm({ ...form, isInstitutionWide: e.target.checked })} className="rounded" />
+                    <span className="text-sm font-medium">Institution-wide</span>
+                  </label>
+                </div>
+              </div>
+              <div className="flex gap-2 pt-1">
+                <Button onClick={() => createMutation.mutate(form)} disabled={!form.title || !form.content || createMutation.isPending}>
+                  {createMutation.isPending ? "Publishing..." : "Publish Announcement"}
+                </Button>
+                <Button variant="outline" onClick={() => setShowCreate(false)}>Cancel</Button>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
       )}
 
       {isLoading ? (
-        <div className="space-y-3">{[1, 2, 3].map((i) => <Skeleton key={i} className="h-24" />)}</div>
+        <div className="space-y-3">{[1, 2, 3].map((i) => <Skeleton key={i} className="h-24 rounded-2xl" />)}</div>
       ) : (
-        <div className="space-y-3">
-          {announcements?.map((ann) => (
-            <Card key={ann.id}>
-              <CardContent className="p-4">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-medium">{ann.title}</h3>
-                      <Badge className={priorityColors[ann.priority] || ""}>{ann.priority}</Badge>
-                      {ann.isInstitutionWide && <Badge variant="outline">Institution-wide</Badge>}
-                      {ann.course && <Badge variant="secondary">{ann.course.title}</Badge>}
+        <motion.div variants={container} className="space-y-3">
+          {announcements?.map((ann) => {
+            const pm = priorityMeta[ann.priority] ?? priorityMeta.normal;
+            return (
+              <motion.div key={ann.id} variants={item} whileHover={{ x: 3 }}>
+                <Card className="group overflow-hidden rounded-2xl hover:shadow-md transition-all duration-200">
+                  <div className={`h-full w-1 absolute left-0 top-0 bottom-0 ${pm.band} rounded-l-2xl`} />
+                  <CardContent className="pl-5 pr-4 py-4">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                          <h3 className="font-semibold tracking-[-0.01em]">{ann.title}</h3>
+                          <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${pm.badge}`}>
+                            {pm.label}
+                          </span>
+                          {ann.isInstitutionWide && (
+                            <Badge variant="outline" className="text-[10px]">Institution-wide</Badge>
+                          )}
+                          {ann.course && (
+                            <Badge variant="secondary" className="text-[10px]">{ann.course.title}</Badge>
+                          )}
+                        </div>
+                        <p className="text-sm text-muted-foreground line-clamp-2">{ann.content}</p>
+                        <p className="text-[11px] text-muted-foreground/60 mt-2">
+                          {new Date(ann.createdAt).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })}
+                        </p>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl transition-all"
+                        onClick={() => { if (confirm("Delete this announcement?")) deleteMutation.mutate(ann.id); }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
-                    <p className="text-sm text-muted-foreground line-clamp-2">{ann.content}</p>
-                    <p className="text-xs text-muted-foreground mt-2">
-                      {new Date(ann.createdAt).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <Button variant="ghost" size="sm" onClick={() => { if (confirm("Delete?")) deleteMutation.mutate(ann.id); }}>
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            );
+          })}
+          {(!announcements || announcements.length === 0) && (
+            <Card className="rounded-3xl">
+              <CardContent className="p-12 text-center">
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-3xl bg-muted/60">
+                  <Megaphone className="h-8 w-8 text-muted-foreground" />
                 </div>
+                <p className="font-medium text-muted-foreground">No announcements yet</p>
+                <p className="text-sm text-muted-foreground/70 mt-1">Create your first announcement above.</p>
               </CardContent>
             </Card>
-          ))}
-        </div>
+          )}
+        </motion.div>
       )}
-    </div>
+    </motion.div>
   );
 }
 
@@ -971,60 +1251,93 @@ function YouTubeTab() {
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-xl font-semibold mb-2">YouTube Tutorial Integration</h2>
-        <p className="text-muted-foreground text-sm">Fetch YouTube video metadata and attach tutorials to lessons</p>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Fetch Video Metadata</CardTitle>
-          <CardDescription>Enter a YouTube URL to automatically fetch video information</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex gap-2">
-            <Input
-              placeholder="Paste YouTube URL (e.g., https://youtube.com/watch?v=...)"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-            />
-            <Button onClick={fetchMetadata} disabled={!url || fetchingMeta}>
-              {fetchingMeta ? "Fetching..." : "Fetch Metadata"}
-            </Button>
+    <motion.div variants={container} initial="hidden" animate="show" className="space-y-6">
+      {/* Hero header */}
+      <motion.div variants={item} className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between rounded-3xl border bg-card/70 p-5 shadow-sm">
+        <div className="flex items-center gap-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-500/10 ring-1 ring-red-500/15">
+            <Youtube className="h-6 w-6 text-red-500" />
           </div>
+          <div>
+            <h2 className="text-base font-semibold">YouTube Tutorial Integration</h2>
+            <p className="text-xs text-muted-foreground">Fetch video metadata and attach tutorials to lessons</p>
+          </div>
+        </div>
+      </motion.div>
 
-          {metadata && (
-            <div className="border rounded-lg p-4 space-y-3">
-              <div className="flex gap-4">
-                {metadata.thumbnail && (
-                  <img src={metadata.thumbnail} alt="Thumbnail" className="w-48 h-28 object-cover rounded" />
-                )}
-                <div>
-                  <h3 className="font-semibold">{metadata.title}</h3>
-                  <p className="text-sm text-muted-foreground">Channel: {metadata.channel}</p>
-                  {metadata.duration && <p className="text-sm text-muted-foreground">Duration: {metadata.duration} min</p>}
-                </div>
-              </div>
+      {/* Fetch metadata */}
+      <motion.div variants={item}>
+        <Card className="overflow-hidden rounded-3xl">
+          <CardHeader className="border-b bg-muted/25">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Search className="h-4 w-4 text-primary" />
+              Fetch Video Metadata
+            </CardTitle>
+            <CardDescription>Enter a YouTube URL to automatically fetch video information</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4 p-5">
+            <div className="flex gap-2">
+              <Input
+                placeholder="Paste YouTube URL (e.g., https://youtube.com/watch?v=...)"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                className="flex-1"
+              />
+              <Button onClick={fetchMetadata} disabled={!url || fetchingMeta} className="shrink-0">
+                {fetchingMeta ? "Fetching..." : "Fetch"}
+              </Button>
             </div>
-          )}
-        </CardContent>
-      </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Bulk Import</CardTitle>
-          <CardDescription>Import multiple YouTube videos as lessons at once</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Textarea
-            placeholder="Paste YouTube URLs (one per line)"
-            rows={6}
-          />
-          <Button className="mt-4"><Upload className="h-4 w-4 mr-2" /> Import Videos</Button>
-        </CardContent>
-      </Card>
-    </div>
+            {metadata && (
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="overflow-hidden rounded-2xl border bg-muted/20"
+              >
+                <div className="flex flex-col sm:flex-row gap-4 p-4">
+                  {metadata.thumbnail && (
+                    <img src={metadata.thumbnail} alt="Thumbnail" className="w-full sm:w-48 h-28 object-cover rounded-xl flex-shrink-0" />
+                  )}
+                  <div className="min-w-0">
+                    <h3 className="font-semibold tracking-[-0.01em] line-clamp-2">{metadata.title}</h3>
+                    <p className="text-sm text-muted-foreground mt-1">Channel: {metadata.channel}</p>
+                    {metadata.duration && (
+                      <p className="text-sm text-muted-foreground">Duration: {metadata.duration} min</p>
+                    )}
+                    <Badge variant="outline" className="mt-2 text-xs gap-1">
+                      <CheckCircle2 className="h-3 w-3 text-emerald-500" /> Metadata fetched
+                    </Badge>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Bulk import */}
+      <motion.div variants={item}>
+        <Card className="overflow-hidden rounded-3xl">
+          <CardHeader className="border-b bg-muted/25">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Upload className="h-4 w-4 text-primary" />
+              Bulk Import
+            </CardTitle>
+            <CardDescription>Import multiple YouTube videos as lessons at once</CardDescription>
+          </CardHeader>
+          <CardContent className="p-5 space-y-4">
+            <Textarea
+              placeholder="Paste YouTube URLs, one per line&#10;https://youtube.com/watch?v=...&#10;https://youtube.com/watch?v=..."
+              rows={6}
+              className="font-mono text-sm"
+            />
+            <Button>
+              <Upload className="h-4 w-4 mr-2" /> Import Videos
+            </Button>
+          </CardContent>
+        </Card>
+      </motion.div>
+    </motion.div>
   );
 }
 
@@ -1086,184 +1399,191 @@ function AnalyticsTab() {
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {[1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-80" />)}
+        {[1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-80 rounded-3xl" />)}
       </div>
     );
   }
 
-  return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-xl font-semibold">Institution Analytics</h2>
-        <p className="text-muted-foreground text-sm">Detailed performance and engagement metrics</p>
-      </div>
+  const analyticsStats = [
+    { label: "Total Users",        value: stats?.totalUsers ?? 0,            icon: Users,    color: "text-primary",    iconBg: "bg-primary/10 ring-primary/15" },
+    { label: "Active Students (7d)",value: stats?.activeStudents ?? 0,       icon: Activity, color: "text-blue-500",   iconBg: "bg-blue-500/10 ring-blue-500/15" },
+    { label: "Avg Completion",      value: `${stats?.averageCompletionRate ?? 0}%`, icon: BarChart3, color: "text-emerald-500", iconBg: "bg-emerald-500/10 ring-emerald-500/15" },
+    { label: "Total Enrollments",   value: stats?.totalEnrollments ?? 0,     icon: TrendingUp, color: "text-orange-500", iconBg: "bg-orange-500/10 ring-orange-500/15" },
+  ];
 
-      {/* Summary cards */}
+  const chartEmptyState = (icon: LucideIcon, label: string) => {
+    const Icon = icon;
+    return (
+      <div className="flex flex-col items-center justify-center h-[250px] text-muted-foreground gap-2">
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-muted/60">
+          <Icon className="h-6 w-6" />
+        </div>
+        <p className="text-sm">{label}</p>
+      </div>
+    );
+  };
+
+  return (
+    <motion.div variants={container} initial="hidden" animate="show" className="space-y-6">
+      {/* Header */}
+      <motion.div variants={item} className="rounded-3xl border bg-card/70 p-5 shadow-sm">
+        <h2 className="text-base font-semibold">Institution Analytics</h2>
+        <p className="text-muted-foreground text-sm">Detailed performance and engagement metrics</p>
+      </motion.div>
+
+      {/* Summary stat cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4 text-center">
-            <p className="text-3xl font-bold text-primary">{stats?.totalUsers ?? 0}</p>
-            <p className="text-sm text-muted-foreground">Total Users</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <p className="text-3xl font-bold text-blue-500">{stats?.activeStudents ?? 0}</p>
-            <p className="text-sm text-muted-foreground">Active Students (7d)</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <p className="text-3xl font-bold text-emerald-500">{stats?.averageCompletionRate ?? 0}%</p>
-            <p className="text-sm text-muted-foreground">Avg Completion Rate</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <p className="text-3xl font-bold text-orange-500">{stats?.totalEnrollments ?? 0}</p>
-            <p className="text-sm text-muted-foreground">Total Enrollments</p>
-          </CardContent>
-        </Card>
+        {analyticsStats.map((s) => (
+          <motion.div key={s.label} variants={item} whileHover={{ y: -4 }}>
+            <Card className="overflow-hidden rounded-2xl hover:shadow-lg transition-all duration-200">
+              <CardContent className="p-5">
+                <div className="flex items-start justify-between gap-2">
+                  <div className={`p-3 rounded-2xl ring-1 ${s.iconBg}`}>
+                    <s.icon className={`h-5 w-5 ${s.color}`} />
+                  </div>
+                </div>
+                <p className={`text-2xl font-bold mt-3 tabular-nums tracking-tight ${s.color}`}>
+                  {typeof s.value === "number" ? s.value.toLocaleString() : s.value}
+                </p>
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mt-1">{s.label}</p>
+              </CardContent>
+            </Card>
+          </motion.div>
+        ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Enrollment by Academic Level */}
-        <Card>
-          <CardHeader><CardTitle className="text-lg">Enrollment by Academic Level</CardTitle></CardHeader>
-          <CardContent>
-            {enrollmentByLevelData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={250}>
-                <BarChart data={enrollmentByLevelData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="count" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} name="Enrollments" />
-                </BarChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="flex flex-col items-center justify-center h-[250px] text-muted-foreground">
-                <Layers className="h-8 w-8 mb-2" />
-                <p className="text-sm">No enrollment data yet</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        <motion.div variants={item}>
+          <Card className="overflow-hidden rounded-3xl">
+            <CardHeader className="border-b bg-muted/20 pb-3">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <div className="rounded-xl bg-primary/10 p-1.5"><Layers className="h-4 w-4 text-primary" /></div>
+                Enrollment by Academic Level
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-4">
+              {enrollmentByLevelData.length > 0 ? (
+                <ResponsiveContainer width="100%" height={250}>
+                  <BarChart data={enrollmentByLevelData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis dataKey="name" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11 }} />
+                    <Tooltip contentStyle={{ borderRadius: "12px", border: "1px solid hsl(var(--border))", boxShadow: "0 4px 24px rgba(0,0,0,.08)" }} />
+                    <Bar dataKey="count" fill="hsl(var(--primary))" radius={[6, 6, 0, 0]} name="Enrollments" />
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : chartEmptyState(Layers, "No enrollment data yet")}
+            </CardContent>
+          </Card>
+        </motion.div>
 
         {/* Course Status Distribution */}
-        <Card>
-          <CardHeader><CardTitle className="text-lg">Course Status Distribution</CardTitle></CardHeader>
-          <CardContent>
-            {courseStatusData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={250}>
-                <PieChart>
-                  <Pie
-                    data={courseStatusData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={100}
-                    paddingAngle={5}
-                    dataKey="value"
-                    label={({ name, value }) => `${name}: ${value}`}
-                  >
-                    {courseStatusData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="flex flex-col items-center justify-center h-[250px] text-muted-foreground">
-                <BookOpen className="h-8 w-8 mb-2" />
-                <p className="text-sm">No courses yet</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        <motion.div variants={item}>
+          <Card className="overflow-hidden rounded-3xl">
+            <CardHeader className="border-b bg-muted/20 pb-3">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <div className="rounded-xl bg-orange-500/10 p-1.5"><BookOpen className="h-4 w-4 text-orange-500" /></div>
+                Course Status Distribution
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-4">
+              {courseStatusData.length > 0 ? (
+                <ResponsiveContainer width="100%" height={250}>
+                  <PieChart>
+                    <Pie data={courseStatusData} cx="50%" cy="50%" innerRadius={60} outerRadius={100} paddingAngle={5} dataKey="value" label={({ name, value }) => `${name}: ${value}`}>
+                      {courseStatusData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip contentStyle={{ borderRadius: "12px", border: "1px solid hsl(var(--border))" }} />
+                  </PieChart>
+                </ResponsiveContainer>
+              ) : chartEmptyState(BookOpen, "No courses yet")}
+            </CardContent>
+          </Card>
+        </motion.div>
 
         {/* Top Courses by Enrollment */}
-        <Card>
-          <CardHeader><CardTitle className="text-lg">Top Courses by Enrollment</CardTitle></CardHeader>
-          <CardContent>
-            {topCoursesData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={250}>
-                <BarChart data={topCoursesData} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis type="number" />
-                  <YAxis type="category" dataKey="name" width={120} tick={{ fontSize: 11 }} />
-                  <Tooltip />
-                  <Bar dataKey="enrollments" fill="#3b82f6" radius={[0, 4, 4, 0]} name="Enrollments" />
-                  <Bar dataKey="modules" fill="#8b5cf6" radius={[0, 4, 4, 0]} name="Modules" />
-                </BarChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="flex flex-col items-center justify-center h-[250px] text-muted-foreground">
-                <TrendingUp className="h-8 w-8 mb-2" />
-                <p className="text-sm">No course data yet</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        <motion.div variants={item}>
+          <Card className="overflow-hidden rounded-3xl">
+            <CardHeader className="border-b bg-muted/20 pb-3">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <div className="rounded-xl bg-blue-500/10 p-1.5"><TrendingUp className="h-4 w-4 text-blue-500" /></div>
+                Top Courses by Enrollment
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-4">
+              {topCoursesData.length > 0 ? (
+                <ResponsiveContainer width="100%" height={250}>
+                  <BarChart data={topCoursesData} layout="vertical">
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 11 }} />
+                    <YAxis type="category" dataKey="name" width={120} tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+                    <Tooltip contentStyle={{ borderRadius: "12px", border: "1px solid hsl(var(--border))" }} />
+                    <Bar dataKey="enrollments" fill="#3b82f6" radius={[0, 6, 6, 0]} name="Enrollments" />
+                    <Bar dataKey="modules" fill="#8b5cf6" radius={[0, 6, 6, 0]} name="Modules" />
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : chartEmptyState(TrendingUp, "No course data yet")}
+            </CardContent>
+          </Card>
+        </motion.div>
 
         {/* Role Distribution */}
-        <Card>
-          <CardHeader><CardTitle className="text-lg">User Role Distribution</CardTitle></CardHeader>
-          <CardContent>
-            {roleDistributionData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={250}>
-                <PieChart>
-                  <Pie
-                    data={roleDistributionData}
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={100}
-                    dataKey="value"
-                    label={({ name, value }) => `${name}: ${value}`}
-                  >
-                    {roleDistributionData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="flex flex-col items-center justify-center h-[250px] text-muted-foreground">
-                <Users className="h-8 w-8 mb-2" />
-                <p className="text-sm">No user data yet</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        <motion.div variants={item}>
+          <Card className="overflow-hidden rounded-3xl">
+            <CardHeader className="border-b bg-muted/20 pb-3">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <div className="rounded-xl bg-purple-500/10 p-1.5"><Users className="h-4 w-4 text-purple-500" /></div>
+                User Role Distribution
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-4">
+              {roleDistributionData.length > 0 ? (
+                <ResponsiveContainer width="100%" height={250}>
+                  <PieChart>
+                    <Pie data={roleDistributionData} cx="50%" cy="50%" outerRadius={100} dataKey="value" label={({ name, value }) => `${name}: ${value}`}>
+                      {roleDistributionData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip contentStyle={{ borderRadius: "12px", border: "1px solid hsl(var(--border))" }} />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
+              ) : chartEmptyState(Users, "No user data yet")}
+            </CardContent>
+          </Card>
+        </motion.div>
 
         {/* Courses by Academic Level */}
-        <Card className="lg:col-span-2">
-          <CardHeader><CardTitle className="text-lg">Courses & Students by Academic Level</CardTitle></CardHeader>
-          <CardContent>
-            {coursesByLevelData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={250}>
-                <BarChart data={coursesByLevelData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="courses" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} name="Courses" />
-                  <Bar dataKey="students" fill="#3b82f6" radius={[4, 4, 0, 0]} name="Students" />
-                </BarChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="flex flex-col items-center justify-center h-[250px] text-muted-foreground">
-                <GraduationCap className="h-8 w-8 mb-2" />
-                <p className="text-sm">No academic level data yet</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        <motion.div variants={item} className="lg:col-span-2">
+          <Card className="overflow-hidden rounded-3xl">
+            <CardHeader className="border-b bg-muted/20 pb-3">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <div className="rounded-xl bg-emerald-500/10 p-1.5"><GraduationCap className="h-4 w-4 text-emerald-500" /></div>
+                Courses &amp; Students by Academic Level
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-4">
+              {coursesByLevelData.length > 0 ? (
+                <ResponsiveContainer width="100%" height={250}>
+                  <BarChart data={coursesByLevelData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis dataKey="name" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11 }} />
+                    <Tooltip contentStyle={{ borderRadius: "12px", border: "1px solid hsl(var(--border))" }} />
+                    <Legend />
+                    <Bar dataKey="courses" fill="hsl(var(--primary))" radius={[6, 6, 0, 0]} name="Courses" />
+                    <Bar dataKey="students" fill="#3b82f6" radius={[6, 6, 0, 0]} name="Students" />
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : chartEmptyState(GraduationCap, "No academic level data yet")}
+            </CardContent>
+          </Card>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 }
