@@ -3,8 +3,7 @@ import { AppLayout, PublicLayout } from "@/components/common/layout";
 import { NotFoundPage } from "@/components/common/not-found";
 import { LandingPage } from "@/features/landing";
 import { LoginPage } from "@/features/auth";
-import { DashboardPage } from "@/features/dashboard";
-import { InstructorDashboard } from "@/features/dashboard/instructor-dashboard";
+import { DashboardPage, InstructorDashboard } from "@/features/dashboard";
 import { CatalogPage, CourseDetailPage } from "@/features/courses";
 import { CoursePlayer } from "@/features/player";
 import { CourseBuilder } from "@/features/builder";
@@ -174,6 +173,37 @@ const certificatesRoute = createRoute({
   ),
 });
 
+// Dedicated role-specific dashboard routes (canonical URLs)
+const studentDashboardRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/student/dashboard",
+  component: () => (
+    <AppLayout>
+      <DashboardPage />
+    </AppLayout>
+  ),
+});
+
+const teacherDashboardPageRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/teacher/dashboard",
+  component: () => (
+    <AppLayout>
+      <InstructorDashboard />
+    </AppLayout>
+  ),
+});
+
+const adminDashboardRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/admin/dashboard",
+  component: () => (
+    <AppLayout>
+      <AdminPanel />
+    </AppLayout>
+  ),
+});
+
 // Teacher routes
 const teacherDashboardRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -288,17 +318,25 @@ const routeTree = rootRoute.addChildren([
   playerRoute,
   builderRoute,
   instructorRoute,
+  // Dedicated role dashboards
+  studentDashboardRoute,
+  teacherDashboardPageRoute,
+  adminDashboardRoute,
+  // Teacher routes
   teacherDashboardRoute,
   teacherStudentsRoute,
   teacherQuizBuilderRoute,
   teacherSectionsRoute,
+  // Student routes
   studentProgressRoute,
   studentAnnouncementsRoute,
+  // Admin routes
   adminRoute,
   adminUsersRoute,
   adminLevelsRoute,
   adminAnnouncementsRoute,
   adminYoutubeRoute,
+  // Account
   profileRoute,
   settingsRoute,
   certificatesRoute,

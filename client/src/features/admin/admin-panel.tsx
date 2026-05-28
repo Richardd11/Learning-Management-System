@@ -4,8 +4,10 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Shield, Users, BookOpen, TrendingUp, Ban, Megaphone, Layers,
   GraduationCap, Plus, Pencil, Trash2, Upload, Search, Filter,
-  Youtube, FileText, BarChart3, UserPlus, School,
+  Youtube, FileText, BarChart3, UserPlus, School, Activity,
+  AlertTriangle, CheckCircle2,
 } from "lucide-react";
+import { useAuthStore } from "@/stores/auth-store";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -50,24 +52,62 @@ const container = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { st
 const item = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } };
 
 export function AdminPanel() {
+  const { user } = useAuthStore();
+
   return (
-    <div className="max-w-7xl mx-auto p-6 space-y-6">
-      <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-3xl font-bold mb-2 flex items-center gap-2">
-          <Shield className="h-7 w-7 text-primary" /> Admin Panel
-        </h1>
-        <p className="text-muted-foreground">Manage your institution, users, courses, and settings</p>
+    <div className="max-w-7xl mx-auto space-y-8">
+
+      {/* ── Hero banner ────────────────────────────────────────── */}
+      <motion.div
+        initial={{ opacity: 0, y: -16 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 p-6 text-white shadow-lg"
+      >
+        <div className="relative z-10 flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <Shield className="h-5 w-5 text-white/80" />
+              <p className="text-white/70 text-sm font-medium">Admin Panel</p>
+            </div>
+            <h1 className="text-2xl md:text-3xl font-bold">
+              Welcome, {user?.firstName ?? "Admin"}!
+            </h1>
+            <p className="text-white/60 text-sm mt-1">
+              Manage your institution, users, courses, and system settings.
+            </p>
+          </div>
+          <div className="flex gap-2 flex-wrap">
+            <AdminQuickStats />
+          </div>
+        </div>
+        <div className="absolute -top-10 -right-10 w-56 h-56 rounded-full bg-white/5 pointer-events-none" />
+        <div className="absolute -bottom-8 -left-8 w-36 h-36 rounded-full bg-white/5 pointer-events-none" />
       </motion.div>
 
+      {/* ── Tabs ───────────────────────────────────────────────── */}
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3 lg:grid-cols-7 h-auto">
-          <TabsTrigger value="overview" className="gap-1"><TrendingUp className="h-4 w-4" /> Overview</TabsTrigger>
-          <TabsTrigger value="users" className="gap-1"><Users className="h-4 w-4" /> Users</TabsTrigger>
-          <TabsTrigger value="levels" className="gap-1"><Layers className="h-4 w-4" /> Levels</TabsTrigger>
-          <TabsTrigger value="courses" className="gap-1"><BookOpen className="h-4 w-4" /> Courses</TabsTrigger>
-          <TabsTrigger value="announcements" className="gap-1"><Megaphone className="h-4 w-4" /> Announce</TabsTrigger>
-          <TabsTrigger value="youtube" className="gap-1"><Youtube className="h-4 w-4" /> YouTube</TabsTrigger>
-          <TabsTrigger value="analytics" className="gap-1"><BarChart3 className="h-4 w-4" /> Analytics</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-3 lg:grid-cols-7 h-auto rounded-xl border bg-muted/40 p-1">
+          <TabsTrigger value="overview" className="gap-1 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">
+            <TrendingUp className="h-4 w-4" /> <span className="hidden sm:inline">Overview</span>
+          </TabsTrigger>
+          <TabsTrigger value="users" className="gap-1 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">
+            <Users className="h-4 w-4" /> <span className="hidden sm:inline">Users</span>
+          </TabsTrigger>
+          <TabsTrigger value="levels" className="gap-1 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">
+            <Layers className="h-4 w-4" /> <span className="hidden sm:inline">Levels</span>
+          </TabsTrigger>
+          <TabsTrigger value="courses" className="gap-1 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">
+            <BookOpen className="h-4 w-4" /> <span className="hidden sm:inline">Courses</span>
+          </TabsTrigger>
+          <TabsTrigger value="announcements" className="gap-1 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">
+            <Megaphone className="h-4 w-4" /> <span className="hidden sm:inline">Announce</span>
+          </TabsTrigger>
+          <TabsTrigger value="youtube" className="gap-1 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">
+            <Youtube className="h-4 w-4" /> <span className="hidden sm:inline">YouTube</span>
+          </TabsTrigger>
+          <TabsTrigger value="analytics" className="gap-1 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">
+            <BarChart3 className="h-4 w-4" /> <span className="hidden sm:inline">Analytics</span>
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview"><OverviewTab /></TabsContent>
@@ -82,6 +122,35 @@ export function AdminPanel() {
   );
 }
 
+// ── Admin quick stats (inline in hero) ───────────────────────────
+function AdminQuickStats() {
+  const { data: stats } = useQuery({
+    queryKey: ["adminStats"],
+    queryFn: () => api.get<ApiResponse<AdminStats>>("/admin/stats"),
+    select: (r) => r.data,
+  });
+
+  const items = [
+    { label: "Users", value: stats?.totalUsers ?? "—", icon: Users },
+    { label: "Courses", value: stats?.totalCourses ?? "—", icon: BookOpen },
+    { label: "Enrollments", value: stats?.totalEnrollments ?? "—", icon: TrendingUp },
+  ];
+
+  return (
+    <div className="flex gap-3 flex-wrap">
+      {items.map((s) => (
+        <div key={s.label} className="flex items-center gap-2 bg-white/10 rounded-xl px-3 py-2">
+          <s.icon className="h-4 w-4 text-white/70" />
+          <div>
+            <p className="text-white font-bold text-lg leading-none">{typeof s.value === "number" ? s.value.toLocaleString() : s.value}</p>
+            <p className="text-white/60 text-[10px]">{s.label}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 // ── Overview Tab ──────────────────────────────────────────────────
 function OverviewTab() {
   const { data: stats, isLoading } = useQuery({
@@ -92,8 +161,8 @@ function OverviewTab() {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => <Skeleton key={i} className="h-28" />)}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => <Skeleton key={i} className="h-28 rounded-2xl" />)}
       </div>
     );
   }
@@ -103,7 +172,7 @@ function OverviewTab() {
     { label: "Total Students", value: stats?.totalStudents ?? 0, icon: GraduationCap, color: "text-green-500" },
     { label: "Total Teachers", value: stats?.totalTeachers ?? 0, icon: School, color: "text-purple-500" },
     { label: "Total Courses", value: stats?.totalCourses ?? 0, icon: BookOpen, color: "text-orange-500" },
-    { label: "Total Enrollments", value: stats?.totalEnrollments ?? 0, icon: TrendingUp, color: "text-pink-500" },
+    { label: "Enrollments", value: stats?.totalEnrollments ?? 0, icon: TrendingUp, color: "text-pink-500" },
     { label: "Academic Levels", value: stats?.totalAcademicLevels ?? 0, icon: Layers, color: "text-cyan-500" },
     { label: "Sections", value: stats?.totalSections ?? 0, icon: GraduationCap, color: "text-indigo-500" },
     { label: "Avg Completion", value: `${stats?.averageCompletionRate ?? 0}%`, icon: BarChart3, color: "text-emerald-500" },
@@ -111,16 +180,20 @@ function OverviewTab() {
 
   return (
     <motion.div variants={container} initial="hidden" animate="show" className="space-y-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {statCards.map((stat) => (
           <motion.div key={stat.label} variants={item}>
-            <Card>
-              <CardContent className="p-6 flex items-center justify-between">
+            <Card className="rounded-2xl hover:shadow-md transition-shadow">
+              <CardContent className="p-5 flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">{stat.label}</p>
-                  <p className="text-3xl font-bold">{stat.value}</p>
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{stat.label}</p>
+                  <p className="text-3xl font-bold mt-1 tabular-nums">
+                    {typeof stat.value === "number" ? stat.value.toLocaleString() : stat.value}
+                  </p>
                 </div>
-                <stat.icon className={`h-8 w-8 ${stat.color}/60`} />
+                <div className={`p-2.5 rounded-xl bg-current/10 ${stat.color}`}>
+                  <stat.icon className={`h-5 w-5 ${stat.color}`} />
+                </div>
               </CardContent>
             </Card>
           </motion.div>
