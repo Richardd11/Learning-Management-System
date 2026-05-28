@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
-import { User, Mail, Save, Award, BookOpen, Zap, Flame } from "lucide-react";
+import { User, Mail, Save, Award, BookOpen, Zap, Flame, Settings } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -64,9 +64,32 @@ export function ProfilePage() {
 
   return (
     <div className="max-w-3xl mx-auto space-y-8">
-      <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-2xl font-bold tracking-tight mb-1">Profile & Settings</h1>
-        <p className="text-muted-foreground/80 text-base">Manage your account information</p>
+      {/* Dark hero banner */}
+      <motion.div
+        initial={{ opacity: 0, y: -18, scale: 0.985 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
+        className="relative overflow-hidden rounded-[1.75rem] bg-[linear-gradient(135deg,#0f172a_0%,#1e1b4b_52%,#111827_100%)] p-6 text-white shadow-2xl shadow-slate-950/15"
+      >
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_rgba(139,92,246,0.3)_0%,_transparent_50%),radial-gradient(ellipse_at_bottom_right,_rgba(14,165,233,0.18)_0%,_transparent_45%)] pointer-events-none" />
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+        <motion.div
+          className="absolute -right-12 -top-12 h-48 w-48 rounded-full bg-violet-400/20 blur-3xl"
+          animate={{ scale: [1, 1.1, 1], opacity: [0.5, 0.8, 0.5] }}
+          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <div className="relative z-10 flex items-center gap-4">
+          <div className="rounded-2xl bg-white/10 ring-1 ring-white/15 p-3 backdrop-blur">
+            <Settings className="h-7 w-7 text-violet-200" />
+          </div>
+          <div>
+            <div className="mb-1 inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-2.5 py-0.5 text-xs font-semibold text-white/75 backdrop-blur">
+              <User className="h-3 w-3" /> Account
+            </div>
+            <h1 className="text-2xl font-bold tracking-tight">Profile &amp; Settings</h1>
+            <p className="text-sm text-white/65 mt-0.5">Manage your personal information and preferences</p>
+          </div>
+        </div>
       </motion.div>
 
       {/* Stats Grid */}

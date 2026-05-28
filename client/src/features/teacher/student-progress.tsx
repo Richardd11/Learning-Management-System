@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Users, TrendingUp, BookOpen, Award, Search } from "lucide-react";
+import { Users, TrendingUp, BookOpen, Award, Search, GraduationCap } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
@@ -66,18 +66,31 @@ export function StudentProgressViewer() {
   return (
     <div className="max-w-6xl mx-auto space-y-8">
       {/* Hero Banner */}
-      <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
-        <Card className="rounded-3xl border-0 bg-gradient-to-br from-card via-card to-muted/35 shadow-sm">
-          <CardContent className="p-6 flex items-center gap-4">
-            <div className="rounded-2xl bg-primary/10 ring-1 ring-primary/15 p-3">
-              <Users className="h-7 w-7 text-primary" />
+      <motion.div
+        initial={{ opacity: 0, y: -18, scale: 0.985 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
+        className="relative overflow-hidden rounded-[1.75rem] bg-[linear-gradient(135deg,#0f172a_0%,#1e1b4b_52%,#111827_100%)] p-6 text-white shadow-2xl shadow-slate-950/15"
+      >
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_rgba(139,92,246,0.3)_0%,_transparent_50%),radial-gradient(ellipse_at_bottom_right,_rgba(14,165,233,0.18)_0%,_transparent_45%)] pointer-events-none" />
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+        <motion.div
+          className="absolute -right-12 -top-12 h-48 w-48 rounded-full bg-violet-400/20 blur-3xl"
+          animate={{ scale: [1, 1.1, 1], opacity: [0.5, 0.8, 0.5] }}
+          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <div className="relative z-10 flex items-center gap-4">
+          <div className="rounded-2xl bg-white/10 ring-1 ring-white/15 p-3 backdrop-blur">
+            <GraduationCap className="h-7 w-7 text-violet-200" />
+          </div>
+          <div>
+            <div className="mb-1 inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-2.5 py-0.5 text-xs font-semibold text-white/75 backdrop-blur">
+              <Users className="h-3 w-3" /> Teacher Dashboard
             </div>
-            <div>
-              <h1 className="text-2xl font-bold tracking-tight">Student Progress</h1>
-              <p className="text-sm text-muted-foreground mt-0.5">Track your students' learning progress per course</p>
-            </div>
-          </CardContent>
-        </Card>
+            <h1 className="text-2xl font-bold tracking-tight">Student Progress</h1>
+            <p className="text-sm text-white/65 mt-0.5">Track your students' learning progress per course</p>
+          </div>
+        </div>
       </motion.div>
 
       {/* Course Selector */}
