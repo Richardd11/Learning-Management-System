@@ -160,7 +160,7 @@ async function recalculateProgress(userId: string, courseId: string): Promise<vo
       data: { status: "COMPLETED", completedAt: new Date() },
     });
 
-    await certificateQueue.add("generate-certificate", { userId, courseId });
+    await certificateQueue?.add("generate-certificate", { userId, courseId });
   }
 }
 

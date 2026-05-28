@@ -4,7 +4,7 @@ import { useAuthStore } from "@/stores/auth-store";
 import type { ApiResponse, User, Role } from "@/types";
 
 export function useCurrentUser() {
-  const { setUser, setLoading } = useAuthStore();
+  const { setUser, setLoading, logout } = useAuthStore();
 
   return useQuery({
     queryKey: ["currentUser"],
@@ -20,8 +20,15 @@ export function useCurrentUser() {
           setUser(res.data.user);
           return res.data.user;
         }
+        // Unexpected: success:false without a throw
+        logout();
         return null;
-      } catch {
+      } catch (err) {
+        // "Session expired" means tokens are invalid — clear auth state silently
+        const msg = err instanceof Error ? err.message : "";
+        if (msg.includes("Session expired") || msg.includes("401")) {
+          logout();
+        }
         setLoading(false);
         return null;
       } finally {
