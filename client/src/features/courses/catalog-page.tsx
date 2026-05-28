@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { Search, Star, Filter, BookOpen } from "lucide-react";
+import { Search, Star, Filter, BookOpen, Layers } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -12,6 +12,9 @@ import { Breadcrumbs } from "@/components/common/breadcrumbs";
 import { useCourses } from "@/hooks/use-courses";
 import { useDebounce } from "@/hooks/use-debounce";
 import { formatPrice, getDifficultyColor, truncate } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/lib/api";
+import type { ApiResponse, AcademicLevel } from "@/types";
 
 const difficulties = ["all", "beginner", "intermediate", "advanced"];
 
@@ -28,13 +31,21 @@ const item = {
 export function CatalogPage() {
   const [search, setSearch] = useState("");
   const [difficulty, setDifficulty] = useState("all");
+  const [levelId, setLevelId] = useState("all");
   const [page, setPage] = useState(1);
 
   const debouncedSearch = useDebounce(search, 300);
 
+  const { data: levelsData } = useQuery({
+    queryKey: ["academicLevels"],
+    queryFn: () => api.get<ApiResponse<AcademicLevel[]>>("/levels/levels"),
+    select: (res) => res.data ?? [],
+  });
+
   const { data, isLoading } = useCourses({
     search: debouncedSearch || undefined,
     difficulty: difficulty === "all" ? undefined : difficulty,
+    academicLevelId: levelId === "all" ? undefined : levelId,
     page,
     limit: 12,
   } as Record<string, string | number>);
@@ -49,15 +60,32 @@ export function CatalogPage() {
       </motion.div>
 
       {/* Filters */}
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="flex flex-col sm:flex-row gap-4 mb-8">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search courses..."
-            value={search}
-            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-            className="pl-10"
-          />
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="flex flex-col gap-4 mb-8">
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search courses..."
+              value={search}
+              onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+              className="pl-10"
+            />
+          </div>
+          {levelsData && levelsData.length > 0 && (
+            <div className="flex items-center gap-2">
+              <Layers className="h-4 w-4 text-muted-foreground shrink-0" />
+              <select
+                className="border rounded-md px-3 py-2 text-sm h-9"
+                value={levelId}
+                onChange={(e) => { setLevelId(e.target.value); setPage(1); }}
+              >
+                <option value="all">All Levels</option>
+                {levelsData.map((l) => (
+                  <option key={l.id} value={l.id}>{l.gradeLabel}</option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
         <div className="flex gap-2 flex-wrap">
           {difficulties.map((d) => (
@@ -152,7 +180,7 @@ export function CatalogPage() {
           title="No courses found"
           description={search ? `No results for "${search}". Try different keywords or clear your filters.` : "No courses are available right now. Check back soon!"}
           actionLabel="Clear filters"
-          onAction={() => { setSearch(""); setDifficulty("all"); }}
+          onAction={() => { setSearch(""); setDifficulty("all"); setLevelId("all"); }}
         />
       )}
     </div>

@@ -1,5 +1,5 @@
 import { PrismaClient, AcademicLevelType, Semester, Role, CourseStatus, LessonContentType, QuestionType } from "@prisma/client";
-import { hash } from "bcryptjs";
+import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
@@ -13,14 +13,12 @@ async function main() {
   await prisma.certificate.deleteMany();
   await prisma.review.deleteMany();
   await prisma.announcement.deleteMany();
-  await prisma.submission.deleteMany();
   await prisma.quizAttempt.deleteMany();
   await prisma.quizQuestion.deleteMany();
   await prisma.quiz.deleteMany();
   await prisma.lessonProgress.deleteMany();
   await prisma.enrollment.deleteMany();
   await prisma.youtubeTutorial.deleteMany();
-  await prisma.flashcard.deleteMany();
   await prisma.lesson.deleteMany();
   await prisma.module.deleteMany();
   await prisma.course.deleteMany();
@@ -69,7 +67,7 @@ async function main() {
   // ── Users ────────────────────────────────────────────────────────
   console.log("Creating users...");
 
-  const passwordHash = await hash("password123", 12);
+  const passwordHash = await bcrypt.hash("password123", 12);
 
   // Admin
   const admin = await prisma.user.create({

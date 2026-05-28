@@ -1,7 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import { requireRole } from "../../middleware/auth.js";
 import { prisma } from "../../lib/prisma.js";
-import { hash } from "bcryptjs";
+import bcrypt from "bcryptjs";
 import { z } from "zod";
 
 // ── Schemas ──────────────────────────────────────────────────────
@@ -102,7 +102,7 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
         return;
       }
 
-      const passwordHash = await hash(input.password, 12);
+      const passwordHash = await bcrypt.hash(input.password, 12);
       const user = await prisma.user.create({
         data: {
           email: input.email,
@@ -159,7 +159,7 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
   app.post("/users/:userId/reset-password", { preHandler: [requireRole("ADMIN")] }, async (request, reply) => {
     const { userId } = request.params as { userId: string };
     const { newPassword } = resetPasswordSchema.parse(request.body);
-    const passwordHash = await hash(newPassword, 12);
+    const passwordHash = await bcrypt.hash(newPassword, 12);
     await prisma.user.update({ where: { id: userId }, data: { passwordHash, refreshToken: null } });
     reply.send({ success: true, message: "Password reset successfully" });
   });
@@ -178,7 +178,7 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
           continue;
         }
 
-        const passwordHash = await hash(userData.password, 12);
+        const passwordHash = await bcrypt.hash(userData.password, 12);
         await prisma.user.create({
           data: {
             email: userData.email,

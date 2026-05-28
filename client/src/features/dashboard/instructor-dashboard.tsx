@@ -201,6 +201,15 @@ function TeacherContentTab() {
           <Link to="/builder">
             <Button variant="outline" className="w-full justify-start"><Plus className="h-4 w-4 mr-2" /> Create New Course</Button>
           </Link>
+          <Link to="/teacher/quiz-builder">
+            <Button variant="outline" className="w-full justify-start"><Layers className="h-4 w-4 mr-2" /> Quiz Builder</Button>
+          </Link>
+          <Link to="/teacher/students">
+            <Button variant="outline" className="w-full justify-start"><GraduationCap className="h-4 w-4 mr-2" /> Student Progress</Button>
+          </Link>
+          <Link to="/teacher/sections">
+            <Button variant="outline" className="w-full justify-start"><Users className="h-4 w-4 mr-2" /> Manage Sections</Button>
+          </Link>
         </CardContent>
       </Card>
     </div>

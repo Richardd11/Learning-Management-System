@@ -4,8 +4,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import {
-  Plus, Trash2, GripVertical, ChevronDown, Sparkles,
-  Save, Eye, Upload, FileText,
+  Plus, Trash2, GripVertical, Sparkles,
+  Save, Upload, FileText, Youtube, AlignLeft, Video,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,10 +21,14 @@ interface BuilderModule {
   lessons: BuilderLesson[];
 }
 
+type LessonType = "TEXT" | "VIDEO" | "PDF" | "YOUTUBE";
+
 interface BuilderLesson {
   id: string;
   title: string;
   content: string;
+  contentType: LessonType;
+  contentUrl: string;
 }
 
 export function CourseBuilder() {
@@ -84,13 +88,13 @@ export function CourseBuilder() {
     setModules((prev) =>
       prev.map((m, i) =>
         i === moduleIdx
-          ? { ...m, lessons: [...m.lessons, { id: `temp-${Date.now()}`, title: "", content: "" }] }
+          ? { ...m, lessons: [...m.lessons, { id: `temp-${Date.now()}`, title: "", content: "", contentType: "TEXT" as LessonType, contentUrl: "" }] }
           : m
       )
     );
   };
 
-  const updateLesson = (moduleIdx: number, lessonIdx: number, field: "title" | "content", value: string) => {
+  const updateLesson = (moduleIdx: number, lessonIdx: number, field: keyof BuilderLesson, value: string) => {
     setModules((prev) =>
       prev.map((m, mi) =>
         mi === moduleIdx
@@ -133,9 +137,11 @@ export function CourseBuilder() {
           await createLessonMutation.mutateAsync({
             moduleId: (modRes as { data?: { id: string } }).data?.id ?? "",
             title: lesson.title,
-            content: lesson.content,
+            content: lesson.contentType === "TEXT" ? lesson.content : undefined,
+            contentType: lesson.contentType,
+            contentUrl: lesson.contentUrl || undefined,
             order: li,
-          });
+          } as Parameters<typeof createLessonMutation.mutateAsync>[0]);
         }
       }
       toast.success("Course content saved!");
@@ -284,16 +290,44 @@ export function CourseBuilder() {
                               placeholder={`Lesson ${li + 1} title`}
                               className="text-sm"
                             />
+                            <select
+                              className="border rounded-md px-2 py-1 text-xs h-8"
+                              value={lesson.contentType}
+                              onChange={(e) => updateLesson(mi, li, "contentType", e.target.value)}
+                            >
+                              <option value="TEXT">Text</option>
+                              <option value="VIDEO">Video</option>
+                              <option value="YOUTUBE">YouTube</option>
+                              <option value="PDF">PDF</option>
+                            </select>
                             <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => removeLesson(mi, li)}>
                               <Trash2 className="h-3 w-3 text-destructive" />
                             </Button>
                           </div>
-                          <textarea
-                            value={lesson.content}
-                            onChange={(e) => updateLesson(mi, li, "content", e.target.value)}
-                            placeholder="Lesson content (Markdown supported)"
-                            className="w-full min-h-[80px] border rounded-md px-3 py-2 text-sm resize-y"
-                          />
+                          {lesson.contentType === "TEXT" && (
+                            <textarea
+                              value={lesson.content}
+                              onChange={(e) => updateLesson(mi, li, "content", e.target.value)}
+                              placeholder="Lesson content (Markdown supported)"
+                              className="w-full min-h-[80px] border rounded-md px-3 py-2 text-sm resize-y"
+                            />
+                          )}
+                          {(lesson.contentType === "VIDEO" || lesson.contentType === "PDF") && (
+                            <Input
+                              value={lesson.contentUrl}
+                              onChange={(e) => updateLesson(mi, li, "contentUrl", e.target.value)}
+                              placeholder={lesson.contentType === "VIDEO" ? "Video URL (mp4, etc.)" : "PDF URL"}
+                              className="text-sm"
+                            />
+                          )}
+                          {lesson.contentType === "YOUTUBE" && (
+                            <Input
+                              value={lesson.contentUrl}
+                              onChange={(e) => updateLesson(mi, li, "contentUrl", e.target.value)}
+                              placeholder="YouTube URL (e.g. https://youtube.com/watch?v=...)"
+                              className="text-sm"
+                            />
+                          )}
                         </motion.div>
                       ))}
                       <Button variant="outline" size="sm" onClick={() => addLesson(mi)}>
