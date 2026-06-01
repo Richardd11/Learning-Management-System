@@ -4,6 +4,11 @@ export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
+      fontFamily: {
+        heading: ["Poppins", "sans-serif"],
+        body: ["Open Sans", "sans-serif"],
+        sans: ["Open Sans", "sans-serif"],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -52,10 +57,6 @@ export default {
         "accordion-up": {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
-        },
-        "count-up": {
-          from: { "--num": "0" },
-          to: { "--num": "var(--target)" },
         },
       },
       animation: {

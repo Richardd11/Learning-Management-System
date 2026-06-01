@@ -4,32 +4,28 @@
 
 @layer base {
   :root {
-    --background: 0 0% 99%;
+    --background: 210 40% 98%;
     --foreground: 222.2 84% 4.9%;
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-    --primary: 262 83% 58%;
+    --primary: 221 83% 54%;
     --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.5%;
+    --secondary: 214 32% 91%;
     --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 97%;
+    --muted: 210 40% 96%;
     --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 262 30% 96%;
-    --accent-foreground: 262 50% 28%;
+    --accent: 214 32% 95%;
+    --accent-foreground: 221 83% 40%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
     --border: 214.3 31.8% 91%;
     --input: 214.3 31.8% 91%;
-    --ring: 262 83% 58%;
+    --ring: 221 83% 54%;
     --radius: 0.75rem;
     --radius-sm: 0.5rem;
     --radius-lg: 1rem;
-    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-    --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.08);
-    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.07), 0 4px 6px -4px rgb(0 0 0 / 0.07);
   }
 
   .dark {
@@ -39,19 +35,19 @@
     --card-foreground: 210 40% 98%;
     --popover: 222.2 47% 10%;
     --popover-foreground: 210 40% 98%;
-    --primary: 263 70% 60%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 217 77% 64%;
+    --primary-foreground: 222.2 47% 8%;
     --secondary: 217.2 32.6% 16%;
     --secondary-foreground: 210 40% 98%;
     --muted: 217.2 32.6% 15%;
     --muted-foreground: 215 20.2% 65.1%;
-    --accent: 262 25% 16%;
-    --accent-foreground: 262 60% 80%;
+    --accent: 217 33% 17%;
+    --accent-foreground: 217 77% 80%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
     --border: 217.2 32.6% 19%;
     --input: 217.2 32.6% 19%;
-    --ring: 263 70% 60%;
+    --ring: 217 77% 64%;
   }
 }
 
@@ -95,11 +91,6 @@
   animation: gradient-shift 4s ease infinite;
 }
 
-.gradient-text-pink {
-  @apply bg-clip-text text-transparent;
-  background-image: linear-gradient(135deg, hsl(var(--primary)) 0%, #ec4899 50%, #f97316 100%);
-}
-
 @keyframes gradient-shift {
   0%   { background-position: 0% center; }
   50%  { background-position: 100% center; }
@@ -109,19 +100,6 @@
 /* ── Glass morphism ─────────────────────────────────────────── */
 .glass {
   @apply bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg;
-}
-
-.glass-card {
-  @apply bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-.dark .glass-card {
-  border-color: rgba(255, 255, 255, 0.08);
-}
-
-/* ── Card hover utility ─────────────────────────────────────── */
-.card-hover {
-  @apply transition-all duration-200 hover:shadow-md hover:-translate-y-0.5;
 }
 
 /* ── Skeleton shimmer ───────────────────────────────────────── */
@@ -139,16 +117,6 @@
   );
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;
-}
-
-/* ── Accordion ──────────────────────────────────────────────── */
-@keyframes accordion-down {
-  from { height: 0; }
-  to   { height: var(--radix-accordion-content-height); }
-}
-@keyframes accordion-up {
-  from { height: var(--radix-accordion-content-height); }
-  to   { height: 0; }
 }
 
 /* ── Focus ring ─────────────────────────────────────────────── */
