@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&family=Syne:wght@600;700;800&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -30,6 +32,24 @@
     --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.08);
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.07), 0 4px 6px -4px rgb(0 0 0 / 0.07);
+
+    /* ── LMS semantic accent system (HSL triplets) ── */
+    --lms-brand: 258 90% 60%;
+    --lms-brand-foreground: 0 0% 100%;
+    --lms-success: 152 72% 38%;
+    --lms-success-foreground: 0 0% 100%;
+    --lms-warning: 35 92% 48%;
+    --lms-warning-foreground: 30 50% 12%;
+    --lms-info: 205 90% 46%;
+    --lms-info-foreground: 0 0% 100%;
+    --lms-streak: 22 92% 52%;
+    --lms-streak-foreground: 0 0% 100%;
+
+    /* ── Hero surface (intentionally dark in both themes) ── */
+    --lms-hero-1: 222 47% 8%;
+    --lms-hero-2: 258 60% 17%;
+    --lms-hero-3: 222 47% 11%;
+    --lms-hero-accent: 258 90% 66%;
   }
 
   .dark {
@@ -52,6 +72,18 @@
     --border: 217.2 32.6% 19%;
     --input: 217.2 32.6% 19%;
     --ring: 263 70% 60%;
+
+    /* ── LMS semantic accents — brighter for dark surfaces ── */
+    --lms-brand: 258 92% 70%;
+    --lms-brand-foreground: 0 0% 100%;
+    --lms-success: 152 68% 48%;
+    --lms-success-foreground: 152 80% 8%;
+    --lms-warning: 38 95% 58%;
+    --lms-warning-foreground: 30 60% 10%;
+    --lms-info: 199 90% 58%;
+    --lms-info-foreground: 200 80% 8%;
+    --lms-streak: 25 95% 60%;
+    --lms-streak-foreground: 22 80% 8%;
   }
 }
 
@@ -60,7 +92,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
     font-feature-settings: "rlig" 1, "calt" 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -168,4 +200,38 @@
 @layer utilities {
   .text-balance { text-wrap: balance; }
   .tabular { font-variant-numeric: tabular-nums; }
+  .font-display { font-family: "Syne", ui-sans-serif, system-ui, sans-serif; }
+}
+
+/* ── LMS hero surface ───────────────────────────────────────── */
+.lms-hero {
+  position: relative;
+  overflow: hidden;
+  color: hsl(0 0% 100%);
+  background:
+    radial-gradient(ellipse at 82% 0%, hsl(var(--lms-hero-accent) / 0.30) 0%, transparent 44%),
+    linear-gradient(
+      135deg,
+      hsl(var(--lms-hero-1)) 0%,
+      hsl(var(--lms-hero-2)) 52%,
+      hsl(var(--lms-hero-3)) 100%
+    );
+}
+/* Subtle engineering grid overlay for hero panels */
+.lms-hero-grid::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(hsl(0 0% 100% / 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(0 0% 100% / 0.045) 1px, transparent 1px);
+  background-size: 46px 46px;
+  opacity: 0.5;
+}
+
+/* ── Accent-tinted surface (used by stat-card icon chips) ───── */
+.lms-surface {
+  background-color: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
 }

@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { ArrowUpRight, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -12,60 +13,94 @@ export const stagger = {
   show: { opacity: 1, transition: { staggerChildren: 0.07 } },
 };
 
-function iconBg(colorClass: string): string {
-  const map: Record<string, string> = {
-    "text-blue-500":    "bg-blue-500/10",
-    "text-green-500":   "bg-green-500/10",
-    "text-orange-500":  "bg-orange-500/10",
-    "text-yellow-500":  "bg-yellow-500/10",
-    "text-purple-500":  "bg-purple-500/10",
-    "text-red-500":     "bg-red-500/10",
-    "text-pink-500":    "bg-pink-500/10",
-    "text-primary":     "bg-primary/10",
-    "text-emerald-300":  "bg-emerald-400/10 ring-1 ring-emerald-300/20",
-    "text-emerald-400":  "bg-emerald-400/10 ring-1 ring-emerald-300/20",
-  };
-  return map[colorClass] ?? "bg-[#171717]";
+// ── Semantic accent system (all colors via CSS variables) ─────────
+export type Accent = "brand" | "success" | "warning" | "info" | "streak" | "primary";
+
+interface AccentTokens {
+  text: string;
+  chip: string;
+  ring: string;
+  bar: string;
 }
+
+export const ACCENTS: Record<Accent, AccentTokens> = {
+  brand: { text: "text-brand", chip: "bg-brand/10", ring: "ring-brand/25", bar: "bg-brand" },
+  success: { text: "text-success", chip: "bg-success/10", ring: "ring-success/25", bar: "bg-success" },
+  warning: { text: "text-warning", chip: "bg-warning/10", ring: "ring-warning/25", bar: "bg-warning" },
+  info: { text: "text-info", chip: "bg-info/10", ring: "ring-info/25", bar: "bg-info" },
+  streak: { text: "text-streak", chip: "bg-streak/10", ring: "ring-streak/25", bar: "bg-streak" },
+  primary: { text: "text-primary", chip: "bg-primary/10", ring: "ring-primary/25", bar: "bg-primary" },
+};
+
+// Map an accent name to a runtime CSS color (for SVG strokes / chart fills)
+export const accentVar: Record<Accent, string> = {
+  brand: "hsl(var(--lms-brand))",
+  success: "hsl(var(--lms-success))",
+  warning: "hsl(var(--lms-warning))",
+  info: "hsl(var(--lms-info))",
+  streak: "hsl(var(--lms-streak))",
+  primary: "hsl(var(--primary))",
+};
 
 interface StatsCardProps {
   label: string;
   value: string | number;
   icon: React.ComponentType<{ className?: string }>;
-  color?: string;
+  accent?: Accent;
   trend?: string;
   trendUp?: boolean;
   className?: string;
 }
 
-export function StatsCard({ label, value, icon: Icon, color = "text-emerald-300", trend, trendUp, className }: StatsCardProps) {
+export function StatsCard({
+  label,
+  value,
+  icon: Icon,
+  accent = "brand",
+  trend,
+  trendUp,
+  className,
+}: StatsCardProps) {
+  const a = ACCENTS[accent];
   return (
     <motion.div variants={fadeUp}>
-      <Card className={cn(
-        "overflow-hidden group cursor-default border-[#2f3430] bg-[#101010] text-[#f5f6f7]",
-        "shadow-[0_18px_60px_rgba(0,0,0,0.28)] transition-all duration-200 hover:-translate-y-0.5 hover:border-emerald-300/40",
-        className
-      )}>
+      <Card
+        className={cn(
+          "group relative overflow-hidden border-border/70 bg-card cursor-default",
+          "transition-all duration-200 hover:-translate-y-0.5 hover:border-border hover:shadow-lg",
+          className
+        )}
+      >
+        {/* Accent wash that intensifies on hover */}
+        <span
+          className={cn(
+            "pointer-events-none absolute inset-x-0 top-0 h-1 opacity-70 transition-opacity duration-200 group-hover:opacity-100",
+            a.bar
+          )}
+        />
         <CardContent className="p-5">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
-              <p className="truncate font-mono text-[10px] font-semibold uppercase tracking-[0.24em] text-[#8b949e]">
+              <p className="truncate text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                 {label}
               </p>
-              <p className="mt-2 text-2xl font-semibold tracking-[-0.04em] tabular">
+              <p className="mt-2 font-display text-3xl font-bold leading-none tracking-tight tabular">
                 {typeof value === "number" ? value.toLocaleString() : value}
               </p>
               {trend && (
-                <p className={cn(
-                  "text-xs mt-1.5 font-medium flex items-center gap-1",
-                  trendUp ? "text-emerald-300" : "text-[#8b949e]"
-                )}>
-                  {trendUp ? "↑" : "→"} {trend}
-                </p>
+                <span
+                  className={cn(
+                    "mt-3 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold",
+                    trendUp ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"
+                  )}
+                >
+                  {trendUp ? <ArrowUpRight className="h-3 w-3" /> : <ArrowRight className="h-3 w-3" />}
+                  {trend}
+                </span>
               )}
             </div>
-            <div className={cn("p-3 rounded-2xl shrink-0", iconBg(color))}>
-              <Icon className={cn("h-5 w-5", color)} />
+            <div className={cn("shrink-0 rounded-2xl p-3 ring-1", a.chip, a.ring)}>
+              <Icon className={cn("h-5 w-5", a.text)} />
             </div>
           </div>
         </CardContent>
@@ -87,13 +122,14 @@ export function ProgressRing({
   value,
   size = 80,
   strokeWidth = 8,
-  color = "hsl(var(--primary))",
+  color = "hsl(var(--lms-brand))",
   label,
   sublabel,
 }: ProgressRingProps) {
   const r = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * r;
-  const offset = circumference - (Math.min(100, Math.max(0, value)) / 100) * circumference;
+  const clamped = Math.min(100, Math.max(0, value));
+  const offset = circumference - (clamped / 100) * circumference;
 
   return (
     <div className="flex flex-col items-center gap-1">
@@ -122,19 +158,30 @@ export function ProgressRing({
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-sm font-bold tabular text-current">{Math.round(value)}%</span>
+          <span className="font-display text-base font-bold tabular text-current">
+            {Math.round(value)}%
+          </span>
         </div>
       </div>
-      {label && <p className="text-xs font-medium text-center">{label}</p>}
-      {sublabel && <p className="text-center text-[10px] text-[#8b949e]">{sublabel}</p>}
+      {label && <p className="text-center text-xs font-medium">{label}</p>}
+      {sublabel && <p className="text-center text-[11px] text-muted-foreground">{sublabel}</p>}
     </div>
   );
 }
 
-export function SectionHeading({ title, action }: { title: string; action?: React.ReactNode }) {
+export function SectionHeading({
+  title,
+  action,
+  accent = "brand",
+}: {
+  title: string;
+  action?: React.ReactNode;
+  accent?: Accent;
+}) {
   return (
-    <div className="flex items-center justify-between mb-4">
-      <h2 className="border-l-[3px] border-emerald-300 pl-3 font-mono text-[12px] font-semibold uppercase tracking-[0.22em] text-[#f5f6f7]">
+    <div className="mb-4 flex items-center justify-between gap-3">
+      <h2 className="flex items-center gap-3 font-display text-lg font-bold tracking-tight text-foreground">
+        <span className={cn("h-5 w-1.5 rounded-full", ACCENTS[accent].bar)} />
         {title}
       </h2>
       {action}
@@ -155,12 +202,14 @@ export function EmptyPlaceholder({
 }) {
   return (
     <div className="flex flex-col items-center justify-center py-12 text-center">
-      <div className="mx-auto mb-4 w-fit rounded-2xl border border-[#2f3430] bg-[#171717] p-5">
-        <Icon className="h-7 w-7 text-emerald-300" />
+      <div className="mx-auto mb-4 w-fit rounded-2xl border border-border bg-muted/40 p-5">
+        <Icon className="h-7 w-7 text-brand" />
       </div>
-      <p className="mb-1 text-sm font-semibold text-[#f5f6f7]">{title}</p>
+      <p className="mb-1 font-display text-sm font-bold text-foreground">{title}</p>
       {description && (
-        <p className="mx-auto mb-4 max-w-xs text-sm leading-relaxed text-[#8b949e]">{description}</p>
+        <p className="mx-auto mb-4 max-w-xs text-sm leading-relaxed text-muted-foreground">
+          {description}
+        </p>
       )}
       {action}
     </div>

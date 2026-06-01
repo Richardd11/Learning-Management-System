@@ -38,6 +38,31 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        brand: {
+          DEFAULT: "hsl(var(--lms-brand))",
+          foreground: "hsl(var(--lms-brand-foreground))",
+        },
+        success: {
+          DEFAULT: "hsl(var(--lms-success))",
+          foreground: "hsl(var(--lms-success-foreground))",
+        },
+        warning: {
+          DEFAULT: "hsl(var(--lms-warning))",
+          foreground: "hsl(var(--lms-warning-foreground))",
+        },
+        info: {
+          DEFAULT: "hsl(var(--lms-info))",
+          foreground: "hsl(var(--lms-info-foreground))",
+        },
+        streak: {
+          DEFAULT: "hsl(var(--lms-streak))",
+          foreground: "hsl(var(--lms-streak-foreground))",
+        },
+      },
+      fontFamily: {
+        sans: ['"Plus Jakarta Sans"', "ui-sans-serif", "system-ui", "sans-serif"],
+        display: ["Syne", "ui-sans-serif", "system-ui", "sans-serif"],
+        mono: ["ui-monospace", "SFMono-Regular", "Menlo", "Consolas", "monospace"],
       },
       borderRadius: {
         lg: "var(--radius)",
