@@ -199,7 +199,7 @@ const adminDashboardRoute = createRoute({
   path: "/admin/dashboard",
   component: () => (
     <AppLayout>
-      <AdminPanel />
+      <DashboardPage />
     </AppLayout>
   ),
 });

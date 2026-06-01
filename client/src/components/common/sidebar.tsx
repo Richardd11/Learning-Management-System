@@ -63,11 +63,12 @@ const navGroups: NavGroup[] = [
     label: "Administration",
     roles: ["ADMIN"],
     items: [
-      { href: "/admin", label: "Admin Panel", icon: Shield, roles: ["ADMIN"] },
+      { href: "/admin", label: "Operations", icon: Shield, roles: ["ADMIN"] },
       { href: "/admin/users", label: "User Management", icon: Users, roles: ["ADMIN"] },
       { href: "/admin/levels", label: "Academic Levels", icon: Layers, roles: ["ADMIN"] },
       { href: "/admin/announcements", label: "Announcements", icon: Megaphone, roles: ["ADMIN"] },
       { href: "/admin/youtube", label: "YouTube Tutorials", icon: Youtube, roles: ["ADMIN"] },
+      { href: "/admin/analytics", label: "Analytics", icon: BarChart3, roles: ["ADMIN"] },
       { href: "/builder", label: "Course Builder", icon: PlusCircle, roles: ["ADMIN"] },
       { href: "/courses", label: "Browse Courses", icon: BookOpen, roles: ["ADMIN"] },
     ],
