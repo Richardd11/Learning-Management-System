@@ -67,6 +67,7 @@ function adminIconBg(colorClass: string): string {
 }
 
 const PATH_TO_TAB: Record<string, string> = {
+  "/admin": "users",
   "/admin/users": "users",
   "/admin/levels": "levels",
   "/admin/courses": "courses",
@@ -76,8 +77,7 @@ const PATH_TO_TAB: Record<string, string> = {
 };
 
 const TAB_TO_PATH: Record<string, string> = {
-  overview: "/admin",
-  users: "/admin/users",
+  users: "/admin",
   levels: "/admin/levels",
   courses: "/admin/courses",
   announcements: "/admin/announcements",
@@ -90,7 +90,7 @@ export function AdminPanel() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const activeTab = PATH_TO_TAB[location.pathname] ?? "overview";
+  const activeTab = PATH_TO_TAB[location.pathname] ?? "users";
 
   function handleTabChange(tab: string) {
     const path = TAB_TO_PATH[tab] ?? "/admin";
@@ -132,10 +132,10 @@ export function AdminPanel() {
               Institution Control Center
             </motion.div>
             <h1 className="max-w-xl text-3xl md:text-4xl font-bold tracking-tight text-balance">
-              Welcome back, {user?.firstName ?? "Admin"}.
+              Admin operations
             </h1>
             <p className="mt-3 max-w-xl text-sm md:text-base text-white/68 leading-relaxed">
-              Monitor institution health, manage students and staff, publish announcements, and keep your learning ecosystem running smoothly.
+              Manage accounts, academic structure, courses, announcements, media, and analytics from one focused workspace.
             </p>
             <div className="mt-5 flex flex-wrap gap-2">
               <Badge className="border-white/15 bg-white/10 text-white hover:bg-white/15">
@@ -161,9 +161,6 @@ export function AdminPanel() {
       {/* ── Tabs ───────────────────────────────────────────────── */}
       <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
         <TabsList className="sticky top-[4.75rem] z-20 flex flex-wrap gap-1 w-full h-auto rounded-2xl bg-background/80 border border-border/70 p-1.5 shadow-sm backdrop-blur-xl">
-          <TabsTrigger value="overview" className="gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium">
-            <TrendingUp className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Overview</span>
-          </TabsTrigger>
           <TabsTrigger value="users" className="gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium">
             <Users className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Users</span>
           </TabsTrigger>
@@ -184,7 +181,6 @@ export function AdminPanel() {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview"><OverviewTab /></TabsContent>
         <TabsContent value="users"><UsersTab /></TabsContent>
         <TabsContent value="levels"><LevelsTab /></TabsContent>
         <TabsContent value="courses"><CoursesTab /></TabsContent>

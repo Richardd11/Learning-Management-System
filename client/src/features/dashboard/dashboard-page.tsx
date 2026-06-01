@@ -3,7 +3,8 @@ import { Link } from "@tanstack/react-router";
 import {
   BookOpen, Award, Flame, Zap, TrendingUp,
   GraduationCap, Megaphone, Layers, ArrowRight,
-  CheckCircle2, Bell, ChevronRight,
+  CheckCircle2, Bell, ChevronRight, Shield, Users,
+  School, Activity, BarChart3, UserPlus, Settings,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -15,13 +16,12 @@ import { useEnrollments } from "@/hooks/use-enrollment";
 import { formatDate } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
-import type { ApiResponse, UserStats, Announcement } from "@/types";
+import type { ApiResponse, UserStats, Announcement, AdminStats } from "@/types";
 import {
   StatsCard, ProgressRing, SectionHeading, EmptyPlaceholder,
   stagger, fadeUp,
 } from "@/components/dashboard/widgets";
 import { InstructorDashboard } from "./instructor-dashboard";
-import { AdminPanel } from "@/features/admin";
 
 // ── Role router ──────────────────────────────────────────────────────
 export function DashboardPage() {
@@ -29,8 +29,210 @@ export function DashboardPage() {
 
   if (!user) return <GuestHero />;
   if (user.role === "TEACHER") return <InstructorDashboard />;
-  if (user.role === "ADMIN") return <AdminPanel />;
+  if (user.role === "ADMIN") return <AdminDashboard />;
   return <StudentDashboard />;
+}
+
+// ── Admin Executive Dashboard ─────────────────────────────────────
+function AdminDashboard() {
+  const { user } = useAuthStore();
+  const { data: stats, isLoading } = useQuery({
+    queryKey: ["adminStats"],
+    queryFn: () => api.get<ApiResponse<AdminStats>>("/admin/stats"),
+    select: (res) => res.data,
+  });
+
+  const adminCount = stats ? Math.max(0, stats.totalUsers - stats.totalStudents - stats.totalTeachers) : 0;
+  const studentTeacherRatio = stats?.totalTeachers
+    ? Math.round((stats.totalStudents / stats.totalTeachers) * 10) / 10
+    : 0;
+  const activeStudentRate = stats?.totalStudents
+    ? Math.round((stats.activeStudents / stats.totalStudents) * 100)
+    : 0;
+
+  const adminMetrics = [
+    { label: "Total Users", value: stats?.totalUsers ?? 0, icon: Users, color: "text-blue-500", trend: `${stats?.activeStudents ?? 0} active students`, trendUp: true },
+    { label: "Courses", value: stats?.totalCourses ?? 0, icon: BookOpen, color: "text-orange-500", trend: `${stats?.totalEnrollments ?? 0} enrollments`, trendUp: true },
+    { label: "Completion", value: `${stats?.averageCompletionRate ?? 0}%`, icon: CheckCircle2, color: "text-emerald-400", trend: "average learner progress", trendUp: true },
+    { label: "Sections", value: stats?.totalSections ?? 0, icon: Layers, color: "text-purple-500", trend: `${stats?.totalAcademicLevels ?? 0} levels`, trendUp: false },
+  ];
+
+  const workspaces = [
+    { title: "User management", desc: "Create accounts, assign roles, and resolve access issues.", to: "/admin/users", icon: UserPlus, meta: `${stats?.totalStudents ?? 0} students` },
+    { title: "Academic structure", desc: "Maintain levels, sections, school years, and capacity.", to: "/admin/levels", icon: School, meta: `${stats?.totalSections ?? 0} sections` },
+    { title: "Course operations", desc: "Audit course ownership, status, and enrollment readiness.", to: "/admin/courses", icon: BookOpen, meta: `${stats?.totalCourses ?? 0} courses` },
+    { title: "Announcements", desc: "Publish institution-wide and course-specific notices.", to: "/admin/announcements", icon: Megaphone, meta: "Comms queue" },
+  ];
+
+  if (isLoading) {
+    return (
+      <div className="max-w-7xl mx-auto space-y-6">
+        <Skeleton className="h-56 rounded-lg" />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-32 rounded-lg" />)}
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <Skeleton className="h-80 rounded-lg" />
+          <Skeleton className="h-80 rounded-lg" />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-7xl mx-auto space-y-6">
+      <motion.div
+        initial={{ opacity: 0, y: -14 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="overflow-hidden rounded-lg border bg-card shadow-sm"
+      >
+        <div className="grid gap-0 lg:grid-cols-[1.15fr_0.85fr]">
+          <div className="border-b p-6 lg:border-b-0 lg:border-r">
+            <div className="mb-5 flex flex-wrap items-center gap-2">
+              <Badge className="rounded-md bg-primary/10 text-primary hover:bg-primary/10">
+                <Shield className="mr-1 h-3.5 w-3.5" /> Executive dashboard
+              </Badge>
+              <Badge variant="outline" className="rounded-md">
+                <Activity className="mr-1 h-3.5 w-3.5 text-emerald-500" /> Supabase connected
+              </Badge>
+            </div>
+            <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">
+              Good evening, {user?.firstName ?? "Admin"}.
+            </h1>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
+              This is the institution overview: health, adoption, activity, and the next operational areas that need attention. Detailed edits now live in the Admin Panel.
+            </p>
+            <div className="mt-6 grid grid-cols-3 gap-3">
+              {[
+                { label: "Admins", value: adminCount },
+                { label: "Student:teacher", value: studentTeacherRatio ? `${studentTeacherRatio}:1` : "0:1" },
+                { label: "Active rate", value: `${activeStudentRate}%` },
+              ].map((signal) => (
+                <div key={signal.label} className="rounded-lg border bg-muted/25 p-3">
+                  <p className="text-xl font-semibold tabular-nums">{signal.value}</p>
+                  <p className="mt-1 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">{signal.label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="p-6">
+            <div className="mb-4 flex items-center justify-between">
+              <div>
+                <h2 className="text-sm font-semibold">Operating snapshot</h2>
+                <p className="text-xs text-muted-foreground">Current platform scale</p>
+              </div>
+              <Link to="/admin/analytics">
+                <Button variant="outline" size="sm">
+                  <BarChart3 className="mr-2 h-4 w-4" /> Analytics
+                </Button>
+              </Link>
+            </div>
+            <div className="space-y-3">
+              {[
+                { label: "Students", value: stats?.totalStudents ?? 0, icon: GraduationCap },
+                { label: "Teachers", value: stats?.totalTeachers ?? 0, icon: School },
+                { label: "Enrollments", value: stats?.totalEnrollments ?? 0, icon: TrendingUp },
+              ].map((row) => (
+                <div key={row.label} className="flex items-center justify-between rounded-lg border bg-background p-3">
+                  <span className="flex items-center gap-3 text-sm font-medium">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-md bg-muted">
+                      <row.icon className="h-4 w-4 text-muted-foreground" />
+                    </span>
+                    {row.label}
+                  </span>
+                  <span className="text-lg font-semibold tabular-nums">{row.value.toLocaleString()}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </motion.div>
+
+      <motion.div variants={stagger} initial="hidden" animate="show" className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {adminMetrics.map((metric) => (
+          <StatsCard key={metric.label} {...metric} className="rounded-lg" />
+        ))}
+      </motion.div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-[0.9fr_1.1fr] gap-4">
+        <Card className="rounded-lg">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <TrendingUp className="h-4 w-4 text-primary" /> Enrollment pressure
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {stats?.enrollmentByLevel?.length ? stats.enrollmentByLevel.slice(0, 6).map((level, index) => {
+              const percentage = Math.min(100, (level.count / (stats.totalEnrollments || 1)) * 100);
+              return (
+                <div key={`${level.level}-${index}`} className="space-y-1.5">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="font-medium">{level.level}</span>
+                    <span className="text-xs font-semibold text-muted-foreground">{level.count}</span>
+                  </div>
+                  <div className="h-2 rounded-full bg-muted">
+                    <motion.div
+                      className="h-full rounded-full bg-primary"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${percentage}%` }}
+                      transition={{ duration: 0.45, ease: "easeOut" }}
+                    />
+                  </div>
+                </div>
+              );
+            }) : (
+              <EmptyPlaceholder icon={Layers} title="No enrollment data yet" />
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="rounded-lg">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Settings className="h-4 w-4 text-primary" /> Admin workspaces
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-3 sm:grid-cols-2">
+            {workspaces.map((workspace) => (
+              <Link key={workspace.title} to={workspace.to}>
+                <div className="group h-full rounded-lg border bg-background p-4 transition-colors hover:bg-accent/50">
+                  <div className="mb-4 flex items-center justify-between gap-3">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-md bg-muted">
+                      <workspace.icon className="h-5 w-5 text-primary" />
+                    </span>
+                    <Badge variant="outline" className="rounded-md text-[10px]">{workspace.meta}</Badge>
+                  </div>
+                  <h3 className="text-sm font-semibold">{workspace.title}</h3>
+                  <p className="mt-1 text-xs leading-5 text-muted-foreground">{workspace.desc}</p>
+                  <span className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-primary">
+                    Open workspace <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card className="rounded-lg">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Activity className="h-4 w-4 text-primary" /> Recent enrollment activity
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-2 md:grid-cols-2">
+          {stats?.recentEnrollments?.length ? stats.recentEnrollments.slice(0, 6).map((enrollment) => (
+            <div key={enrollment.id} className="flex items-center justify-between gap-3 rounded-lg border bg-muted/20 p-3 text-sm">
+              <span className="font-medium">{enrollment.user.firstName} {enrollment.user.lastName}</span>
+              <span className="truncate text-right text-muted-foreground">{enrollment.course.title}</span>
+            </div>
+          )) : (
+            <EmptyPlaceholder icon={Users} title="No recent enrollments" />
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
 }
 
 // ── Guest hero ────────────────────────────────────────────────────
