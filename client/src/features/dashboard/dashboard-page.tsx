@@ -3,14 +3,13 @@ import { Link } from "@tanstack/react-router";
 import {
   BookOpen, Award, Flame, Zap, TrendingUp,
   GraduationCap, Megaphone, Layers, ArrowRight,
-  CheckCircle2, Clock, Bell, ChevronRight,
+  CheckCircle2, Bell, ChevronRight,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuthStore } from "@/stores/auth-store";
 import { useEnrollments } from "@/hooks/use-enrollment";
 import { formatDate } from "@/lib/utils";
@@ -39,11 +38,11 @@ function GuestHero() {
   return (
     <div className="max-w-lg mx-auto min-h-[60vh] flex items-center justify-center">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center">
-        <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
-          <BookOpen className="h-8 w-8 text-primary" />
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-300/10">
+          <BookOpen className="h-8 w-8 text-emerald-300" />
         </div>
         <h2 className="text-2xl font-bold mb-2">Sign in to view your dashboard</h2>
-        <p className="text-muted-foreground mb-6">
+        <p className="mb-6 text-muted-foreground">
           Track your courses, streaks, and certificates — all in one place.
         </p>
         <Link to="/login">
@@ -82,7 +81,7 @@ function StudentDashboard() {
     urgent: "bg-red-500/8 border-red-500/20 border-l-[3px] border-l-red-500 text-red-700 dark:text-red-400",
     high: "bg-orange-500/8 border-orange-500/20 border-l-[3px] border-l-orange-500 text-orange-700 dark:text-orange-400",
     normal: "bg-blue-500/8 border-blue-500/20 border-l-[3px] border-l-blue-500 text-blue-700 dark:text-blue-400",
-    low: "bg-muted/50 border-border/50 border-l-[3px] border-l-muted-foreground/30 text-muted-foreground",
+    low: "bg-[#171717] border-[#2f3430] border-l-[3px] border-l-[#8b949e] text-[#bdbdbd]",
   };
 
   return (
@@ -92,46 +91,67 @@ function StudentDashboard() {
       <motion.div
         initial={{ opacity: 0, y: -16 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary/90 to-primary/80 p-6 text-primary-foreground shadow-lg"
+        className="relative overflow-hidden rounded-[28px] border border-[#2f3430] bg-[#101010] p-6 text-[#f5f6f7] shadow-[0_24px_80px_rgba(0,0,0,0.35)]"
       >
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(255,255,255,0.08)_0%,_transparent_60%)] pointer-events-none" />
-        <div className="relative z-10 flex items-start justify-between gap-4 flex-wrap">
-          <div>
-            <p className="text-primary-foreground/75 text-sm font-medium mb-1">Welcome back 👋</p>
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-              {user?.firstName} {user?.lastName}
-            </h1>
-            <div className="flex flex-wrap gap-2 mt-3">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_75%_10%,rgba(0,217,146,0.20),transparent_28%),linear-gradient(135deg,rgba(255,255,255,0.08),transparent_38%)]" />
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.035)_1px,transparent_1px)] bg-[size:46px_46px] opacity-30" />
+        <div className="relative z-10 grid gap-6 lg:grid-cols-[1.3fr_0.7fr] lg:items-stretch">
+          <div className="space-y-6">
+            <div>
+              <p className="mb-3 font-mono text-xs font-semibold uppercase tracking-[0.32em] text-emerald-300">Student command center</p>
+              <h1 className="max-w-3xl text-4xl font-normal leading-[1.02] tracking-[-0.055em] md:text-5xl">
+                Welcome back, <span className="text-emerald-300">{user?.firstName}</span>.
+              </h1>
+              <p className="mt-4 max-w-2xl text-sm leading-6 text-[#bdbdbd] md:text-base">
+                Your courses, progress signals, streaks, and announcements are organized in a terminal-native workspace.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
               {user?.academicLevel && (
-                <Badge className="bg-white/20 text-primary-foreground border-white/30 hover:bg-white/30">
-                  <Layers className="h-3 w-3 mr-1" /> {user.academicLevel.gradeLabel}
+                <Badge className="rounded-full border border-[#3d3a39] bg-[#171717] px-3 py-1 font-mono text-[11px] uppercase tracking-[0.12em] text-[#f5f6f7] hover:bg-[#1f1f1f]">
+                  <Layers className="mr-1 h-3 w-3 text-emerald-300" /> {user.academicLevel.gradeLabel}
                 </Badge>
               )}
               {user?.section && (
-                <Badge className="bg-white/20 text-primary-foreground border-white/30 hover:bg-white/30">
-                  <GraduationCap className="h-3 w-3 mr-1" /> {user.section.name}
+                <Badge className="rounded-full border border-[#3d3a39] bg-[#171717] px-3 py-1 font-mono text-[11px] uppercase tracking-[0.12em] text-[#f5f6f7] hover:bg-[#1f1f1f]">
+                  <GraduationCap className="mr-1 h-3 w-3 text-emerald-300" /> {user.section.name}
                 </Badge>
               )}
               {user?.studentIdNumber && (
-                <Badge className="bg-white/20 text-primary-foreground border-white/30 hover:bg-white/30">
+                <Badge className="rounded-full border border-emerald-300/30 bg-emerald-300/10 px-3 py-1 font-mono text-[11px] uppercase tracking-[0.12em] text-emerald-200 hover:bg-emerald-300/15">
                   ID: {user.studentIdNumber}
                 </Badge>
               )}
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <ProgressRing
-              value={avgProgress}
-              size={72}
-              strokeWidth={7}
-              color="rgba(255,255,255,0.9)"
-              label="Avg Progress"
-            />
+
+          <div className="rounded-2xl border border-[#2f3430] bg-black/35 p-4 font-mono shadow-inner">
+            <div className="mb-4 flex items-center gap-2 text-[11px] uppercase tracking-[0.22em] text-[#8b949e]">
+              <span className="h-2 w-2 rounded-full bg-emerald-300" />
+              learning telemetry
+            </div>
+            <div className="flex items-center justify-between gap-4">
+              <ProgressRing
+                value={avgProgress}
+                size={92}
+                strokeWidth={8}
+                color="#00d992"
+                label="Avg Progress"
+              />
+              <div className="space-y-3 text-right">
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.22em] text-[#8b949e]">Active courses</p>
+                  <p className="text-3xl font-semibold tracking-[-0.05em] text-[#f5f6f7] tabular">{active.length}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.22em] text-[#8b949e]">Completed</p>
+                  <p className="text-2xl font-semibold tracking-[-0.04em] text-emerald-300 tabular">{completed.length}</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-        {/* decorative blobs */}
-        <div className="absolute -top-8 -right-8 w-40 h-40 rounded-full bg-white/8 pointer-events-none" />
-        <div className="absolute -bottom-6 -left-6 w-28 h-28 rounded-full bg-white/8 pointer-events-none" />
       </motion.div>
 
       {/* ── Stats row ────────────────────────────────────────────── */}
@@ -145,25 +165,25 @@ function StudentDashboard() {
           label="Enrolled"
           value={statsLoading ? "—" : stats?.enrollments ?? 0}
           icon={BookOpen}
-          color="text-blue-500"
+          color="text-emerald-300"
         />
         <StatsCard
           label="Completed"
           value={statsLoading ? "—" : stats?.completedCourses ?? 0}
           icon={CheckCircle2}
-          color="text-green-500"
+          color="text-emerald-300"
         />
         <StatsCard
           label="Day Streak"
           value={statsLoading ? "—" : stats?.streak ?? 0}
           icon={Flame}
-          color="text-orange-500"
+          color="text-emerald-300"
         />
         <StatsCard
           label="XP Points"
           value={statsLoading ? "—" : stats?.xp ?? 0}
           icon={Zap}
-          color="text-yellow-500"
+          color="text-emerald-300"
         />
       </motion.div>
 
@@ -175,13 +195,13 @@ function StudentDashboard() {
           <SectionHeading
             title="Continue Learning"
             action={
-              <Link to="/progress" className="text-xs text-primary flex items-center gap-1 hover:underline">
+              <Link to="/progress" className="flex items-center gap-1 text-xs text-emerald-300 hover:underline">
                 View all <ArrowRight className="h-3 w-3" />
               </Link>
             }
           />
-          <Card>
-            <CardContent className="p-0 divide-y">
+          <Card className="border-[#2f3430] bg-[#101010] text-[#f5f6f7] shadow-[0_18px_60px_rgba(0,0,0,0.24)]">
+            <CardContent className="divide-y divide-[#2f3430] p-0">
               {enrollLoading ? (
                 <div className="p-4 space-y-4">
                   {[1, 2, 3].map((i) => <Skeleton key={i} className="h-20 w-full rounded-xl" />)}
@@ -191,21 +211,21 @@ function StudentDashboard() {
                   {active.slice(0, 5).map((enrollment) => (
                     <motion.div key={enrollment.id} variants={fadeUp}>
                       <Link to="/player/$slug" params={{ slug: enrollment.course?.slug ?? "" }}>
-                        <div className="flex items-center gap-4 p-4 hover:bg-accent/60 transition-colors group cursor-pointer">
-                          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary/15 to-primary/5 border border-primary/10 flex items-center justify-center shrink-0 group-hover:from-primary/25 group-hover:to-primary/10 transition-all">
-                            <BookOpen className="h-5 w-5 text-primary" />
+                        <div className="group flex cursor-pointer items-center gap-4 p-4 transition-colors hover:bg-emerald-300/5">
+                          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-emerald-300/20 bg-emerald-300/10 transition-all group-hover:bg-emerald-300/15">
+                            <BookOpen className="h-5 w-5 text-emerald-300" />
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="font-semibold truncate text-sm tracking-[-0.01em]">{enrollment.course?.title}</p>
-                            <p className="text-xs text-muted-foreground/80 truncate mt-0.5">
+                            <p className="mt-0.5 truncate text-xs text-[#8b949e]">
                               {enrollment.course?.instructor?.firstName} {enrollment.course?.instructor?.lastName}
                             </p>
                             <div className="flex items-center gap-2 mt-2">
                               <Progress value={enrollment.progress} className="flex-1 h-1.5" />
-                              <span className="text-xs font-bold text-primary shrink-0 tabular">{enrollment.progress}%</span>
+                              <span className="shrink-0 font-mono text-xs font-bold text-emerald-300 tabular">{enrollment.progress}%</span>
                             </div>
                           </div>
-                          <ChevronRight className="h-4 w-4 text-muted-foreground/50 group-hover:text-foreground group-hover:translate-x-0.5 transition-all shrink-0" />
+                          <ChevronRight className="h-4 w-4 shrink-0 text-[#8b949e] transition-all group-hover:translate-x-0.5 group-hover:text-emerald-300" />
                         </div>
                       </Link>
                     </motion.div>
@@ -228,18 +248,18 @@ function StudentDashboard() {
               <SectionHeading title={`Completed (${completed.length})`} />
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {completed.slice(0, 4).map((e) => (
-                  <Card key={e.id} className="border-green-500/20 bg-green-500/5">
+                  <Card key={e.id} className="border-emerald-300/20 bg-[#101010] text-[#f5f6f7]">
                     <CardContent className="p-3 flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center shrink-0">
-                        <Award className="h-4 w-4 text-green-600" />
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-300/10">
+                        <Award className="h-4 w-4 text-emerald-300" />
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-medium truncate">{e.course?.title}</p>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-xs text-[#8b949e]">
                           {e.completedAt ? formatDate(e.completedAt) : "Completed"}
                         </p>
                       </div>
-                      <Badge className="bg-green-600 text-white text-[10px] shrink-0">100%</Badge>
+                      <Badge className="shrink-0 bg-emerald-300 text-[10px] text-[#101010]">100%</Badge>
                     </CardContent>
                   </Card>
                 ))}
@@ -252,11 +272,11 @@ function StudentDashboard() {
         <div className="space-y-4">
 
           {/* Quick links */}
-          <Card>
-            <CardHeader className="pb-2 pt-4 px-4">
-              <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Quick Links</CardTitle>
+          <Card className="border-[#2f3430] bg-[#101010] text-[#f5f6f7] shadow-[0_18px_60px_rgba(0,0,0,0.24)]">
+            <CardHeader className="px-4 pb-2 pt-4">
+              <CardTitle className="font-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-[#8b949e]">Quick Links</CardTitle>
             </CardHeader>
-            <CardContent className="px-4 pb-4 space-y-1">
+            <CardContent className="space-y-1 px-4 pb-4">
               {[
                 { href: "/courses", icon: BookOpen, label: "Browse Courses" },
                 { href: "/progress", icon: TrendingUp, label: "My Progress" },
@@ -264,8 +284,8 @@ function StudentDashboard() {
                 { href: "/announcements", icon: Bell, label: "Announcements" },
               ].map((l) => (
                 <Link key={l.href} to={l.href}>
-                  <div className="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-accent text-sm text-muted-foreground hover:text-foreground transition-colors group">
-                    <l.icon className="h-4 w-4 group-hover:text-primary transition-colors" />
+                  <div className="group flex items-center gap-3 rounded-lg px-2 py-2 text-sm text-[#bdbdbd] transition-colors hover:bg-emerald-300/5 hover:text-[#f5f6f7]">
+                    <l.icon className="h-4 w-4 transition-colors group-hover:text-emerald-300" />
                     {l.label}
                   </div>
                 </Link>
@@ -275,13 +295,13 @@ function StudentDashboard() {
 
           {/* Announcements */}
           {announcements && announcements.length > 0 && (
-            <Card>
-              <CardHeader className="pb-2 pt-4 px-4">
+            <Card className="border-[#2f3430] bg-[#101010] text-[#f5f6f7] shadow-[0_18px_60px_rgba(0,0,0,0.24)]">
+              <CardHeader className="px-4 pb-2 pt-4">
                 <CardTitle className="flex items-center justify-between text-sm">
                   <span className="flex items-center gap-1.5">
-                    <Megaphone className="h-4 w-4 text-primary" /> Announcements
+                    <Megaphone className="h-4 w-4 text-emerald-300" /> Announcements
                   </span>
-                  <Link to="/announcements" className="text-xs text-primary hover:underline">All</Link>
+                  <Link to="/announcements" className="text-xs text-emerald-300 hover:underline">All</Link>
                 </CardTitle>
               </CardHeader>
               <CardContent className="px-4 pb-4 space-y-2">
@@ -301,9 +321,9 @@ function StudentDashboard() {
 
           {/* Study stats */}
           {stats && (
-            <Card>
-              <CardHeader className="pb-2 pt-4 px-4">
-                <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Learning Stats</CardTitle>
+            <Card className="border-[#2f3430] bg-[#101010] text-[#f5f6f7] shadow-[0_18px_60px_rgba(0,0,0,0.24)]">
+              <CardHeader className="px-4 pb-2 pt-4">
+                <CardTitle className="font-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-[#8b949e]">Learning Stats</CardTitle>
               </CardHeader>
               <CardContent className="px-4 pb-4 space-y-3">
                 {[
@@ -312,8 +332,8 @@ function StudentDashboard() {
                   { label: "Current streak", value: `${stats.streak} days`, icon: Flame, color: "text-orange-500" },
                 ].map((s) => (
                   <div key={s.label} className="flex items-center justify-between text-sm">
-                    <span className="flex items-center gap-2 text-muted-foreground">
-                      <s.icon className={`h-3.5 w-3.5 ${s.color}`} />
+                    <span className="flex items-center gap-2 text-[#8b949e]">
+                      <s.icon className="h-3.5 w-3.5 text-emerald-300" />
                       {s.label}
                     </span>
                     <span className="font-semibold">{s.value}</span>

@@ -1,11 +1,7 @@
-/**
- * Shared dashboard widgets used across Student, Instructor and Admin dashboards.
- */
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 
-// ── Animation variants ────────────────────────────────────────────
 export const fadeUp = {
   hidden: { opacity: 0, y: 16 },
   show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: "easeOut" } },
@@ -16,7 +12,6 @@ export const stagger = {
   show: { opacity: 1, transition: { staggerChildren: 0.07 } },
 };
 
-// ── Icon background helper ────────────────────────────────────────
 function iconBg(colorClass: string): string {
   const map: Record<string, string> = {
     "text-blue-500":    "bg-blue-500/10",
@@ -27,44 +22,43 @@ function iconBg(colorClass: string): string {
     "text-red-500":     "bg-red-500/10",
     "text-pink-500":    "bg-pink-500/10",
     "text-primary":     "bg-primary/10",
+    "text-emerald-300":  "bg-emerald-400/10 ring-1 ring-emerald-300/20",
+    "text-emerald-400":  "bg-emerald-400/10 ring-1 ring-emerald-300/20",
   };
-  return map[colorClass] ?? "bg-muted";
+  return map[colorClass] ?? "bg-[#171717]";
 }
 
-// ── StatsCard ─────────────────────────────────────────────────────
 interface StatsCardProps {
   label: string;
   value: string | number;
   icon: React.ComponentType<{ className?: string }>;
-  /** Tailwind color class for the icon, e.g. "text-blue-500" */
   color?: string;
-  /** Optional small trend label, e.g. "+12% this week" */
   trend?: string;
   trendUp?: boolean;
   className?: string;
 }
 
-export function StatsCard({ label, value, icon: Icon, color = "text-primary", trend, trendUp, className }: StatsCardProps) {
+export function StatsCard({ label, value, icon: Icon, color = "text-emerald-300", trend, trendUp, className }: StatsCardProps) {
   return (
     <motion.div variants={fadeUp}>
       <Card className={cn(
-        "overflow-hidden group hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-default",
-        "border-b-2 border-b-transparent hover:border-b-primary/20",
+        "overflow-hidden group cursor-default border-[#2f3430] bg-[#101010] text-[#f5f6f7]",
+        "shadow-[0_18px_60px_rgba(0,0,0,0.28)] transition-all duration-200 hover:-translate-y-0.5 hover:border-emerald-300/40",
         className
       )}>
         <CardContent className="p-5">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
-              <p className="text-xs font-semibold text-muted-foreground/80 uppercase tracking-wider truncate">
+              <p className="truncate font-mono text-[10px] font-semibold uppercase tracking-[0.24em] text-[#8b949e]">
                 {label}
               </p>
-              <p className="text-2xl font-bold mt-1.5 tabular tracking-tight">
+              <p className="mt-2 text-2xl font-semibold tracking-[-0.04em] tabular">
                 {typeof value === "number" ? value.toLocaleString() : value}
               </p>
               {trend && (
                 <p className={cn(
                   "text-xs mt-1.5 font-medium flex items-center gap-1",
-                  trendUp ? "text-green-600 dark:text-green-400" : "text-muted-foreground"
+                  trendUp ? "text-emerald-300" : "text-[#8b949e]"
                 )}>
                   {trendUp ? "↑" : "→"} {trend}
                 </p>
@@ -80,12 +74,11 @@ export function StatsCard({ label, value, icon: Icon, color = "text-primary", tr
   );
 }
 
-// ── ProgressRing (SVG circle) ─────────────────────────────────────
 interface ProgressRingProps {
-  value: number; // 0–100
+  value: number;
   size?: number;
   strokeWidth?: number;
-  color?: string; // hex or CSS color
+  color?: string;
   label?: string;
   sublabel?: string;
 }
@@ -129,20 +122,19 @@ export function ProgressRing({
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-sm font-bold tabular">{Math.round(value)}%</span>
+          <span className="text-sm font-bold tabular text-current">{Math.round(value)}%</span>
         </div>
       </div>
       {label && <p className="text-xs font-medium text-center">{label}</p>}
-      {sublabel && <p className="text-[10px] text-muted-foreground text-center">{sublabel}</p>}
+      {sublabel && <p className="text-center text-[10px] text-[#8b949e]">{sublabel}</p>}
     </div>
   );
 }
 
-// ── SectionHeading ────────────────────────────────────────────────
 export function SectionHeading({ title, action }: { title: string; action?: React.ReactNode }) {
   return (
     <div className="flex items-center justify-between mb-4">
-      <h2 className="text-[15px] font-semibold tracking-[-0.01em] text-foreground border-l-[3px] border-primary pl-3">
+      <h2 className="border-l-[3px] border-emerald-300 pl-3 font-mono text-[12px] font-semibold uppercase tracking-[0.22em] text-[#f5f6f7]">
         {title}
       </h2>
       {action}
@@ -150,7 +142,6 @@ export function SectionHeading({ title, action }: { title: string; action?: Reac
   );
 }
 
-// ── EmptyPlaceholder ──────────────────────────────────────────────
 export function EmptyPlaceholder({
   icon: Icon,
   title,
@@ -164,12 +155,12 @@ export function EmptyPlaceholder({
 }) {
   return (
     <div className="flex flex-col items-center justify-center py-12 text-center">
-      <div className="p-5 rounded-2xl bg-muted/60 border border-border/50 mx-auto w-fit mb-4">
-        <Icon className="h-7 w-7 text-muted-foreground" />
+      <div className="mx-auto mb-4 w-fit rounded-2xl border border-[#2f3430] bg-[#171717] p-5">
+        <Icon className="h-7 w-7 text-emerald-300" />
       </div>
-      <p className="font-semibold text-sm text-foreground mb-1">{title}</p>
+      <p className="mb-1 text-sm font-semibold text-[#f5f6f7]">{title}</p>
       {description && (
-        <p className="text-sm text-muted-foreground/80 mb-4 max-w-xs mx-auto leading-relaxed">{description}</p>
+        <p className="mx-auto mb-4 max-w-xs text-sm leading-relaxed text-[#8b949e]">{description}</p>
       )}
       {action}
     </div>
