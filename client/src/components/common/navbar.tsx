@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { Bell, Menu, Moon, Sun, LogOut, BookOpen } from "lucide-react";
+import { Bell, Menu, Moon, Sun, LogOut, BookOpen, Search } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuthStore } from "@/stores/auth-store";
 import { useUIStore } from "@/stores/ui-store";
@@ -17,6 +18,13 @@ export function Navbar() {
   const { theme, setTheme } = useTheme();
   const { data: unreadCount } = useNotificationCount();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const navigate = useNavigate();
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    navigate({ to: "/courses" });
+  };
 
   return (
     <>
@@ -49,12 +57,25 @@ export function Navbar() {
             </Button>
           )}
 
-          <Link to="/" className="flex items-center gap-2 mr-6">
-            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-              <BookOpen className="h-4 w-4 text-primary" />
+          <Link to="/" className="flex items-center gap-2 mr-4">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand/10 ring-1 ring-brand/20">
+              <BookOpen className="h-4 w-4 text-brand" />
             </div>
-            <span className="text-[17px] font-bold tracking-tight gradient-text hidden sm:inline">LearnHub</span>
+            <span className="hidden font-display text-[18px] font-bold tracking-tight text-foreground sm:inline">LearnHub</span>
           </Link>
+
+          {isAuthenticated && (
+            <form onSubmit={handleSearch} className="relative hidden md:block md:w-64 lg:w-80">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                type="search"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search courses..."
+                className="h-9 rounded-xl border-border/70 bg-muted/40 pl-9 text-sm transition-colors focus-visible:bg-background"
+              />
+            </form>
+          )}
 
           {!isAuthenticated && (
             <nav className="hidden md:flex items-center gap-1 ml-2">

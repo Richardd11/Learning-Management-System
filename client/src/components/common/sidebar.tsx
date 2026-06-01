@@ -10,7 +10,6 @@ import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
 import { useUIStore } from "@/stores/ui-store";
 import { useState } from "react";
-import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getInitials } from "@/lib/utils";
 import type { User } from "@/types";
@@ -98,9 +97,9 @@ export function Sidebar() {
     .filter((g) => g.items.length > 0);
 
   const roleColors: Record<string, string> = {
-    ADMIN: "bg-red-500/10 text-red-600 border-red-500/20",
-    TEACHER: "bg-purple-500/10 text-purple-600 border-purple-500/20",
-    STUDENT: "bg-blue-500/10 text-blue-600 border-blue-500/20",
+    ADMIN: "bg-destructive/10 text-destructive border-destructive/20",
+    TEACHER: "bg-brand/10 text-brand border-brand/20",
+    STUDENT: "bg-info/10 text-info border-info/20",
   };
 
   const sidebarWidth = collapsed ? 64 : 260;
@@ -266,7 +265,7 @@ function SidebarContent({
                       "relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150",
                       collapsed ? "justify-center" : "",
                       isActive
-                        ? "bg-primary/10 text-primary font-semibold shadow-[inset_0_0_0_1px_hsl(var(--primary)/0.15)]"
+                        ? "bg-brand/10 text-brand font-semibold shadow-[inset_0_0_0_1px_hsl(var(--lms-brand)/0.18)]"
                         : "text-muted-foreground hover:bg-accent/70 hover:text-foreground"
                     )}
                     title={collapsed ? navItem.label : undefined}
@@ -274,7 +273,7 @@ function SidebarContent({
                     {isActive && (
                       <motion.div
                         layoutId="sidebar-active-indicator"
-                        className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-primary rounded-r-full shadow-[0_0_6px_hsl(var(--primary)/0.5)]"
+                        className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-brand rounded-r-full shadow-[0_0_8px_hsl(var(--lms-brand)/0.6)]"
                         transition={{ type: "spring", damping: 25, stiffness: 300 }}
                       />
                     )}
@@ -310,12 +309,12 @@ function SidebarContent({
           >
             <div className="flex items-center justify-between text-xs text-muted-foreground">
               <span className="flex items-center gap-1.5">
-                <Flame className="h-3.5 w-3.5 text-orange-500" />
+                <Flame className="h-3.5 w-3.5 text-streak" />
                 <span className="font-bold text-foreground tabular">{user.streak}</span>
                 <span className="text-[11px]">streak</span>
               </span>
               <span className="flex items-center gap-1.5">
-                <Zap className="h-3.5 w-3.5 text-yellow-500" />
+                <Zap className="h-3.5 w-3.5 text-warning" />
                 <span className="font-bold text-foreground tabular">{user.xp.toLocaleString()}</span>
                 <span className="text-[11px]">XP</span>
               </span>
